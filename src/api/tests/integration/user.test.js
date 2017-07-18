@@ -25,7 +25,8 @@ async function format(user) {
 }
 
 describe('Users API', () => {
-  let accessToken;
+  let adminAccessToken;
+  let userAccessToken;
   let dbUsers;
   let user;
   let admin;
@@ -38,7 +39,7 @@ describe('Users API', () => {
         name: 'Bran Stark',
         role: 'admin',
       },
-      johnSnow: {
+      jonSnow: {
         email: 'jonsnow@gmail.com',
         password: '123456',
         name: 'Jon Snow',
@@ -59,15 +60,16 @@ describe('Users API', () => {
     };
 
     await User.remove({});
-    await User.insertMany([dbUsers.branStark, dbUsers.johnSnow]);
-    accessToken = (await User.findAndGenerateToken(dbUsers.branStark)).accessToken;
+    await User.insertMany([dbUsers.branStark, dbUsers.jonSnow]);
+    adminAccessToken = (await User.findAndGenerateToken(dbUsers.branStark)).accessToken;
+    userAccessToken = (await User.findAndGenerateToken(dbUsers.jonSnow)).accessToken;
   });
 
   describe('POST /v1/users', () => {
     it('should create a new user when request is ok', () => {
       return request(app)
         .post('/v1/users')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
         .send(admin)
         .expect(httpStatus.CREATED)
         .then((res) => {
@@ -79,7 +81,7 @@ describe('Users API', () => {
     it('should create a new user and set default role to "user"', () => {
       return request(app)
         .post('/v1/users')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
         .send(user)
         .expect(httpStatus.CREATED)
         .then((res) => {
@@ -92,7 +94,7 @@ describe('Users API', () => {
 
       return request(app)
         .post('/v1/users')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
         .send(user)
         .expect(httpStatus.CONFLICT)
         .then((res) => {
@@ -110,7 +112,7 @@ describe('Users API', () => {
 
       return request(app)
         .post('/v1/users')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
         .send(user)
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
@@ -128,7 +130,7 @@ describe('Users API', () => {
 
       return request(app)
         .post('/v1/users')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
         .send(user)
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
@@ -140,20 +142,32 @@ describe('Users API', () => {
           expect(messages).to.include('"password" length must be at least 6 characters long');
         });
     });
+
+    it('should report error when logged user is not an admin', () => {
+      return request(app)
+        .post('/v1/users')
+        .set('Authorization', `Bearer ${userAccessToken}`)
+        .send(user)
+        .expect(httpStatus.FORBIDDEN)
+        .then((res) => {
+          expect(res.body.code).to.be.equal(httpStatus.FORBIDDEN);
+          expect(res.body.message).to.be.equal('Forbidden');
+        });
+    });
   });
 
   describe('GET /v1/users', () => {
     it('should get all users', () => {
       return request(app)
         .get('/v1/users')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
         .expect(httpStatus.OK)
         .then(async (res) => {
           const bran = format(dbUsers.branStark);
-          const john = format(dbUsers.johnSnow);
+          const john = format(dbUsers.jonSnow);
 
           const includesBranStark = some(res.body, bran);
-          const includesjohnSnow = some(res.body, john);
+          const includesjonSnow = some(res.body, john);
 
           // before comparing it is necessary to convert String to Date
           res.body[0].createdAt = new Date(res.body[0].createdAt);
@@ -162,54 +176,54 @@ describe('Users API', () => {
           expect(res.body).to.be.an('array');
           expect(res.body).to.have.lengthOf(2);
           expect(includesBranStark).to.be.true;
-          expect(includesjohnSnow).to.be.true;
+          expect(includesjonSnow).to.be.true;
         });
     });
 
     it('should get all users with pagination', () => {
       return request(app)
         .get('/v1/users')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
         .query({ page: 2, perPage: 1 })
         .expect(httpStatus.OK)
         .then((res) => {
-          delete dbUsers.johnSnow.password;
-          const john = format(dbUsers.johnSnow);
-          const includesjohnSnow = some(res.body, john);
+          delete dbUsers.jonSnow.password;
+          const john = format(dbUsers.jonSnow);
+          const includesjonSnow = some(res.body, john);
 
           // before comparing it is necessary to convert String to Date
           res.body[0].createdAt = new Date(res.body[0].createdAt);
 
           expect(res.body).to.be.an('array');
           expect(res.body).to.have.lengthOf(1);
-          expect(includesjohnSnow).to.be.true;
+          expect(includesjonSnow).to.be.true;
         });
     });
 
     it('should filter users', () => {
       return request(app)
         .get('/v1/users')
-        .set('Authorization', `Bearer ${accessToken}`)
-        .query({ email: dbUsers.johnSnow.email })
+        .set('Authorization', `Bearer ${adminAccessToken}`)
+        .query({ email: dbUsers.jonSnow.email })
         .expect(httpStatus.OK)
         .then((res) => {
-          delete dbUsers.johnSnow.password;
-          const john = format(dbUsers.johnSnow);
-          const includesjohnSnow = some(res.body, john);
+          delete dbUsers.jonSnow.password;
+          const john = format(dbUsers.jonSnow);
+          const includesjonSnow = some(res.body, john);
 
           // before comparing it is necessary to convert String to Date
           res.body[0].createdAt = new Date(res.body[0].createdAt);
 
           expect(res.body).to.be.an('array');
           expect(res.body).to.have.lengthOf(1);
-          expect(includesjohnSnow).to.be.true;
+          expect(includesjonSnow).to.be.true;
         });
     });
 
-    it('should throw error when pagination\'s parameters are not a number', () => {
+    it('should report error when pagination\'s parameters are not a number', () => {
       return request(app)
         .get('/v1/users')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
         .query({ page: '?', perPage: 'whaat' })
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
@@ -230,6 +244,17 @@ describe('Users API', () => {
           expect(messages).to.include('"perPage" must be a number');
         });
     });
+
+    it('should report error if logged user is not an admin', () => {
+      return request(app)
+        .get('/v1/users')
+        .set('Authorization', `Bearer ${userAccessToken}`)
+        .expect(httpStatus.FORBIDDEN)
+        .then((res) => {
+          expect(res.body.code).to.be.equal(httpStatus.FORBIDDEN);
+          expect(res.body.message).to.be.equal('Forbidden');
+        });
+    });
   });
 
   describe('GET /v1/users/:userId', () => {
@@ -239,7 +264,7 @@ describe('Users API', () => {
 
       return request(app)
         .get(`/v1/users/${id}`)
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
         .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body).to.include(dbUsers.branStark);
@@ -249,7 +274,7 @@ describe('Users API', () => {
     it('should report error "User does not exist" when user does not exists', () => {
       return request(app)
         .get('/v1/users/56c787ccc67fc16ccc1a5e92')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
         .expect(httpStatus.NOT_FOUND)
         .then((res) => {
           expect(res.body.code).to.be.equal(404);
@@ -260,11 +285,24 @@ describe('Users API', () => {
     it('should report error "User does not exist" when id is not a valid ObjectID', () => {
       return request(app)
         .get('/v1/users/palmeiras1914')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
         .expect(httpStatus.NOT_FOUND)
         .then((res) => {
           expect(res.body.code).to.be.equal(404);
           expect(res.body.message).to.equal('User does not exist');
+        });
+    });
+
+    it('should report error when logged user is not the same as the requested one', async () => {
+      const id = (await User.findOne({ email: dbUsers.branStark.email }))._id;
+
+      return request(app)
+        .get(`/v1/users/${id}`)
+        .set('Authorization', `Bearer ${userAccessToken}`)
+        .expect(httpStatus.FORBIDDEN)
+        .then((res) => {
+          expect(res.body.code).to.be.equal(httpStatus.FORBIDDEN);
+          expect(res.body.message).to.be.equal('Forbidden');
         });
     });
   });
@@ -276,7 +314,7 @@ describe('Users API', () => {
 
       return request(app)
         .put(`/v1/users/${id}`)
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
         .send(user)
         .expect(httpStatus.OK)
         .then((res) => {
@@ -292,7 +330,7 @@ describe('Users API', () => {
 
       return request(app)
         .put(`/v1/users/${id}`)
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
         .send(user)
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
@@ -311,7 +349,7 @@ describe('Users API', () => {
 
       return request(app)
         .put(`/v1/users/${id}`)
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
         .send(user)
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
@@ -327,11 +365,38 @@ describe('Users API', () => {
     it('should report error "User does not exist" when user does not exists', () => {
       return request(app)
         .put('/v1/users/palmeiras1914')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
         .expect(httpStatus.NOT_FOUND)
         .then((res) => {
           expect(res.body.code).to.be.equal(404);
           expect(res.body.message).to.be.equal('User does not exist');
+        });
+    });
+
+    it('should report error when logged user is not the same as the requested one', async () => {
+      const id = (await User.findOne({ email: dbUsers.branStark.email }))._id;
+
+      return request(app)
+        .put(`/v1/users/${id}`)
+        .set('Authorization', `Bearer ${userAccessToken}`)
+        .expect(httpStatus.FORBIDDEN)
+        .then((res) => {
+          expect(res.body.code).to.be.equal(httpStatus.FORBIDDEN);
+          expect(res.body.message).to.be.equal('Forbidden');
+        });
+    });
+
+    it('should not replace the role of the user (not admin)', async () => {
+      const id = (await User.findOne({ email: dbUsers.jonSnow.email }))._id;
+      const role = 'admin';
+
+      return request(app)
+        .put(`/v1/users/${id}`)
+        .set('Authorization', `Bearer ${userAccessToken}`)
+        .send(admin)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body.role).to.not.be.equal(role);
         });
     });
   });
@@ -344,7 +409,7 @@ describe('Users API', () => {
 
       return request(app)
         .patch(`/v1/users/${id}`)
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
         .send({ name })
         .expect(httpStatus.OK)
         .then((res) => {
@@ -359,7 +424,7 @@ describe('Users API', () => {
 
       return request(app)
         .patch(`/v1/users/${id}`)
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
         .send()
         .expect(httpStatus.OK)
         .then((res) => {
@@ -370,11 +435,38 @@ describe('Users API', () => {
     it('should report error "User does not exist" when user does not exists', () => {
       return request(app)
         .patch('/v1/users/palmeiras1914')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
         .expect(httpStatus.NOT_FOUND)
         .then((res) => {
           expect(res.body.code).to.be.equal(404);
           expect(res.body.message).to.be.equal('User does not exist');
+        });
+    });
+
+    it('should report error when logged user is not the same as the requested one', async () => {
+      const id = (await User.findOne({ email: dbUsers.branStark.email }))._id;
+
+      return request(app)
+        .patch(`/v1/users/${id}`)
+        .set('Authorization', `Bearer ${userAccessToken}`)
+        .expect(httpStatus.FORBIDDEN)
+        .then((res) => {
+          expect(res.body.code).to.be.equal(httpStatus.FORBIDDEN);
+          expect(res.body.message).to.be.equal('Forbidden');
+        });
+    });
+
+    it('should not update the role of the user (not admin)', async () => {
+      const id = (await User.findOne({ email: dbUsers.jonSnow.email }))._id;
+      const role = 'admin';
+
+      return request(app)
+        .patch(`/v1/users/${id}`)
+        .set('Authorization', `Bearer ${userAccessToken}`)
+        .send({ role })
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body.role).to.not.be.equal(role);
         });
     });
   });
@@ -385,7 +477,7 @@ describe('Users API', () => {
 
       return request(app)
         .delete(`/v1/users/${id}`)
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
         .expect(httpStatus.NO_CONTENT)
         .then(() => request(app).get('/v1/users'))
         .then(async () => {
@@ -397,11 +489,52 @@ describe('Users API', () => {
     it('should report error "User does not exist" when user does not exists', () => {
       return request(app)
         .delete('/v1/users/palmeiras1914')
-        .set('Authorization', `Bearer ${accessToken}`)
+        .set('Authorization', `Bearer ${adminAccessToken}`)
         .expect(httpStatus.NOT_FOUND)
         .then((res) => {
           expect(res.body.code).to.be.equal(404);
           expect(res.body.message).to.be.equal('User does not exist');
+        });
+    });
+
+    it('should report error when logged user is not the same as the requested one', async () => {
+      const id = (await User.findOne({ email: dbUsers.branStark.email }))._id;
+
+      return request(app)
+        .delete(`/v1/users/${id}`)
+        .set('Authorization', `Bearer ${userAccessToken}`)
+        .expect(httpStatus.FORBIDDEN)
+        .then((res) => {
+          expect(res.body.code).to.be.equal(httpStatus.FORBIDDEN);
+          expect(res.body.message).to.be.equal('Forbidden');
+        });
+    });
+  });
+
+  describe('GET /v1/users/profile', () => {
+    it('should get the logged user\'s info', () => {
+      delete dbUsers.jonSnow.password;
+
+      return request(app)
+        .get('/v1/users/profile')
+        .set('Authorization', `Bearer ${userAccessToken}`)
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body).to.include(dbUsers.jonSnow);
+        });
+    });
+
+    it('should report error without stacktrace when accessToken is expired', () => {
+      const expiredAccessToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0OTgwODE1MTEsImlhdCI6MTQ5ODA4MDYxMSwic3ViIjoiNTk0YWUxNTdiODdlOTk0MDFjYjNlYTg5In0.406SEmkTlh_wROT1aiaal9MvdCPe1DAs70CXlb1myjs';
+
+      return request(app)
+        .get('/v1/users/profile')
+        .set('Authorization', `Bearer ${expiredAccessToken}`)
+        .expect(httpStatus.UNAUTHORIZED)
+        .then((res) => {
+          expect(res.body.code).to.be.equal(httpStatus.UNAUTHORIZED);
+          expect(res.body.message).to.be.equal('jwt expired');
+          expect(res.body).to.not.have.a.property('stack');
         });
     });
   });
