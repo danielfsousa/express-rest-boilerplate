@@ -28,6 +28,9 @@ if (config.env === 'development') {
 * @public
 */
 exports.connect = () => {
-  mongoose.connect(mongoUri, { server: { socketOptions: { keepAlive: 1 } } });
+  mongoose.connect(mongoUri, {
+    keepAlive: 1,
+    useMongoClient: true,
+  });
   return mongoose.connection;
 };

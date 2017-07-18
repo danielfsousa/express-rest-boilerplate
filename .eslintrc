@@ -13,6 +13,6 @@
     "ecmaVersion": 8
   },
   "extends": [
-    "airbnb"
+    "airbnb-base"
   ]
 }
