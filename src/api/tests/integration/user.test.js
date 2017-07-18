@@ -3,9 +3,11 @@
 const request = require('supertest');
 const httpStatus = require('http-status');
 const { expect } = require('chai');
+const sinon = require('sinon');
 const { some, omitBy, isNil } = require('lodash');
 const app = require('../../../index');
 const User = require('../../models/user.model');
+const JWT_EXPIRATION = require('../../../config/app').jwtExpirationInterval;
 
 /**
  * root level hooks
@@ -524,8 +526,13 @@ describe('Users API', () => {
         });
     });
 
-    it('should report error without stacktrace when accessToken is expired', () => {
-      const expiredAccessToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0OTgwODE1MTEsImlhdCI6MTQ5ODA4MDYxMSwic3ViIjoiNTk0YWUxNTdiODdlOTk0MDFjYjNlYTg5In0.406SEmkTlh_wROT1aiaal9MvdCPe1DAs70CXlb1myjs';
+    it('should report error without stacktrace when accessToken is expired', async () => {
+      // fake time
+      const clock = sinon.useFakeTimers();
+      const expiredAccessToken = (await User.findAndGenerateToken(dbUsers.branStark)).accessToken;
+
+      // move clock forward by minutes set in config + 1 minute
+      clock.tick((JWT_EXPIRATION * 60000) + 60000);
 
       return request(app)
         .get('/v1/users/profile')
