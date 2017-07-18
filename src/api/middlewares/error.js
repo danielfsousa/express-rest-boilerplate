@@ -10,14 +10,13 @@ const config = require('../../config');
 const handler = (err, req, res, next) => {
   const response = {
     code: err.status,
-    message: err.message,
+    message: err.message || httpStatus[err.status],
     errors: err.errors,
     stack: err.stack,
   };
 
-  if (config.env === 'production') {
+  if (config.env !== 'development') {
     delete response.stack;
-    response.message = err.isPublic ? err.message : httpStatus[err.status];
   }
 
   res.status(err.status);
