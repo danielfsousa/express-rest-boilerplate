@@ -1,0 +1,4 @@
+version: "2"
+services:
+  boilerplate-api:
+    command: yarn test

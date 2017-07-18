@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "nodemon",
+      "runtimeExecutable": "nodemon",
+      "runtimeArgs": [
+        "--inspect"
+      ],
+      "program": "${workspaceRoot}/src/index.js",
+      "restart": true,
+      "port": 9229,
+      "protocol": "inspector",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    }
+  ],
+  "compounds": []
+}
