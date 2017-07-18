@@ -67,6 +67,7 @@ describe('Users API', () => {
     it('should create a new user when request is ok', () => {
       return request(app)
         .post('/v1/users')
+        .set('Authorization', `Bearer ${accessToken}`)
         .send(admin)
         .expect(httpStatus.CREATED)
         .then((res) => {
@@ -78,6 +79,7 @@ describe('Users API', () => {
     it('should create a new user and set default role to "user"', () => {
       return request(app)
         .post('/v1/users')
+        .set('Authorization', `Bearer ${accessToken}`)
         .send(user)
         .expect(httpStatus.CREATED)
         .then((res) => {
@@ -90,6 +92,7 @@ describe('Users API', () => {
 
       return request(app)
         .post('/v1/users')
+        .set('Authorization', `Bearer ${accessToken}`)
         .send(user)
         .expect(httpStatus.CONFLICT)
         .then((res) => {
@@ -107,6 +110,7 @@ describe('Users API', () => {
 
       return request(app)
         .post('/v1/users')
+        .set('Authorization', `Bearer ${accessToken}`)
         .send(user)
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
@@ -124,6 +128,7 @@ describe('Users API', () => {
 
       return request(app)
         .post('/v1/users')
+        .set('Authorization', `Bearer ${accessToken}`)
         .send(user)
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
