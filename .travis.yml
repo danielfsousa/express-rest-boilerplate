@@ -16,6 +16,10 @@ env:
   - JWT_SECRET=bA2xcjpf8y5aSUFsNB2qN5yymUBSs6es3qHoFpGkec75RCeBb8cpKauGefw5qy4
   - JWT_EXPIRATION_MINUTES=15
 
+before_install: yarn global add greenkeeper-lockfile@1
+before_script: greenkeeper-lockfile-update
+after_script: greenkeeper-lockfile-upload
+
 # deploy:
 # - provider: script
 #   script: yarn deploy
