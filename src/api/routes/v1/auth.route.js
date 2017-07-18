@@ -91,6 +91,11 @@ router.route('/refresh-token')
 
 
 /**
+ * TODO: POST /v1/auth/reset-password
+ */
+
+
+/**
  * TODO: POST /v1/auth/facebook
  */
 

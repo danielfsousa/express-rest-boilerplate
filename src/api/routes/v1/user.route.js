@@ -36,7 +36,8 @@ router
    *
    * @apiSuccess {Object[]} users List of users.
    *
-   * @apiError (Unauthorized 401)  Unauthorized  Only authenticated Admins can access the data
+   * @apiError (Unauthorized 401)  Unauthorized  Only authenticated users can access the data
+   * @apiError (Forbidden 403)     Forbidden     Only admins can access the data
    */
   .get(authorize(ADMIN), validate(listUsers), controller.list)
   /**
@@ -60,15 +61,16 @@ router
    * @apiSuccess (Created 201) {String}  role       User's role
    * @apiSuccess (Created 201) {Date}    createdAt  Timestamp
    *
-   * @apiError (Bad Request 400)  ValidationError  Some parameters may contain invalid values
-   * @apiError (Unauthorized 401)  Unauthorized  Only authenticated Admins can create the data
+   * @apiError (Bad Request 400)   ValidationError  Some parameters may contain invalid values
+   * @apiError (Unauthorized 401)  Unauthorized     Only authenticated users can create the data
+   * @apiError (Forbidden 403)     Forbidden        Only admins can create the data
    */
   .post(authorize(ADMIN), validate(createUser), controller.create);
 
 router
   .route('/profile')
   /**
-   * @api {get} v1/profile User Profile
+   * @api {get} v1/users/profile User Profile
    * @apiDescription Get logged in user profile information
    * @apiVersion 1.0.0
    * @apiName UserProfile
@@ -105,9 +107,9 @@ router
    * @apiSuccess {String}  role       User's role
    * @apiSuccess {Date}    createdAt  Timestamp
    *
-   * @apiError (Unauthorized 401)  Unauthorized  Only authenticated User with same id
-   *                                or Admins can access the data
-   * @apiError (Not Found 404)  NotFound  User does not exist
+   * @apiError (Unauthorized 401) Unauthorized Only authenticated users can access the data
+   * @apiError (Forbidden 403)    Forbidden    Only user with same id or admins can access the data
+   * @apiError (Not Found 404)    NotFound     User does not exist
    */
   .get(authorize(LOGGED_USER), controller.get)
   /**
@@ -133,9 +135,9 @@ router
    * @apiSuccess {Date}    createdAt  Timestamp
    *
    * @apiError (Bad Request 400)  ValidationError  Some parameters may contain invalid values
-   * @apiError (Unauthorized 401)  Unauthorized  Only authenticated User with same id
-   *                                or Admins can modify the data
-   * @apiError (Not Found 404)  NotFound  User does not exist
+   * @apiError (Unauthorized 401) Unauthorized Only authenticated users can modify the data
+   * @apiError (Forbidden 403)    Forbidden    Only user with same id or admins can modify the data
+   * @apiError (Not Found 404)    NotFound     User does not exist
    */
   .put(authorize(LOGGED_USER), validate(replaceUser), controller.replace)
   /**
@@ -161,9 +163,9 @@ router
    * @apiSuccess {Date}    createdAt  Timestamp
    *
    * @apiError (Bad Request 400)  ValidationError  Some parameters may contain invalid values
-   * @apiError (Unauthorized 401)  Unauthorized  Only authenticated User with same id
-   *                                 or Admins can modify the data
-   * @apiError (Not Found 404)  NotFound  User does not exist
+   * @apiError (Unauthorized 401) Unauthorized Only authenticated users can modify the data
+   * @apiError (Forbidden 403)    Forbidden    Only user with same id or admins can modify the data
+   * @apiError (Not Found 404)    NotFound     User does not exist
    */
   .patch(authorize(LOGGED_USER), validate(updateUser), controller.update)
   /**
@@ -178,9 +180,9 @@ router
    *
    * @apiSuccess (No Content 204)  Successfully deleted
    *
-   * @apiError (Unauthorized 401)  Unauthorized  Only authenticated User with same id
-   *                                or Admins can modify the data
-   * @apiError (Not Found 404)  NotFound  User does not exist
+   * @apiError (Unauthorized 401) Unauthorized  Only authenticated users can delete the data
+   * @apiError (Forbidden 403)    Forbidden     Only user with same id or admins can delete the data
+   * @apiError (Not Found 404)    NotFound      User does not exist
    */
   .delete(authorize(LOGGED_USER), controller.remove);
 
