@@ -37,7 +37,7 @@ Clone the repo and make it yours:
 
 ```bash
 git clone --depth 1 https://github.com/danielfsousa/express-rest-es2017-boilerplate
-cd xxx
+cd express-rest-es2017-boilerplate
 rm -rf .git
 ```
 
