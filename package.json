@@ -36,7 +36,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:danielfsousa/express-rest-es7-boilerplate.git"
+    "url": "git@github.com:danielfsousa/express-rest-es2017-boilerplate.git"
   },
   "keywords": [
     "express",
