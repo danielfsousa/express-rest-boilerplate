@@ -1,6 +1,6 @@
 {
   "name": "express-rest-es2017-boilerplate",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Express boilerplate for building RESTful APIs",
   "author": "Daniel Sousa <sousa.dfs@gmail.com>",
   "main": "src/index.js",
