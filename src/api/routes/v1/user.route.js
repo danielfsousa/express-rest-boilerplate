@@ -16,6 +16,7 @@ const router = express.Router();
  */
 router.param('userId', controller.load);
 
+
 router
   .route('/')
   /**
@@ -67,6 +68,7 @@ router
    */
   .post(authorize(ADMIN), validate(createUser), controller.create);
 
+
 router
   .route('/profile')
   /**
@@ -88,6 +90,7 @@ router
    * @apiError (Unauthorized 401)  Unauthorized  Only authenticated Users can access the data
    */
   .get(authorize(), controller.loggedIn);
+
 
 router
   .route('/:userId')
@@ -185,5 +188,6 @@ router
    * @apiError (Not Found 404)    NotFound      User does not exist
    */
   .delete(authorize(LOGGED_USER), controller.remove);
+
 
 module.exports = router;
