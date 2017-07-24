@@ -159,7 +159,7 @@ Run deploy script:
 ```bash
 yarn deploy
 or
-./deploy.sh
+sh ./deploy.sh
 ```
 
 ## Inspirations
