@@ -63,9 +63,8 @@ exports.logs = {
       new winston.transports.Console({
         level: process.env.NODE_ENV === 'debug',
         handleExceptions: true,
-        json: false,
         colorize: true,
-        prettyPrint: true,
+        humanReadableUnhandledException: true,
       }),
     ],
     exitOnError: false,
