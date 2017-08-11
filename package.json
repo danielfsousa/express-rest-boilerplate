@@ -81,7 +81,7 @@
     "moment-timezone": "^0.5.13",
     "mongoose": "^4.9.7",
     "morgan": "^1.8.1",
-    "passport": "^0.3.2",
+    "passport": "^0.4.0",
     "passport-jwt": "2.2.1",
     "pm2": "^2.4.6",
     "winston": "^2.3.1"
