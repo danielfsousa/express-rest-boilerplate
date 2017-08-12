@@ -1,7 +1,7 @@
 const httpStatus = require('http-status');
 const expressValidation = require('express-validation');
 const APIError = require('../utils/APIError');
-const config = require('../../config');
+const { env } = require('../../config/vars');
 
 /**
  * Error handler. Send stacktrace only during development
@@ -15,7 +15,7 @@ const handler = (err, req, res, next) => {
     stack: err.stack,
   };
 
-  if (config.env !== 'development') {
+  if (env !== 'development') {
     delete response.stack;
   }
 
@@ -30,25 +30,24 @@ exports.handler = handler;
  * @public
  */
 exports.converter = (err, req, res, next) => {
+  let convertedError = err;
+
   if (err instanceof expressValidation.ValidationError) {
-    const error = new APIError({
-      message: 'Validation Error',
+    convertedError = new APIError({
+      message: 'Erro de Validação',
       errors: err.errors,
       status: err.status,
-      isPublic: true,
       stack: err.stack,
     });
-    handler(error, req, res);
   } else if (!(err instanceof APIError)) {
-    const error = new APIError({
+    convertedError = new APIError({
       message: err.message,
       status: err.status,
-      isPublic: err.isPublic,
       stack: err.stack,
     });
-    return handler(error, req, res);
   }
-  return handler(err, req, res);
+
+  return handler(convertedError, req, res);
 };
 
 /**

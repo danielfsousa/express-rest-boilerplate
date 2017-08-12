@@ -1,7 +1,7 @@
-const JwtStrategy = require('passport-jwt').Strategy;
-const ExtractJwt = require('passport-jwt').ExtractJwt;
+const { Strategy } = require('passport-jwt');
+const { ExtractJwt } = require('passport-jwt');
+const { jwtSecret } = require('./vars');
 const User = require('../api/models/user.model');
-const jwtSecret = require('./app').jwtSecret;
 
 const options = {
   secretOrKey: jwtSecret,
@@ -18,6 +18,4 @@ async function verify(payload, done) {
   }
 }
 
-exports.jwtStrategy = {
-  jwtStrategy: new JwtStrategy(options, verify),
-};
+module.exports = new Strategy(options, verify);
