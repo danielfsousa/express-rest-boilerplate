@@ -20,7 +20,7 @@ Boilerplate/Generator/Starter Project for building RESTful APIs and microservice
  - Tests with [mocha](https://mochajs.org), [chai](http://chaijs.com) and [sinon](http://sinonjs.org)
  - Code coverage with [istanbul](https://istanbul.js.org) and [coveralls](https://coveralls.io)
  - Git hooks with [husky](https://github.com/typicode/husky) 
- - Logging with [morgan](https://github.com/expressjs/morgan) and [winston](https://github.com/winstonjs/winston)
+ - Logging with [morgan](https://github.com/expressjs/morgan)
  - Authentication and Authorization with [passport](http://passportjs.org)
  - API documentation geratorion with [apidoc](http://apidocjs.com)
  - Continuous integration support with [travisCI](https://travis-ci.org)
@@ -107,11 +107,8 @@ yarn validate
 ## Logs
 
 ```bash
-# show all logs
-yarn logs
-
-# show error logs
-yarn logs:error
+# show logs in production
+pm2 logs
 ```
 
 ## Documentation

@@ -1,15 +1,14 @@
 const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
 const compress = require('compression');
 const methodOverride = require('method-override');
 const cors = require('cors');
 const helmet = require('helmet');
 const passport = require('passport');
-const routes = require('../api/routes/v1/index.route');
-const config = require('./index');
-const { stream } = require('../api/utils/logger');
+const routes = require('../api/routes/v1');
+const { logs } = require('./vars');
+const jwtStrategy = require('./passport');
 const error = require('../api/middlewares/error');
 
 /**
@@ -19,14 +18,11 @@ const error = require('../api/middlewares/error');
 const app = express();
 
 // request logging. dev: console | production: file
-app.use(morgan(config.logs.morgan, { stream }));
+app.use(morgan(logs));
 
 // parse body params and attache them to req.body
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// parse Cookie header and populate req.cookies
-app.use(cookieParser());
 
 // gzip compression
 app.use(compress());
@@ -43,7 +39,7 @@ app.use(cors());
 
 // enable jwt authentication
 app.use(passport.initialize());
-passport.use('jwt', config.jwtStrategy);
+passport.use('jwt', { jwtStrategy });
 
 // mount api v1 routes
 app.use('/v1', routes);
