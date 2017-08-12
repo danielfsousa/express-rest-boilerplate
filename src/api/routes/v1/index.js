@@ -5,14 +5,16 @@ const authRoutes = require('./auth.route');
 const router = express.Router();
 
 /**
- * GET /health-check (Check service health)
+ * GET v1/status
  */
-router.get('/health-check', (req, res) => res.send('OK'));
+router.get('/status', (req, res) => res.send('OK'));
 
-// mount user routes
+/**
+ * GET v1/docs
+ */
+router.use('/docs', express.static('docs'));
+
 router.use('/users', userRoutes);
-
-// mount auth routes
 router.use('/auth', authRoutes);
 
 module.exports = router;
