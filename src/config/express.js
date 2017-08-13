@@ -39,7 +39,7 @@ app.use(cors());
 
 // enable jwt authentication
 app.use(passport.initialize());
-passport.use('jwt', { jwtStrategy });
+passport.use('jwt', jwtStrategy);
 
 // mount api v1 routes
 app.use('/v1', routes);
