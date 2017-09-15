@@ -1,24 +1,17 @@
-const express = require('express');
-const morgan = require('morgan');
-const bodyParser = require('body-parser');
-const compress = require('compression');
-const methodOverride = require('method-override');
-const cors = require('cors');
-const helmet = require('helmet');
-const passport = require('passport');
-const routes = require('../api/routes/v1');
-const { logs } = require('./vars');
-const jwtStrategy = require('./passport');
-const error = require('../api/middlewares/error');
+import express from 'express';
+import bodyParser from 'body-parser';
+import compress from 'compression';
+import methodOverride from 'method-override';
+import cors from 'cors';
+import helmet from 'helmet';
+import routes from '../api/routes/index';
+import * as error from '../api/middlewares/error';
 
 /**
 * Express instance
 * @public
 */
 const app = express();
-
-// request logging. dev: console | production: file
-app.use(morgan(logs));
 
 // parse body params and attache them to req.body
 app.use(bodyParser.json());
@@ -37,9 +30,6 @@ app.use(helmet());
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors());
 
-// enable jwt authentication
-app.use(passport.initialize());
-passport.use('jwt', jwtStrategy);
 
 // mount api v1 routes
 app.use('/v1', routes);
@@ -53,4 +43,5 @@ app.use(error.notFound);
 // error handler, send stacktrace only during development
 app.use(error.handler);
 
-module.exports = app;
+export default app;
+
