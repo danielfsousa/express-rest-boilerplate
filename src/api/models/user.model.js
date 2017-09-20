@@ -4,6 +4,7 @@ const { omitBy, isNil } = require('lodash');
 const bcrypt = require('bcryptjs');
 const moment = require('moment-timezone');
 const jwt = require('jwt-simple');
+const uuidv4 = require('uuid/v4');
 const APIError = require('../utils/APIError');
 const { env, jwtSecret, jwtExpirationInterval } = require('../../config/vars');
 
@@ -207,6 +208,17 @@ userSchema.statics = {
     return error;
   },
 
+  async oAuthLogin({ service, id, email, name, picture }) {
+    const user = await this.findOne({ $or: [{ [`services.${service}`]: id }, { email }] });
+    if (user) {
+      user.services[service] = id;
+      user.name = name;
+      user.picture = picture;
+      return user.save();
+    }
+    const password = uuidv4();
+    return this.create({ services: { [service]: id }, email, password, name, picture });
+  },
 };
 
 /**

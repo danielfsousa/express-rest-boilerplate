@@ -17,6 +17,16 @@ module.exports = {
     },
   },
 
+  // TODO: oAuth validation
+  // POST /v1/auth/facebook
+  // POST /v1/auth/google
+  oAuth: {
+    body: {
+      email: Joi.string().email().required(),
+      password: Joi.string().required().max(128),
+    },
+  },
+
   // POST /v1/auth/refresh
   refresh: {
     body: {

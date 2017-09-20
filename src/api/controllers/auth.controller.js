@@ -47,6 +47,23 @@ exports.login = async (req, res, next) => {
 };
 
 /**
+ * login with an existing user or creates a new one if valid accessToken token
+ * Returns jwt token
+ * @public
+ */
+exports.oAuth = async (req, res, next) => {
+  try {
+    const { user } = req;
+    const accessToken = user.token();
+    const token = generateTokenResponse(user, accessToken);
+    const userTransformed = user.transform();
+    return res.json({ token, user: userTransformed });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+/**
  * Returns a new jwt when given a valid refresh token
  * @public
  */

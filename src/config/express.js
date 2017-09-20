@@ -8,7 +8,7 @@ const helmet = require('helmet');
 const passport = require('passport');
 const routes = require('../api/routes/v1');
 const { logs } = require('./vars');
-const jwtStrategy = require('./passport');
+const strategies = require('./passport');
 const error = require('../api/middlewares/error');
 
 /**
@@ -39,7 +39,9 @@ app.use(cors());
 
 // enable jwt authentication
 app.use(passport.initialize());
-passport.use('jwt', jwtStrategy);
+passport.use('jwt', strategies.jwt);
+passport.use('facebook', strategies.facebook);
+passport.use('google', strategies.google);
 
 // mount api v1 routes
 app.use('/v1', routes);

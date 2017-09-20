@@ -1,7 +1,13 @@
 const express = require('express');
 const validate = require('express-validation');
-const { login, register, refresh } = require('../../validations/auth.validation');
 const controller = require('../../controllers/auth.controller');
+const oAuthLogin = require('../../middlewares/auth').oAuth;
+const {
+  login,
+  register,
+  oAuth,
+  refresh,
+} = require('../../validations/auth.validation');
 
 const router = express.Router();
 
@@ -95,14 +101,51 @@ router.route('/refresh-token')
  */
 
 
+// TODO: write docs for facebook login
 /**
- * TODO: POST /v1/auth/facebook
+ * @api {post} v1/auth/refresh-token Facebook Login
+ * @apiDescription Login with facebook. Creates a new user if it does not exist 
+ * @apiVersion 1.0.0
+ * @apiName FacebookLogin
+ * @apiGroup Auth
+ * @apiPermission public
+ *
+ * @apiParam  {String}  email         User's email
+ * @apiParam  {String}  refreshToken  Facebook Login aquired when user logged in
+ *
+ * @apiSuccess {String}  tokenType     Access Token's type
+ * @apiSuccess {String}  accessToken   Authorization Token
+ * @apiSuccess {String}  refreshToken  Token to get a new accessToken after expiration time
+ * @apiSuccess {Number}  expiresIn     Access Token's expiration time in miliseconds
+ *
+ * @apiError (Bad Request 400)  ValidationError  Some parameters may contain invalid values
+ * @apiError (Unauthorized 401)  Unauthorized     Incorrect email or refreshToken
  */
+router.route('/facebook')
+  .post(validate(oAuth), oAuthLogin(), controller.oAuth);
 
-
+// TODO: write docs for google login
 /**
- * TODO: POST /v1/auth/google
+ * @api {post} v1/auth/refresh-token Google Login
+ * @apiDescription Login with google. Creates a new user if it does not exist 
+ * @apiVersion 1.0.0
+ * @apiName GoogleLogin
+ * @apiGroup Auth
+ * @apiPermission public
+ *
+ * @apiParam  {String}  email         User's email
+ * @apiParam  {String}  refreshToken  Google Login aquired when user logged in
+ *
+ * @apiSuccess {String}  tokenType     Access Token's type
+ * @apiSuccess {String}  accessToken   Authorization Token
+ * @apiSuccess {String}  refreshToken  Token to get a new accessToken after expiration time
+ * @apiSuccess {Number}  expiresIn     Access Token's expiration time in miliseconds
+ *
+ * @apiError (Bad Request 400)  ValidationError  Some parameters may contain invalid values
+ * @apiError (Unauthorized 401)  Unauthorized     Incorrect email or refreshToken
  */
+router.route('/google')
+  .post(validate(oAuth), oAuthLogin(), controller.oAuth);
 
 
 module.exports = router;
