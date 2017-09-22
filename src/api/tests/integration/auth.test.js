@@ -2,11 +2,22 @@
 const request = require('supertest');
 const httpStatus = require('http-status');
 const { expect } = require('chai');
+const sinon = require('sinon');
 const app = require('../../../index');
 const User = require('../../models/user.model');
 const RefreshToken = require('../../models/refreshToken.model');
+const authProviders = require('../../services/authProviders');
+
+const fakeOAuthRequest = () => Promise.resolve({
+  service: 'facebook',
+  id: '123',
+  name: 'user',
+  email: 'test@test.com',
+  picture: 'test.jpg',
+});
 
 describe('Authentication API', () => {
+  let sandbox;
   let dbUser;
   let user;
   let refreshToken;
@@ -32,10 +43,13 @@ describe('Authentication API', () => {
       expires: new Date(),
     };
 
+    sandbox = sinon.sandbox.create();
     await User.remove({});
     await User.create(dbUser);
     await RefreshToken.remove({});
   });
+
+  afterEach(() => sandbox.restore());
 
   describe('POST /v1/auth/register', () => {
     it('should register a new user when request is ok', () => {
@@ -155,6 +169,102 @@ describe('Authentication API', () => {
           const message = res.body.message;
           expect(code).to.be.equal(401);
           expect(message).to.be.equal('Incorrect email or password');
+        });
+    });
+  });
+
+  // TODO: Facebook tests
+
+  describe('POST /v1/auth/facebook', () => {
+    it('should create a new user and return an accessToken when user does not exist', () => {
+      sandbox.stub(authProviders, 'facebook', fakeOAuthRequest);
+      return request(app)
+        .post('/v1/auth/facebook')
+        .send({ access_token: '123' })
+        .expect(httpStatus.CREATED)
+        .then((res) => {
+          expect(res.body.token).to.have.a.property('accessToken');
+          expect(res.body.token).to.have.a.property('refreshToken');
+          expect(res.body.token).to.have.a.property('expiresIn');
+          expect(res.body.user).to.be.an('object');
+        });
+    });
+
+    it('should return an accessToken when user already exists', async () => {
+      dbUser.email = 'test@test.com';
+      await User.create(dbUser);
+      sandbox.stub(authProviders, 'facebook', fakeOAuthRequest);
+      return request(app)
+        .post('/v1/auth/facebook')
+        .send({ access_token: '123' })
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body.token).to.have.a.property('accessToken');
+          expect(res.body.token).to.have.a.property('refreshToken');
+          expect(res.body.token).to.have.a.property('expiresIn');
+          expect(res.body.user).to.be.an('object');
+        });
+    });
+
+    it('should return error when access_token is not provided', async () => {
+      return request(app)
+        .post('/v1/auth/facebook')
+        .expect(httpStatus.BAD_REQUEST)
+        .then((res) => {
+          const field = res.body.errors[0].field;
+          const location = res.body.errors[0].location;
+          const messages = res.body.errors[0].messages;
+          expect(field).to.be.equal('email');
+          expect(location).to.be.equal('body');
+          expect(messages).to.include('"access_token" is required');
+        });
+    });
+  });
+
+  // TODO: Google tests
+
+  describe('POST /v1/auth/google', () => {
+    it('should create a new user and return an accessToken when user does not exist', () => {
+      sandbox.stub(authProviders, 'google', fakeOAuthRequest);
+      return request(app)
+        .post('/v1/auth/google')
+        .send({ access_token: '123' })
+        .expect(httpStatus.CREATED)
+        .then((res) => {
+          expect(res.body.token).to.have.a.property('accessToken');
+          expect(res.body.token).to.have.a.property('refreshToken');
+          expect(res.body.token).to.have.a.property('expiresIn');
+          expect(res.body.user).to.be.an('object');
+        });
+    });
+
+    it('should return an accessToken when user already exists', async () => {
+      dbUser.email = 'test@test.com';
+      await User.create(dbUser);
+      sandbox.stub(authProviders, 'google', fakeOAuthRequest);
+      return request(app)
+        .post('/v1/auth/google')
+        .send({ access_token: '123' })
+        .expect(httpStatus.OK)
+        .then((res) => {
+          expect(res.body.token).to.have.a.property('accessToken');
+          expect(res.body.token).to.have.a.property('refreshToken');
+          expect(res.body.token).to.have.a.property('expiresIn');
+          expect(res.body.user).to.be.an('object');
+        });
+    });
+
+    it('should return error when access_token is not provided', async () => {
+      return request(app)
+        .post('/v1/auth/google')
+        .expect(httpStatus.BAD_REQUEST)
+        .then((res) => {
+          const field = res.body.errors[0].field;
+          const location = res.body.errors[0].location;
+          const messages = res.body.errors[0].messages;
+          expect(field).to.be.equal('email');
+          expect(location).to.be.equal('body');
+          expect(messages).to.include('"access_token" is required');
         });
     });
   });

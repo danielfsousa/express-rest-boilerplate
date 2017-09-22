@@ -212,8 +212,8 @@ userSchema.statics = {
     const user = await this.findOne({ $or: [{ [`services.${service}`]: id }, { email }] });
     if (user) {
       user.services[service] = id;
-      user.name = name;
-      user.picture = picture;
+      if (!user.name) user.name = name;
+      if (!user.picture) user.picture = picture;
       return user.save();
     }
     const password = uuidv4();

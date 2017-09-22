@@ -101,7 +101,6 @@ router.route('/refresh-token')
  */
 
 
-// TODO: write docs for facebook login
 /**
  * @api {post} v1/auth/refresh-token Facebook Login
  * @apiDescription Login with facebook. Creates a new user if it does not exist 
@@ -110,8 +109,7 @@ router.route('/refresh-token')
  * @apiGroup Auth
  * @apiPermission public
  *
- * @apiParam  {String}  email         User's email
- * @apiParam  {String}  refreshToken  Facebook Login aquired when user logged in
+ * @apiParam  {String}  access_token  Facebook's access_token
  *
  * @apiSuccess {String}  tokenType     Access Token's type
  * @apiSuccess {String}  accessToken   Authorization Token
@@ -119,12 +117,11 @@ router.route('/refresh-token')
  * @apiSuccess {Number}  expiresIn     Access Token's expiration time in miliseconds
  *
  * @apiError (Bad Request 400)  ValidationError  Some parameters may contain invalid values
- * @apiError (Unauthorized 401)  Unauthorized     Incorrect email or refreshToken
+ * @apiError (Unauthorized 401)  Unauthorized    Incorrect access_token
  */
 router.route('/facebook')
   .post(validate(oAuth), oAuthLogin(), controller.oAuth);
 
-// TODO: write docs for google login
 /**
  * @api {post} v1/auth/refresh-token Google Login
  * @apiDescription Login with google. Creates a new user if it does not exist 
@@ -133,8 +130,7 @@ router.route('/facebook')
  * @apiGroup Auth
  * @apiPermission public
  *
- * @apiParam  {String}  email         User's email
- * @apiParam  {String}  refreshToken  Google Login aquired when user logged in
+ * @apiParam  {String}  access_token  Google's access_token
  *
  * @apiSuccess {String}  tokenType     Access Token's type
  * @apiSuccess {String}  accessToken   Authorization Token
@@ -142,7 +138,7 @@ router.route('/facebook')
  * @apiSuccess {Number}  expiresIn     Access Token's expiration time in miliseconds
  *
  * @apiError (Bad Request 400)  ValidationError  Some parameters may contain invalid values
- * @apiError (Unauthorized 401)  Unauthorized     Incorrect email or refreshToken
+ * @apiError (Unauthorized 401)  Unauthorized    Incorrect access_token
  */
 router.route('/google')
   .post(validate(oAuth), oAuthLogin(), controller.oAuth);

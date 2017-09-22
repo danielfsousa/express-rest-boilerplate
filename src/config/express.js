@@ -37,11 +37,11 @@ app.use(helmet());
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors());
 
-// enable jwt authentication
+// enable authentication
 app.use(passport.initialize());
-passport.use('jwt', strategies.jwt);
-passport.use('facebook', strategies.facebook);
-passport.use('google', strategies.google);
+passport.use('jwt', strategies.jwtOptions);
+passport.use('facebook', strategies.jwtOptions);
+passport.use('google', strategies.jwtOptions);
 
 // mount api v1 routes
 app.use('/v1', routes);
