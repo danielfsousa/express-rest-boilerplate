@@ -17,16 +17,12 @@ module.exports = {
     },
   },
 
-  // TODO: test
   // POST /v1/auth/facebook
   // POST /v1/auth/google
   oAuth: {
-    // header: {
-    //   Authorization: Joi.string().required(),
-    // },
-    // body: {
-    //   access_token: Joi.string().required(),
-    // }
+    body: {
+      access_token: Joi.string().required(),
+    },
   },
 
   // POST /v1/auth/refresh

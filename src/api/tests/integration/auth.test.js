@@ -8,6 +8,8 @@ const User = require('../../models/user.model');
 const RefreshToken = require('../../models/refreshToken.model');
 const authProviders = require('../../services/authProviders');
 
+const sandbox = sinon.createSandbox();
+
 const fakeOAuthRequest = () => Promise.resolve({
   service: 'facebook',
   id: '123',
@@ -17,7 +19,6 @@ const fakeOAuthRequest = () => Promise.resolve({
 });
 
 describe('Authentication API', () => {
-  let sandbox;
   let dbUser;
   let user;
   let refreshToken;
@@ -43,7 +44,6 @@ describe('Authentication API', () => {
       expires: new Date(),
     };
 
-    sandbox = sinon.sandbox.create();
     await User.remove({});
     await User.create(dbUser);
     await RefreshToken.remove({});
@@ -173,15 +173,13 @@ describe('Authentication API', () => {
     });
   });
 
-  // TODO: Facebook tests
-
   describe('POST /v1/auth/facebook', () => {
     it('should create a new user and return an accessToken when user does not exist', () => {
-      sandbox.stub(authProviders, 'facebook', fakeOAuthRequest);
+      sandbox.stub(authProviders, 'facebook').callsFake(fakeOAuthRequest);
       return request(app)
         .post('/v1/auth/facebook')
         .send({ access_token: '123' })
-        .expect(httpStatus.CREATED)
+        .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.token).to.have.a.property('accessToken');
           expect(res.body.token).to.have.a.property('refreshToken');
@@ -193,7 +191,7 @@ describe('Authentication API', () => {
     it('should return an accessToken when user already exists', async () => {
       dbUser.email = 'test@test.com';
       await User.create(dbUser);
-      sandbox.stub(authProviders, 'facebook', fakeOAuthRequest);
+      sandbox.stub(authProviders, 'facebook').callsFake(fakeOAuthRequest);
       return request(app)
         .post('/v1/auth/facebook')
         .send({ access_token: '123' })
@@ -214,22 +212,20 @@ describe('Authentication API', () => {
           const field = res.body.errors[0].field;
           const location = res.body.errors[0].location;
           const messages = res.body.errors[0].messages;
-          expect(field).to.be.equal('email');
+          expect(field).to.be.equal('access_token');
           expect(location).to.be.equal('body');
           expect(messages).to.include('"access_token" is required');
         });
     });
   });
 
-  // TODO: Google tests
-
   describe('POST /v1/auth/google', () => {
     it('should create a new user and return an accessToken when user does not exist', () => {
-      sandbox.stub(authProviders, 'google', fakeOAuthRequest);
+      sandbox.stub(authProviders, 'google').callsFake(fakeOAuthRequest);
       return request(app)
         .post('/v1/auth/google')
         .send({ access_token: '123' })
-        .expect(httpStatus.CREATED)
+        .expect(httpStatus.OK)
         .then((res) => {
           expect(res.body.token).to.have.a.property('accessToken');
           expect(res.body.token).to.have.a.property('refreshToken');
@@ -241,7 +237,7 @@ describe('Authentication API', () => {
     it('should return an accessToken when user already exists', async () => {
       dbUser.email = 'test@test.com';
       await User.create(dbUser);
-      sandbox.stub(authProviders, 'google', fakeOAuthRequest);
+      sandbox.stub(authProviders, 'google').callsFake(fakeOAuthRequest);
       return request(app)
         .post('/v1/auth/google')
         .send({ access_token: '123' })
@@ -262,7 +258,7 @@ describe('Authentication API', () => {
           const field = res.body.errors[0].field;
           const location = res.body.errors[0].location;
           const messages = res.body.errors[0].messages;
-          expect(field).to.be.equal('email');
+          expect(field).to.be.equal('access_token');
           expect(location).to.be.equal('body');
           expect(messages).to.include('"access_token" is required');
         });

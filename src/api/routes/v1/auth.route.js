@@ -120,7 +120,7 @@ router.route('/refresh-token')
  * @apiError (Unauthorized 401)  Unauthorized    Incorrect access_token
  */
 router.route('/facebook')
-  .post(validate(oAuth), oAuthLogin(), controller.oAuth);
+  .post(validate(oAuth), oAuthLogin('facebook'), controller.oAuth);
 
 /**
  * @api {post} v1/auth/refresh-token Google Login
@@ -134,14 +134,14 @@ router.route('/facebook')
  *
  * @apiSuccess {String}  tokenType     Access Token's type
  * @apiSuccess {String}  accessToken   Authorization Token
- * @apiSuccess {String}  refreshToken  Token to get a new accessToken after expiration time
+ * @apiSuccess {String}  refreshToken  Token to get a new accpessToken after expiration time
  * @apiSuccess {Number}  expiresIn     Access Token's expiration time in miliseconds
  *
  * @apiError (Bad Request 400)  ValidationError  Some parameters may contain invalid values
  * @apiError (Unauthorized 401)  Unauthorized    Incorrect access_token
  */
 router.route('/google')
-  .post(validate(oAuth), oAuthLogin(), controller.oAuth);
+  .post(validate(oAuth), oAuthLogin('google'), controller.oAuth);
 
 
 module.exports = router;
