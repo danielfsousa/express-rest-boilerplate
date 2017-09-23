@@ -1,4 +1,13 @@
 
+1.2.0 / 2017-09-23
+==================
+
+  * Finish social authentication
+  * WIP: Add Bearer auth strategy and create tests
+  * WIP: Implementing social login
+  * Merge pull request #7 from danielfsousa/greenkeeper/passport-jwt-3.0.0
+  * fix(package): update passport-jwt to version 3.0.0
+
 1.1.0 / 2017-08-12
 ==================
 
