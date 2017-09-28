@@ -90,7 +90,7 @@
     "apidoc": "^0.17.5",
     "chai": "^4.1.0",
     "chai-as-promised": "^7.1.1",
-    "coveralls": "^2.13.1",
+    "coveralls": "^3.0.0",
     "eslint": "^4.2.0",
     "eslint-config-airbnb-base": "^11.2.0",
     "eslint-plugin-import": "^2.2.0",
