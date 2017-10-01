@@ -101,7 +101,7 @@ userSchema.method({
   },
 
   async passwordMatches(password) {
-    return await bcrypt.compare(password, this.password); // eslint-disable-line no-return-await
+    return bcrypt.compare(password, this.password);
   },
 });
 
