@@ -72,9 +72,9 @@ describe('Authentication API', () => {
         .send(dbUser)
         .expect(httpStatus.CONFLICT)
         .then((res) => {
-          const field = res.body.errors[0].field;
-          const location = res.body.errors[0].location;
-          const messages = res.body.errors[0].messages;
+          const { field } = res.body.errors[0];
+          const { location } = res.body.errors[0];
+          const { messages } = res.body.errors[0];
           expect(field).to.be.equal('email');
           expect(location).to.be.equal('body');
           expect(messages).to.include('"email" already exists');
@@ -88,9 +88,9 @@ describe('Authentication API', () => {
         .send(user)
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
-          const field = res.body.errors[0].field;
-          const location = res.body.errors[0].location;
-          const messages = res.body.errors[0].messages;
+          const { field } = res.body.errors[0];
+          const { location } = res.body.errors[0];
+          const { messages } = res.body.errors[0];
           expect(field).to.be.equal('email');
           expect(location).to.be.equal('body');
           expect(messages).to.include('"email" must be a valid email');
@@ -103,9 +103,9 @@ describe('Authentication API', () => {
         .send({})
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
-          const field = res.body.errors[0].field;
-          const location = res.body.errors[0].location;
-          const messages = res.body.errors[0].messages;
+          const { field } = res.body.errors[0];
+          const { location } = res.body.errors[0];
+          const { messages } = res.body.errors[0];
           expect(field).to.be.equal('email');
           expect(location).to.be.equal('body');
           expect(messages).to.include('"email" is required');
@@ -134,9 +134,9 @@ describe('Authentication API', () => {
         .send({})
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
-          const field = res.body.errors[0].field;
-          const location = res.body.errors[0].location;
-          const messages = res.body.errors[0].messages;
+          const { field } = res.body.errors[0];
+          const { location } = res.body.errors[0];
+          const { messages } = res.body.errors[0];
           expect(field).to.be.equal('email');
           expect(location).to.be.equal('body');
           expect(messages).to.include('"email" is required');
@@ -150,9 +150,9 @@ describe('Authentication API', () => {
         .send(user)
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
-          const field = res.body.errors[0].field;
-          const location = res.body.errors[0].location;
-          const messages = res.body.errors[0].messages;
+          const { field } = res.body.errors[0];
+          const { location } = res.body.errors[0];
+          const { messages } = res.body.errors[0];
           expect(field).to.be.equal('email');
           expect(location).to.be.equal('body');
           expect(messages).to.include('"email" must be a valid email');
@@ -160,14 +160,14 @@ describe('Authentication API', () => {
     });
 
     it('should report error when email and password don\'t match', () => {
-      dbUser.password = 'xxx'
+      dbUser.password = 'xxx';
       return request(app)
         .post('/v1/auth/login')
         .send(dbUser)
         .expect(httpStatus.UNAUTHORIZED)
         .then((res) => {
-          const code = res.body.code;
-          const message = res.body.message;
+          const { code } = res.body;
+          const { message } = res.body;
           expect(code).to.be.equal(401);
           expect(message).to.be.equal('Incorrect email or password');
         });
@@ -210,9 +210,9 @@ describe('Authentication API', () => {
         .post('/v1/auth/facebook')
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
-          const field = res.body.errors[0].field;
-          const location = res.body.errors[0].location;
-          const messages = res.body.errors[0].messages;
+          const { field } = res.body.errors[0];
+          const { location } = res.body.errors[0];
+          const { messages } = res.body.errors[0];
           expect(field).to.be.equal('access_token');
           expect(location).to.be.equal('body');
           expect(messages).to.include('"access_token" is required');
@@ -256,9 +256,9 @@ describe('Authentication API', () => {
         .post('/v1/auth/google')
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
-          const field = res.body.errors[0].field;
-          const location = res.body.errors[0].location;
-          const messages = res.body.errors[0].messages;
+          const { field } = res.body.errors[0];
+          const { location } = res.body.errors[0];
+          const { messages } = res.body.errors[0];
           expect(field).to.be.equal('access_token');
           expect(location).to.be.equal('body');
           expect(messages).to.include('"access_token" is required');
@@ -287,8 +287,8 @@ describe('Authentication API', () => {
         .send({ email: user.email, refreshToken: refreshToken.token })
         .expect(httpStatus.UNAUTHORIZED)
         .then((res) => {
-          const code = res.body.code;
-          const message = res.body.message;
+          const { code } = res.body;
+          const { message } = res.body;
           expect(code).to.be.equal(401);
           expect(message).to.be.equal('Incorrect email or refreshToken');
         });

@@ -103,7 +103,7 @@ router.route('/refresh-token')
 
 /**
  * @api {post} v1/auth/refresh-token Facebook Login
- * @apiDescription Login with facebook. Creates a new user if it does not exist 
+ * @apiDescription Login with facebook. Creates a new user if it does not exist
  * @apiVersion 1.0.0
  * @apiName FacebookLogin
  * @apiGroup Auth
@@ -124,7 +124,7 @@ router.route('/facebook')
 
 /**
  * @api {post} v1/auth/refresh-token Google Login
- * @apiDescription Login with google. Creates a new user if it does not exist 
+ * @apiDescription Login with google. Creates a new user if it does not exist
  * @apiVersion 1.0.0
  * @apiName GoogleLogin
  * @apiGroup Auth

@@ -34,8 +34,8 @@ describe('Users API', async () => {
   let user;
   let admin;
 
-  const password = '123456'
-  const passwordHashed = await bcrypt.hash(password, 1)
+  const password = '123456';
+  const passwordHashed = await bcrypt.hash(password, 1);
 
   beforeEach(async () => {
     dbUsers = {
@@ -67,8 +67,8 @@ describe('Users API', async () => {
 
     await User.remove({});
     await User.insertMany([dbUsers.branStark, dbUsers.jonSnow]);
-    dbUsers.branStark.password = password
-    dbUsers.jonSnow.password = password
+    dbUsers.branStark.password = password;
+    dbUsers.jonSnow.password = password;
     adminAccessToken = (await User.findAndGenerateToken(dbUsers.branStark)).accessToken;
     userAccessToken = (await User.findAndGenerateToken(dbUsers.jonSnow)).accessToken;
   });
@@ -106,9 +106,9 @@ describe('Users API', async () => {
         .send(user)
         .expect(httpStatus.CONFLICT)
         .then((res) => {
-          const field = res.body.errors[0].field;
-          const location = res.body.errors[0].location;
-          const messages = res.body.errors[0].messages;
+          const { field } = res.body.errors[0];
+          const { location } = res.body.errors[0];
+          const { messages } = res.body.errors[0];
           expect(field).to.be.equal('email');
           expect(location).to.be.equal('body');
           expect(messages).to.include('"email" already exists');
@@ -124,9 +124,9 @@ describe('Users API', async () => {
         .send(user)
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
-          const field = res.body.errors[0].field;
-          const location = res.body.errors[0].location;
-          const messages = res.body.errors[0].messages;
+          const { field } = res.body.errors[0];
+          const { location } = res.body.errors[0];
+          const { messages } = res.body.errors[0];
           expect(field).to.be.equal('email');
           expect(location).to.be.equal('body');
           expect(messages).to.include('"email" is required');
@@ -142,9 +142,9 @@ describe('Users API', async () => {
         .send(user)
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
-          const field = res.body.errors[0].field;
-          const location = res.body.errors[0].location;
-          const messages = res.body.errors[0].messages;
+          const { field } = res.body.errors[0];
+          const { location } = res.body.errors[0];
+          const { messages } = res.body.errors[0];
           expect(field).to.be.equal('password');
           expect(location).to.be.equal('body');
           expect(messages).to.include('"password" length must be at least 6 characters long');
@@ -235,18 +235,18 @@ describe('Users API', async () => {
         .query({ page: '?', perPage: 'whaat' })
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
-          const field = res.body.errors[0].field;
-          const location = res.body.errors[0].location;
-          const messages = res.body.errors[0].messages;
+          const { field } = res.body.errors[0];
+          const { location } = res.body.errors[0];
+          const { messages } = res.body.errors[0];
           expect(field).to.be.equal('page');
           expect(location).to.be.equal('query');
           expect(messages).to.include('"page" must be a number');
           return Promise.resolve(res);
         })
         .then((res) => {
-          const field = res.body.errors[1].field;
-          const location = res.body.errors[1].location;
-          const messages = res.body.errors[1].messages;
+          const { field } = res.body.errors[1];
+          const { location } = res.body.errors[1];
+          const { messages } = res.body.errors[1];
           expect(field).to.be.equal('perPage');
           expect(location).to.be.equal('query');
           expect(messages).to.include('"perPage" must be a number');
@@ -342,9 +342,9 @@ describe('Users API', async () => {
         .send(user)
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
-          const field = res.body.errors[0].field;
-          const location = res.body.errors[0].location;
-          const messages = res.body.errors[0].messages;
+          const { field } = res.body.errors[0];
+          const { location } = res.body.errors[0];
+          const { messages } = res.body.errors[0];
           expect(field).to.be.equal('email');
           expect(location).to.be.equal('body');
           expect(messages).to.include('"email" is required');
@@ -361,9 +361,9 @@ describe('Users API', async () => {
         .send(user)
         .expect(httpStatus.BAD_REQUEST)
         .then((res) => {
-          const field = res.body.errors[0].field;
-          const location = res.body.errors[0].location;
-          const messages = res.body.errors[0].messages;
+          const { field } = res.body.errors[0];
+          const { location } = res.body.errors[0];
+          const { messages } = res.body.errors[0];
           expect(field).to.be.equal('password');
           expect(location).to.be.equal('body');
           expect(messages).to.include('"password" length must be at least 6 characters long');
@@ -413,7 +413,7 @@ describe('Users API', async () => {
     it('should update user', async () => {
       delete dbUsers.branStark.password;
       const id = (await User.findOne(dbUsers.branStark))._id;
-      const name = user.name;
+      const { name } = user;
 
       return request(app)
         .patch(`/v1/users/${id}`)

@@ -173,7 +173,9 @@ userSchema.statics = {
    * @param {number} limit - Limit number of users to be returned.
    * @returns {Promise<User[]>}
    */
-  list({ page = 1, perPage = 30, name, email, role }) {
+  list({
+    page = 1, perPage = 30, name, email, role,
+  }) {
     const options = omitBy({ name, email, role }, isNil);
 
     return this.find(options)
@@ -207,7 +209,9 @@ userSchema.statics = {
     return error;
   },
 
-  async oAuthLogin({ service, id, email, name, picture }) {
+  async oAuthLogin({
+    service, id, email, name, picture,
+  }) {
     const user = await this.findOne({ $or: [{ [`services.${service}`]: id }, { email }] });
     if (user) {
       user.services[service] = id;
@@ -216,7 +220,9 @@ userSchema.statics = {
       return user.save();
     }
     const password = uuidv4();
-    return this.create({ services: { [service]: id }, email, password, name, picture });
+    return this.create({
+      services: { [service]: id }, email, password, name, picture,
+    });
   },
 };
 
