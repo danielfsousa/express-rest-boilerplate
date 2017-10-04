@@ -5,6 +5,7 @@
   "author": "Daniel Sousa <sousa.dfs@gmail.com>",
   "main": "src/index.js",
   "private": false,
+  "license": "MIT",
   "engines": {
     "node": ">=7.6",
     "yarn": "*"
@@ -102,6 +103,5 @@
     "sinon": "^3.0.0",
     "sinon-chai": "^2.10.0",
     "supertest": "^3.0.0"
-  },
-  "license": "MIT"
+  }
 }

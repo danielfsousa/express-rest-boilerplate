@@ -4,6 +4,7 @@ const request = require('supertest');
 const httpStatus = require('http-status');
 const { expect } = require('chai');
 const sinon = require('sinon');
+const bcrypt = require('bcryptjs');
 const { some, omitBy, isNil } = require('lodash');
 const app = require('../../../index');
 const User = require('../../models/user.model');
@@ -26,43 +27,48 @@ async function format(user) {
   return omitBy(dbUser, isNil);
 }
 
-describe('Users API', () => {
+describe('Users API', async () => {
   let adminAccessToken;
   let userAccessToken;
   let dbUsers;
   let user;
   let admin;
 
+  const password = '123456'
+  const passwordHashed = await bcrypt.hash(password, 1)
+
   beforeEach(async () => {
     dbUsers = {
       branStark: {
         email: 'branstark@gmail.com',
-        password: 'mypassword',
+        password: passwordHashed,
         name: 'Bran Stark',
         role: 'admin',
       },
       jonSnow: {
         email: 'jonsnow@gmail.com',
-        password: '123456',
+        password: passwordHashed,
         name: 'Jon Snow',
       },
     };
 
     user = {
       email: 'sousa.dfs@gmail.com',
-      password: '123456',
+      password,
       name: 'Daniel Sousa',
     };
 
     admin = {
       email: 'sousa.dfs@gmail.com',
-      password: '123456',
+      password,
       name: 'Daniel Sousa',
       role: 'admin',
     };
 
     await User.remove({});
     await User.insertMany([dbUsers.branStark, dbUsers.jonSnow]);
+    dbUsers.branStark.password = password
+    dbUsers.jonSnow.password = password
     adminAccessToken = (await User.findAndGenerateToken(dbUsers.branStark)).accessToken;
     userAccessToken = (await User.findAndGenerateToken(dbUsers.jonSnow)).accessToken;
   });

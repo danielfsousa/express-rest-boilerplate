@@ -15,6 +15,21 @@
       "protocol": "inspector",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "node",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "--inspect"
+      ],
+      "program": "${workspaceRoot}/src/index.js",
+      "restart": true,
+      "port": 9229,
+      "protocol": "inspector",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
     }
   ],
   "compounds": []

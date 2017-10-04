@@ -160,9 +160,10 @@ describe('Authentication API', () => {
     });
 
     it('should report error when email and password don\'t match', () => {
+      dbUser.password = 'xxx'
       return request(app)
         .post('/v1/auth/login')
-        .send(user)
+        .send(dbUser)
         .expect(httpStatus.UNAUTHORIZED)
         .then((res) => {
           const code = res.body.code;
