@@ -101,8 +101,7 @@ userSchema.method({
   },
 
   async passwordMatches(password) {
-    const matches = await bcrypt.compare(password, this.password);
-    return matches;
+    return bcrypt.compare(password, this.password);
   },
 });
 
@@ -155,7 +154,7 @@ userSchema.statics = {
       isPublic: true,
     };
     if (password) {
-      if (user && user.passwordMatches(password)) {
+      if (user && await user.passwordMatches(password)) {
         return { user, accessToken: user.token() };
       }
       err.message = 'Incorrect email or password';
