@@ -1,13 +1,13 @@
 {
   "name": "express-rest-es2017-boilerplate",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Express boilerplate for building RESTful APIs",
   "author": "Daniel Sousa <sousa.dfs@gmail.com>",
   "main": "src/index.js",
   "private": false,
   "license": "MIT",
   "engines": {
-    "node": ">=7.6",
+    "node": ">=8",
     "yarn": "*"
   },
   "scripts": {
