@@ -3,6 +3,7 @@ const request = require('supertest');
 const httpStatus = require('http-status');
 const { expect } = require('chai');
 const sinon = require('sinon');
+const moment = require('moment-timezone');
 const app = require('../../../index');
 const User = require('../../models/user.model');
 const RefreshToken = require('../../models/refreshToken.model');
@@ -41,7 +42,14 @@ describe('Authentication API', () => {
       token: '5947397b323ae82d8c3a333b.c69d0435e62c9f4953af912442a3d064e20291f0d228c0552ed4be473e7d191ba40b18c2c47e8b9d',
       userId: '5947397b323ae82d8c3a333b',
       userEmail: dbUser.email,
-      expires: new Date(),
+      expires: moment().add(1, 'day').toDate(),
+    };
+
+    expiredRefreshToken = {
+      token: '5947397b323ae82d8c3a333b.c69d0435e62c9f4953af912442a3d064e20291f0d228c0552ed4be473e7d191ba40b18c2c47e8b9d',
+      userId: '5947397b323ae82d8c3a333b',
+      userEmail: dbUser.email,
+      expires: moment().subtract(1, 'day').toDate(),
     };
 
     await User.remove({});
@@ -314,5 +322,19 @@ describe('Authentication API', () => {
           expect(messages2).to.include('"refreshToken" is required');
         });
     });
+
+    it('should report error when the refreshToken is expired', async () => {
+      await RefreshToken.create(expiredRefreshToken);
+
+      return request(app)
+        .post('/v1/auth/refresh-token')
+        .send({ email: dbUser.email, refreshToken: expiredRefreshToken.token })
+        .expect(httpStatus.UNAUTHORIZED)
+        .then((res) => {
+          expect(res.body.code).to.be.equal(401);
+          expect(res.body.message).to.be.equal('Invalid refresh token.');
+        });
+    });
+
   });
 });
