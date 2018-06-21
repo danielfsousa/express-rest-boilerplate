@@ -52,8 +52,8 @@ const userSchema = new mongoose.Schema({
     trim: true,
   },
 }, {
-  timestamps: true,
-});
+    timestamps: true,
+  });
 
 /**
  * Add your
@@ -159,7 +159,11 @@ userSchema.statics = {
       }
       err.message = 'Incorrect email or password';
     } else if (refreshObject && refreshObject.userEmail === email) {
-      return { user, accessToken: user.token() };
+      if (moment(refreshObject.expires).isBefore()) {
+        err.message = 'Invalid refresh token.';
+      } else {
+        return { user, accessToken: user.token() };
+      }
     } else {
       err.message = 'Incorrect email or refreshToken';
     }
