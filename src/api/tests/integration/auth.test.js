@@ -23,6 +23,7 @@ describe('Authentication API', () => {
   let dbUser;
   let user;
   let refreshToken;
+  let expiredRefreshToken;
 
   beforeEach(async () => {
     dbUser = {
@@ -335,6 +336,5 @@ describe('Authentication API', () => {
           expect(res.body.message).to.be.equal('Invalid refresh token.');
         });
     });
-
   });
 });
