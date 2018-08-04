@@ -3711,9 +3711,9 @@ performance-now@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
 
-pidusage@^2.0.6:
-  version "2.0.12"
-  resolved "https://registry.yarnpkg.com/pidusage/-/pidusage-2.0.12.tgz#fca9f948731a8f6e1f3d979a6832ac98e21322c4"
+pidusage@2.0.13:
+  version "2.0.13"
+  resolved "https://registry.yarnpkg.com/pidusage/-/pidusage-2.0.13.tgz#2f0492463b09e8179d763e68faa665a1b2fbe11c"
 
 pify@^2.0.0, pify@^2.2.0, pify@^2.3.0:
   version "2.3.0"
@@ -3772,8 +3772,8 @@ pm2-multimeter@^0.1.2:
     charm "~0.1.1"
 
 pm2@^3.0.0:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/pm2/-/pm2-3.0.1.tgz#336a6ee868d36123b8523b645ca66e21b42213bc"
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/pm2/-/pm2-3.0.3.tgz#7115ad916f68b36da3b22f1826463b767e32bcb9"
   dependencies:
     "@pm2/agent" "^0.5.11"
     "@pm2/io" "~2.1.0"
@@ -3792,7 +3792,7 @@ pm2@^3.0.0:
     moment "^2.22.2"
     needle "^2.2.1"
     nssocket "0.6.0"
-    pidusage "^2.0.6"
+    pidusage "2.0.13"
     pm2-axon "3.3.0"
     pm2-axon-rpc "^0.5.1"
     pm2-deploy "^0.3.9"
