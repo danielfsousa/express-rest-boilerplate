@@ -14,6 +14,11 @@ router.get('/status', (req, res) => res.send('OK'));
  */
 router.use('/docs', express.static('docs'));
 
+/**
+ * GET v1/register
+ */
+router.use('/register', express.static('register'));
+
 router.use('/users', userRoutes);
 router.use('/auth', authRoutes);
 
