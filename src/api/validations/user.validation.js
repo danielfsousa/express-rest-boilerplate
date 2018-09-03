@@ -17,8 +17,8 @@ module.exports = {
   // POST /v1/users
   createUser: {
     body: {
-      email: Joi.string().email().required(),
-      password: Joi.string().min(6).max(128).required(),
+      email: Joi.string().regex(/^(?=[^@]*[A-Za-z])([a-zA-Z0-9])(([a-zA-Z0-9])*([._-])?([a-zA-Z0-9]))*@(([a-zA-Z0-9-])+(\.))+([a-zA-Z]{2,4})+$/i).required(),
+      password: Joi.string().min(6).max(15).required(),
       name: Joi.string().max(128),
       role: Joi.string().valid(User.roles),
     },

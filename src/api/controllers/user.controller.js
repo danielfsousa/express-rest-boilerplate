@@ -40,7 +40,8 @@ exports.create = async (req, res, next) => {
     res.status(httpStatus.CREATED);
     res.json(savedUser.transform());
   } catch (error) {
-    next(User.checkDuplicateEmail(error));
+    res.send(error);
+    // next(User.checkDuplicateEmail(error));
   }
 };
 

@@ -23,6 +23,10 @@ footer {
 	color: white;
 }
 
+#form p {
+	color: red;
+}
+
 #register {
 	height: 100vh;
 	background-color: #2B2B2D;
