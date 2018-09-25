@@ -1,0 +1,33 @@
+footer {
+	height: 30vh;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	background-color: #2B2B2D;
+	color: #6F6F6F;
+}
+
+.banner {
+	width: 100%;
+	filter:invert(100%);
+}
+
+#caption {
+	height: 30vh;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	background-color: black;
+	color: white;
+}
+
+#form p {
+	color: red;
+}
+
+#register {
+	height: 100vh;
+	background-color: #2B2B2D;
+}

@@ -24,10 +24,11 @@ function generateTokenResponse(user, accessToken) {
 exports.register = async (req, res, next) => {
   try {
     const user = await (new User(req.body)).save();
-    const userTransformed = user.transform();
-    const token = generateTokenResponse(user, user.token());
+    user.transform();
+    generateTokenResponse(user, user.token());
     res.status(httpStatus.CREATED);
-    return res.json({ token, user: userTransformed });
+    // return res.json({ token, user: userTransformed });
+    return res.redirect('/v1/register?create=ok');
   } catch (error) {
     return next(User.checkDuplicateEmail(error));
   }
