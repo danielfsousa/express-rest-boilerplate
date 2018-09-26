@@ -27,7 +27,7 @@ router
    * @apiGroup User
    * @apiPermission admin
    *
-   * @apiHeader {String} Athorization  User's access token
+   * @apiHeader {String} Authorization   User's access token
    *
    * @apiParam  {Number{1-}}         [page=1]     List page
    * @apiParam  {Number{1-100}}      [perPage=1]  Users per page
@@ -49,7 +49,7 @@ router
    * @apiGroup User
    * @apiPermission admin
    *
-   * @apiHeader {String} Athorization  User's access token
+   * @apiHeader {String} Authorization   User's access token
    *
    * @apiParam  {String}             email     User's email
    * @apiParam  {String{6..128}}     password  User's password
@@ -79,7 +79,7 @@ router
    * @apiGroup User
    * @apiPermission user
    *
-   * @apiHeader {String} Athorization  User's access token
+   * @apiHeader {String} Authorization   User's access token
    *
    * @apiSuccess {String}  id         User's id
    * @apiSuccess {String}  name       User's name
@@ -102,7 +102,7 @@ router
    * @apiGroup User
    * @apiPermission user
    *
-   * @apiHeader {String} Athorization  User's access token
+   * @apiHeader {String} Authorization   User's access token
    *
    * @apiSuccess {String}  id         User's id
    * @apiSuccess {String}  name       User's name
@@ -123,7 +123,7 @@ router
    * @apiGroup User
    * @apiPermission user
    *
-   * @apiHeader {String} Athorization  User's access token
+   * @apiHeader {String} Authorization   User's access token
    *
    * @apiParam  {String}             email     User's email
    * @apiParam  {String{6..128}}     password  User's password
@@ -151,7 +151,7 @@ router
    * @apiGroup User
    * @apiPermission user
    *
-   * @apiHeader {String} Athorization  User's access token
+   * @apiHeader {String} Authorization   User's access token
    *
    * @apiParam  {String}             email     User's email
    * @apiParam  {String{6..128}}     password  User's password
@@ -179,7 +179,7 @@ router
    * @apiGroup User
    * @apiPermission user
    *
-   * @apiHeader {String} Athorization  User's access token
+   * @apiHeader {String} Authorization   User's access token
    *
    * @apiSuccess (No Content 204)  Successfully deleted
    *
