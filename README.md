@@ -22,7 +22,7 @@ Boilerplate/Generator/Starter Project for building RESTful APIs and microservice
  - Git hooks with [husky](https://github.com/typicode/husky) 
  - Logging with [morgan](https://github.com/expressjs/morgan)
  - Authentication and Authorization with [passport](http://passportjs.org)
- - API documentation geratorion with [apidoc](http://apidocjs.com)
+ - API documentation generation with [apidoc](http://apidocjs.com)
  - Continuous integration support with [travisCI](https://travis-ci.org)
  - Monitoring with [pm2](https://github.com/Unitech/pm2)
 
