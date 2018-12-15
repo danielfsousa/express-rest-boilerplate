@@ -9,7 +9,7 @@ const { env } = require('../../config/vars');
  */
 const handler = (err, req, res, next) => {
   const response = {
-    code: err.status,
+    status: err.status,
     message: err.message || httpStatus[err.status],
     errors: err.errors,
     stack: err.stack,
