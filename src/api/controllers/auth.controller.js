@@ -3,6 +3,7 @@ const User = require('../models/user.model');
 const RefreshToken = require('../models/refreshToken.model');
 const moment = require('moment-timezone');
 const { jwtExpirationInterval } = require('../../config/vars');
+const { omit } = require('lodash');
 
 /**
 * Returns a formated object with tokens
@@ -23,7 +24,8 @@ function generateTokenResponse(user, accessToken) {
  */
 exports.register = async (req, res, next) => {
   try {
-    const user = await (new User(req.body)).save();
+    const userData = omit(req.body, 'role');
+    const user = await (new User(userData)).save();
     const userTransformed = user.transform();
     const token = generateTokenResponse(user, user.token());
     res.status(httpStatus.CREATED);
