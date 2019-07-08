@@ -103,6 +103,6 @@
     "opn-cli": "^3.1.0",
     "sinon": "^6.0.0",
     "sinon-chai": "^3.0.0",
-    "supertest": "^3.0.0"
+    "supertest": "^4.0.2"
   }
 }
