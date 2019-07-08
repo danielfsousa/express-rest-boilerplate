@@ -2719,9 +2719,9 @@ jws@^3.1.5:
     jwa "^1.1.5"
     safe-buffer "^5.0.1"
 
-jwt-simple@0.5.2:
-  version "0.5.2"
-  resolved "https://registry.yarnpkg.com/jwt-simple/-/jwt-simple-0.5.2.tgz#2885ce74e2a936d417a57ab135c68c7fda3b3b40"
+jwt-simple@0.5.3:
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/jwt-simple/-/jwt-simple-0.5.3.tgz#f318b066544761486151a9ea816cae1d49055f62"
 
 kareem@2.2.1:
   version "2.2.1"

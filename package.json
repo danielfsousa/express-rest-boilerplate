@@ -75,7 +75,7 @@
     "helmet": "^3.5.0",
     "http-status": "^1.0.1",
     "joi": "^10.4.1",
-    "jwt-simple": "0.5.2",
+    "jwt-simple": "0.5.3",
     "lodash": "^4.17.4",
     "method-override": "^3.0.0",
     "moment-timezone": "^0.5.13",
