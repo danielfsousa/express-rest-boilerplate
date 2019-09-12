@@ -33,7 +33,7 @@ Boilerplate/Generator/Starter Project for building RESTful APIs and microservice
 
 ## Getting Started
 
-Clone the repo and make it yours:
+#### Clone the repo and make it yours:
 
 ```bash
 git clone --depth 1 https://github.com/danielfsousa/express-rest-es2017-boilerplate
@@ -41,13 +41,13 @@ cd express-rest-es2017-boilerplate
 rm -rf .git
 ```
 
-Install dependencies:
+#### Install dependencies:
 
 ```bash
 yarn
 ```
 
-Set environment variables:
+#### Set environment variables:
 
 ```bash
 cp .env.example .env
@@ -123,18 +123,12 @@ yarn docs
 ```bash
 # run container locally
 yarn docker:dev
-or
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
 
 # run container in production
 yarn docker:prod
-or
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
 
 # run tests
 yarn docker:test
-or
-docker-compose -f docker-compose.yml -f docker-compose.test.yml up
 ```
 
 ## Deploy
@@ -155,8 +149,6 @@ Run deploy script:
 
 ```bash
 yarn deploy
-or
-sh ./deploy.sh
 ```
 
 ## Tutorials
