@@ -4247,8 +4247,8 @@ simple-swizzle@^0.2.2:
     is-arrayish "^0.3.1"
 
 sinon-chai@^3.0.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/sinon-chai/-/sinon-chai-3.2.0.tgz#ed995e13a8a3cfccec18f218d9b767edc47e0715"
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/sinon-chai/-/sinon-chai-3.3.0.tgz#8084ff99451064910fbe2c2cb8ab540c00b740ea"
 
 sinon@^6.0.0:
   version "6.3.5"
