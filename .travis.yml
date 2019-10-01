@@ -13,8 +13,8 @@ git:
   depth: 3
 
 branches:
-  except:
-    - /^v\d+\.\d+\.\d+$/
+  only:
+    - master
 
 env:
   global:
