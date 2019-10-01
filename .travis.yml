@@ -23,8 +23,5 @@ env:
     - JWT_SECRET=bA2xcjpf8y5aSUFsNB2qN5yymUBSs6es3qHoFpGkec75RCeBb8cpKauGefw5qy4
     - JWT_EXPIRATION_MINUTES=15
 
-script:
-  - yarn validate
-
-after_success:
-  - if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then yarn coverage
+script: yarn validate
+after_success: yarn coverage
