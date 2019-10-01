@@ -5042,8 +5042,8 @@ uuid@^2.0.1:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-2.0.3.tgz#67e2e863797215530dff318e5bf9dcebfd47b21a"
 
 uuid@^3.1.0, uuid@^3.2.1:
-  version "3.3.2"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.3.2.tgz#1b4af4955eb3077c501c23872fc6513811587131"
+  version "3.3.3"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.3.3.tgz#4568f0216e78760ee1dbf3a4d2cf53e224112866"
 
 v8-compile-cache@^2.0.0, v8-compile-cache@^2.0.3:
   version "2.1.0"
