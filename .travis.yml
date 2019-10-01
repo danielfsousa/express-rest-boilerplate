@@ -1,5 +1,16 @@
 language: node_js
-node_js: '8'
+
+cache:
+  directories:
+    - ~/.npm
+    
+node_js:
+  - '8'
+  - '10'
+  - '12'
+  
+services:
+  - mongodb
 
 git:
   depth: 3
@@ -7,7 +18,6 @@ git:
 branches:
   only:
     - master
-    - /^greenkeeper/.*$/
 
 env:
   global:
@@ -15,15 +25,8 @@ env:
     - PORT=3000
     - JWT_SECRET=bA2xcjpf8y5aSUFsNB2qN5yymUBSs6es3qHoFpGkec75RCeBb8cpKauGefw5qy4
     - JWT_EXPIRATION_MINUTES=15
+    - MONGO_URI=mongodb://localhost/express-rest-es2017-boilerplate
+    - MONGO_URI_TESTS=mongodb://localhost/express-rest-es2017-boilerplate
 
 script: yarn validate
-
-before_install: yarn global add greenkeeper-lockfile@1
-before_script: greenkeeper-lockfile-update
-after_script: greenkeeper-lockfile-upload
-
-# deploy:
-# - provider: script
-#   script: yarn deploy
-
 after_success: yarn coverage
