@@ -65,7 +65,7 @@ describe('Users API', async () => {
       role: 'admin',
     };
 
-    await User.remove({});
+    await User.deleteMany({});
     await User.insertMany([dbUsers.branStark, dbUsers.jonSnow]);
     dbUsers.branStark.password = password;
     dbUsers.jonSnow.password = password;

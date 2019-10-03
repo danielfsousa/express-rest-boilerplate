@@ -54,7 +54,7 @@ exports.replace = async (req, res, next) => {
     const ommitRole = user.role !== 'admin' ? 'role' : '';
     const newUserObject = omit(newUser.toObject(), '_id', ommitRole);
 
-    await user.update(newUserObject, { override: true, upsert: true });
+    await user.updateOne(newUserObject, { override: true, upsert: true });
     const savedUser = await User.findById(user._id);
 
     res.json(savedUser.transform());
