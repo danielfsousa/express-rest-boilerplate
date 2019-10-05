@@ -171,15 +171,14 @@ describe('Users API', async () => {
         .set('Authorization', `Bearer ${adminAccessToken}`)
         .expect(httpStatus.OK)
         .then(async (res) => {
-          const bran = format(dbUsers.branStark);
-          const john = format(dbUsers.jonSnow);
-
-          const includesBranStark = some(res.body, bran);
-          const includesjonSnow = some(res.body, john);
-
+          const bran = await format(dbUsers.branStark);
+          const john = await format(dbUsers.jonSnow);
           // before comparing it is necessary to convert String to Date
           res.body[0].createdAt = new Date(res.body[0].createdAt);
           res.body[1].createdAt = new Date(res.body[1].createdAt);
+
+          const includesBranStark = some(res.body, bran);
+          const includesjonSnow = some(res.body, john);
 
           expect(res.body).to.be.an('array');
           expect(res.body).to.have.lengthOf(2);
@@ -194,13 +193,14 @@ describe('Users API', async () => {
         .set('Authorization', `Bearer ${adminAccessToken}`)
         .query({ page: 2, perPage: 1 })
         .expect(httpStatus.OK)
-        .then((res) => {
+        .then(async (res) => {
           delete dbUsers.jonSnow.password;
-          const john = format(dbUsers.jonSnow);
-          const includesjonSnow = some(res.body, john);
+          const john = await format(dbUsers.jonSnow);
 
           // before comparing it is necessary to convert String to Date
           res.body[0].createdAt = new Date(res.body[0].createdAt);
+
+          const includesjonSnow = some(res.body, john);
 
           expect(res.body).to.be.an('array');
           expect(res.body).to.have.lengthOf(1);
@@ -214,13 +214,14 @@ describe('Users API', async () => {
         .set('Authorization', `Bearer ${adminAccessToken}`)
         .query({ email: dbUsers.jonSnow.email })
         .expect(httpStatus.OK)
-        .then((res) => {
+        .then(async (res) => {
           delete dbUsers.jonSnow.password;
-          const john = format(dbUsers.jonSnow);
-          const includesjonSnow = some(res.body, john);
+          const john = await format(dbUsers.jonSnow);
 
           // before comparing it is necessary to convert String to Date
           res.body[0].createdAt = new Date(res.body[0].createdAt);
+
+          const includesjonSnow = some(res.body, john);
 
           expect(res.body).to.be.an('array');
           expect(res.body).to.have.lengthOf(1);
