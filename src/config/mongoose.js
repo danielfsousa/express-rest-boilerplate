@@ -24,8 +24,11 @@ if (env === 'development') {
 */
 exports.connect = () => {
   mongoose.connect(mongo.uri, {
+    useCreateIndex: true,
     keepAlive: 1,
     useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
   });
   return mongoose.connection;
 };
