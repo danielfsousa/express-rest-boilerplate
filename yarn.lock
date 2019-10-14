@@ -420,7 +420,7 @@ async@2.6.1:
   dependencies:
     lodash "^4.17.10"
 
-async@2.6.2, async@^2.4.1, async@^2.6, async@^2.6.0, async@^2.6.1, async@~2.6.1:
+async@^2.4.1, async@^2.6, async@^2.6.0, async@^2.6.1, async@~2.6.1:
   version "2.6.2"
   resolved "https://registry.yarnpkg.com/async/-/async-2.6.2.tgz#18330ea7e6e313887f5d2f2a904bac6fe4dd5381"
   dependencies:
@@ -3262,16 +3262,15 @@ mongoose-legacy-pluralize@1.0.2:
   resolved "https://registry.yarnpkg.com/mongoose-legacy-pluralize/-/mongoose-legacy-pluralize-1.0.2.tgz#3ba9f91fa507b5186d399fb40854bff18fb563e4"
 
 mongoose@^5.2.17:
-  version "5.7.1"
-  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-5.7.1.tgz#47f8feb3d28e9caf645859e4245a933b39c1797b"
+  version "5.7.5"
+  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-5.7.5.tgz#b787b47216edf62036aa358c3ef0f1869c46cdc2"
   dependencies:
-    async "2.6.2"
     bson "~1.1.1"
     kareem "2.3.1"
     mongodb "3.3.2"
     mongoose-legacy-pluralize "1.0.2"
     mpath "0.6.0"
-    mquery "3.2.1"
+    mquery "3.2.2"
     ms "2.1.2"
     regexp-clone "1.0.0"
     safe-buffer "5.1.2"
@@ -3292,9 +3291,9 @@ mpath@0.6.0:
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/mpath/-/mpath-0.6.0.tgz#aa922029fca4f0f641f360e74c5c1b6a4c47078e"
 
-mquery@3.2.1:
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/mquery/-/mquery-3.2.1.tgz#8b059a49cdae0a8a9e804284ef64c2f58d3ac05d"
+mquery@3.2.2:
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/mquery/-/mquery-3.2.2.tgz#e1383a3951852ce23e37f619a9b350f1fb3664e7"
   dependencies:
     bluebird "3.5.1"
     debug "3.1.0"
