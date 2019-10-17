@@ -7,7 +7,6 @@ coverage/
 Dockerfile
 
 .gitignore
-.env
 .eslintrc
 .editorconfig
 .gitlab-ci.yml

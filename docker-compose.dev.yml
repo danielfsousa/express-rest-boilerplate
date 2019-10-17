@@ -1,6 +1,6 @@
-version: "2"
+version: "3"
 services:
   boilerplate-api:
-    command: yarn dev -- -L
+    command: yarn dev
     environment:
       - NODE_ENV=development
