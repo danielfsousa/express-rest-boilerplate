@@ -39,19 +39,19 @@ passwordResetTokenSchema.statics = {
     const expires = moment()
       .add(2, 'hours')
       .toDate();
-    const resetTokenObject = new passwordResetToken({
+    const ResetTokenObject = new PasswordResetToken({
       resetToken,
       userId,
       userEmail,
       expires,
     });
-    resetTokenObject.save();
-    return resetTokenObject;
+    ResetTokenObject.save();
+    return ResetTokenObject;
   },
 };
 
 /**
  * @typedef RefreshToken
  */
-const PasswordResetToken = mongoose.model('passwordResetToken', passwordResetTokenSchema);
+const PasswordResetToken = mongoose.model('PasswordResetToken', passwordResetTokenSchema);
 module.exports = PasswordResetToken;
