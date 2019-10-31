@@ -1,6 +1,6 @@
-const mongoose = require('mongoose')
-const crypto = require('crypto')
-const moment = require('moment-timezone')
+const mongoose = require('mongoose');
+const crypto = require('crypto');
+const moment = require('moment-timezone');
 
 /**
  * Refresh Token Schema
@@ -10,20 +10,20 @@ const passwordResetTokenSchema = new mongoose.Schema({
   resetToken: {
     type: String,
     required: true,
-    index: true
+    index: true,
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
   },
   userEmail: {
     type: 'String',
     ref: 'User',
-    required: true
+    required: true,
   },
-  expires: { type: Date }
-})
+  expires: { type: Date },
+});
 
 passwordResetTokenSchema.statics = {
   /**
@@ -33,25 +33,25 @@ passwordResetTokenSchema.statics = {
    * @returns {RefreshToken}
    */
   generate(user) {
-    const userId = user._id
-    const userEmail = user.email
-    const resetToken = `${userId}.${crypto.randomBytes(40).toString('hex')}`
+    const userId = user._id;
+    const userEmail = user.email;
+    const resetToken = `${userId}.${crypto.randomBytes(40).toString('hex')}`;
     const expires = moment()
       .add(2, 'hours')
-      .toDate()
+      .toDate();
     const resetTokenObject = new passwordResetToken({
       resetToken,
       userId,
       userEmail,
-      expires
-    })
-    resetTokenObject.save()
-    return resetTokenObject
-  }
-}
+      expires,
+    });
+    resetTokenObject.save();
+    return resetTokenObject;
+  },
+};
 
 /**
  * @typedef RefreshToken
  */
-const passwordResetToken = mongoose.model('passwordResetToken', passwordResetTokenSchema)
-module.exports = passwordResetToken
+const PasswordResetToken = mongoose.model('passwordResetToken', passwordResetTokenSchema);
+module.exports = PasswordResetToken;

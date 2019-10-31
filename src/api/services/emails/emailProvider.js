@@ -38,28 +38,28 @@ exports.sendPasswordReset = async (passwordResetObject) => {
     .catch(console.error('error sending email'));
 };
 
-exports.sendPasswordChangeEmail = async user => {
+exports.sendPasswordChangeEmail = async (user) => {
   const email = new Email({
     views: { root: __dirname },
     message: {
-      from: 'test@gmail.com'
+      from: 'test@gmail.com',
     },
     // uncomment below to send emails in development/test env:
     send: true,
-    transport: transporter
-  })
+    transport: transporter,
+  });
 
   email
     .send({
       template: 'passwordChange',
       message: {
-        to: user.email
+        to: user.email,
       },
       locals: {
         productName: 'Test App',
-        name: user.name
-      }
+        name: user.name,
+      },
     })
     .then(console.log('sent email hopefully....'))
-    .catch(console.error('error sending email'))
-}
+    .catch(console.error('error sending email'));
+};
