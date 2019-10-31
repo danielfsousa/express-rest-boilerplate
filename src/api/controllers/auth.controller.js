@@ -102,10 +102,9 @@ exports.verifyPasswordReset = async (req, res, next) => {
       //   logger.info(resetToken)
       emailProvider.sendPasswordReset(passwordResetObj);
       res.status(200);
-      res.json('An email was sent with instructions to update password');
-    } else {
-      throw new APIError({ message: 'No account found with that email' });
+      return res.json('An email was sent with instructions to update password');
     }
+    throw new APIError({ message: 'No account found with that email' });
   } catch (error) {
     return next(error);
   }
@@ -129,7 +128,7 @@ exports.resetPassword = async (req, res, next) => {
     user.save();
     emailProvider.sendPasswordChangeEmail(user);
     res.status(200);
-    res.json('Password Updated');
+    return res.json('Password Updated');
   } catch (error) {
     return next(error);
   }
