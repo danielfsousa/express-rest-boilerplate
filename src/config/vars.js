@@ -17,4 +17,7 @@ module.exports = {
       : process.env.MONGO_URI,
   },
   logs: process.env.NODE_ENV === 'production' ? 'combined' : 'dev',
+  emailService: process.env.EMAIL_SERVICE,
+  emailUsername: process.env.EMAIL_USERNAME,
+  emailPassword: process.env.EMAIL_PASSWORD,
 };
