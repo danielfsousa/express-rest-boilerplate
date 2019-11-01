@@ -125,7 +125,7 @@ exports.resetPassword = async (req, res, next) => {
     }
     const user = await User.findById(resetTokenObject.userId).exec();
     user.password = password;
-    user.save();
+    await user.save();
     emailProvider.sendPasswordChangeEmail(user);
     res.status(200);
     return res.json('Password Updated');
