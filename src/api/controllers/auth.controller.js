@@ -92,19 +92,21 @@ exports.refresh = async (req, res, next) => {
   }
 };
 
-exports.verifyPasswordReset = async (req, res, next) => {
+exports.sendPasswordReset = async (req, res, next) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email }).exec();
 
     if (user) {
       const passwordResetObj = await PasswordResetToken.generate(user);
-      //   logger.info(resetToken)
       emailProvider.sendPasswordReset(passwordResetObj);
-      res.status(200);
-      return res.json('An email was sent with instructions to update password');
+      res.status(httpStatus.OK);
+      return res.json('success');
     }
-    throw new APIError({ message: 'No account found with that email' });
+    throw new APIError({
+      status: httpStatus.UNAUTHORIZED,
+      message: 'No account found with that email',
+    });
   } catch (error) {
     return next(error);
   }
@@ -117,17 +119,26 @@ exports.resetPassword = async (req, res, next) => {
       userEmail: email,
       resetToken,
     });
+
+    const err = {
+      status: httpStatus.UNAUTHORIZED,
+      isPublic: true,
+    };
     if (!resetTokenObject) {
-      throw new APIError({ message: 'Cannot find matching reset token' });
+      err.message = 'Cannot find matching reset token';
+      throw new APIError(err);
     }
     if (moment().isAfter(resetTokenObject.expires)) {
-      throw new APIError({ message: 'Reset token is expired' });
+      err.message = 'Reset token is expired';
+      throw new APIError(err);
     }
-    const user = await User.findById(resetTokenObject.userId).exec();
+
+    const user = await User.findOne({ email: resetTokenObject.userEmail }).exec();
     user.password = password;
     await user.save();
     emailProvider.sendPasswordChangeEmail(user);
-    res.status(200);
+
+    res.status(httpStatus.OK);
     return res.json('Password Updated');
   } catch (error) {
     return next(error);

@@ -99,7 +99,7 @@ router.route('/refresh-token')
 
 
 router.route('/send-password-reset')
-  .post(validate(sendPasswordReset), controller.verifyPasswordReset);
+  .post(validate(sendPasswordReset), controller.sendPasswordReset);
 
 router.route('/reset-password')
   .post(validate(passwordReset), controller.resetPassword);

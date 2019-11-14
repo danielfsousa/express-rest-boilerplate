@@ -1,21 +1,37 @@
 const nodemailer = require('nodemailer');
-const vars = require('../../../config/vars');
+const { emailConfig } = require('../../../config/vars');
 const Email = require('email-templates');
 
 
+// SMTP is the main transport in Nodemailer for delivering messages.
+// SMTP is also the protocol used between almost all email hosts, so its truly universal.
+// if you dont want to use SMTP you can create your own transport here
+// such as an email service API or nodemailer-sendgrid-transport
+
 const transporter = nodemailer.createTransport({
-  service: vars.emailService,
+  port: emailConfig.port,
+  host: emailConfig.host,
   auth: {
-    user: vars.emailUsername,
-    pass: vars.emailPassword,
+    user: emailConfig.username,
+    pass: emailConfig.password,
   },
+  secure: false, // upgrades later with STARTTLS -- change this based on the PORT
+});
+
+// verify connection configuration
+transporter.verify((error, success) => {
+  if (error) {
+    console.log('error with email connection', error);
+  } else {
+    console.log('Server is ready to take our emails', success);
+  }
 });
 
 exports.sendPasswordReset = async (passwordResetObject) => {
   const email = new Email({
     views: { root: __dirname },
     message: {
-      from: 'test@gmail.com',
+      from: 'support@your-app.com',
     },
     // uncomment below to send emails in development/test env:
     send: true,
@@ -26,24 +42,23 @@ exports.sendPasswordReset = async (passwordResetObject) => {
     .send({
       template: 'passwordReset',
       message: {
-        to: passwordResetObject.email,
+        to: passwordResetObject.email
       },
       locals: {
         productName: 'Test App',
         // passwordResetUrl should be a URL to your app that displays a view where they
         // can enter a new password along with passing the resetToken in the params
-        passwordResetUrl: `https://your-app/new-password/view?resetToken=${passwordResetObject.resetToken}`,
+        passwordResetUrl: `https://your-app/new-password/view?resetToken=${passwordResetObject.resetToken}`
       },
     })
-    .then(console.log('sent email hopefully....'))
-    .catch(console.error('error sending email'));
+    .catch(err => console.error('error sending email', err));
 };
 
 exports.sendPasswordChangeEmail = async (user) => {
   const email = new Email({
     views: { root: __dirname },
     message: {
-      from: 'test@gmail.com',
+      from: 'support@your-app.com',
     },
     // uncomment below to send emails in development/test env:
     send: true,
@@ -61,6 +76,5 @@ exports.sendPasswordChangeEmail = async (user) => {
         name: user.name,
       },
     })
-    .then(console.log('sent email hopefully....'))
-    .catch(console.error('error sending email'));
+    .catch(err => console.error('error sending email', err));
 };
