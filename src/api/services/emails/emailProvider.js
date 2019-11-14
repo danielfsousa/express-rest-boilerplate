@@ -2,6 +2,7 @@ const nodemailer = require('nodemailer');
 const vars = require('../../../config/vars');
 const Email = require('email-templates');
 
+
 const transporter = nodemailer.createTransport({
   service: vars.emailService,
   auth: {
