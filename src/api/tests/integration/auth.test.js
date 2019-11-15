@@ -87,6 +87,7 @@ describe('Authentication API', () => {
     await User.deleteMany({});
     await User.create(dbUser);
     await RefreshToken.deleteMany({});
+    await PasswordResetToken.deleteMany({});
   });
 
   afterEach(() => sandbox.restore());
