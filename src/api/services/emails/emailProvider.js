@@ -42,7 +42,7 @@ exports.sendPasswordReset = async (passwordResetObject) => {
     .send({
       template: 'passwordReset',
       message: {
-        to: passwordResetObject.email,
+        to: passwordResetObject.userEmail,
       },
       locals: {
         productName: 'Test App',
