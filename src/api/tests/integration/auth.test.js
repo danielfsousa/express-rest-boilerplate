@@ -371,9 +371,20 @@ describe('Authentication API', () => {
   });
   describe('POST /v1/auth/send-password-reset', () => {
     it('should send an email with password reset link when email matches a user', async () => {
-      await PasswordResetToken.create(resetToken);
+      const PasswordResetTokenObj = await PasswordResetToken.create(resetToken);
 
-      sandbox.stub(emailProvider, 'sendPasswordReset').callsFake(() => Promise.resolve());
+      expect(PasswordResetTokenObj.resetToken).to.be.equal('5947397b323ae82d8c3a333b.c69d0435e62c9f4953af912442a3d064e20291f0d228c0552ed4be473e7d191ba40b18c2c47e8b9d');
+      expect(PasswordResetTokenObj.userId.toString()).to.be.equal('5947397b323ae82d8c3a333b');
+      expect(PasswordResetTokenObj.userEmail).to.be.equal(dbUser.email);
+      expect(PasswordResetTokenObj.expires).to.be.above(moment()
+        .add(1, 'hour')
+        .toDate());
+
+      const emailProviderStub = sandbox
+        .stub(emailProvider, 'sendPasswordReset')
+        .callsFake(() => Promise.resolve());
+
+      expect(emailProviderStub.called);
 
       return request(app)
         .post('/v1/auth/send-password-reset')
@@ -418,7 +429,11 @@ describe('Authentication API', () => {
     it('should update password and send confirmation email when email and reset token are valid', async () => {
       await PasswordResetToken.create(resetToken);
 
-      sandbox.stub(emailProvider, 'sendPasswordChangeEmail').callsFake(() => Promise.resolve());
+      const emailProviderStub = sandbox
+        .stub(emailProvider, 'sendPasswordChangeEmail')
+        .callsFake(() => Promise.resolve());
+
+      expect(emailProviderStub.called);
 
       return request(app)
         .post('/v1/auth/reset-password')
@@ -494,7 +509,12 @@ describe('Authentication API', () => {
     });
 
     it('should report error when the resetToken is expired', async () => {
-      await PasswordResetToken.create(expiredResetToken);
+      const expiredPasswordResetTokenObj = await PasswordResetToken.create(expiredResetToken);
+      console.log('this is expired reset obj', expiredPasswordResetTokenObj);
+      expect(expiredPasswordResetTokenObj.resetToken).to.be.equal('5947397b323ae82d8c3a333b.c69d0435e62c9f4953af912442a3d064e20291f0d228c0552ed4be473e7d191ba40b18c2c47e8b9d');
+      expect(expiredPasswordResetTokenObj.userId.toString()).to.be.equal('5947397b323ae82d8c3a333b');
+      expect(expiredPasswordResetTokenObj.userEmail).to.be.equal(dbUser.email);
+      expect(expiredPasswordResetTokenObj.expires).to.be.below(moment().toDate());
 
       return request(app)
         .post('/v1/auth/reset-password')
