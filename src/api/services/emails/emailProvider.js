@@ -66,11 +66,11 @@ exports.sendPasswordChangeEmail = async (user) => {
     .send({
       template: 'passwordChange',
       message: {
-        to: user.email
+        to: user.email,
       },
       locals: {
         productName: 'Test App',
-        name: user.name
+        name: user.name,
       },
     })
     .catch(err => console.log('error sending email', err));
