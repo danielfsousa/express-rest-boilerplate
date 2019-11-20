@@ -382,10 +382,10 @@ describe('Authentication API', () => {
 
       const emailProviderStub = sandbox
         .stub(emailProvider, 'sendPasswordReset')
-        .callsFake(() => 'email sent');
+        .returns('email sent');
 
-      expect(emailProviderStub.called);
       expect(emailProviderStub()).to.be.equal('email sent');
+      expect(emailProviderStub.called);
 
       emailProviderStub.resetBehavior();
 
@@ -432,13 +432,13 @@ describe('Authentication API', () => {
       await PasswordResetToken.create(resetToken);
 
       const emailProviderStub = sandbox
-        .stub(emailProvider, 'sendPasswordChangeEmail')
-        .callsFake(() => Promise.resolve('email sent'));
+        .stub(emailProvider, 'sendPasswordReset')
+        .returns('email sent');
 
-      expect(await emailProviderStub()).to.be.equal('email sent');
+      expect(emailProviderStub()).to.be.equal('email sent');
       expect(emailProviderStub.called);
 
-      emailProviderStub.reset();
+      emailProviderStub.resetBehavior();
 
       return request(app)
         .post('/v1/auth/reset-password')
