@@ -2,7 +2,6 @@ const nodemailer = require('nodemailer');
 const { emailConfig } = require('../../../config/vars');
 const Email = require('email-templates');
 
-
 // SMTP is the main transport in Nodemailer for delivering messages.
 // SMTP is also the protocol used between almost all email hosts, so its truly universal.
 // if you dont want to use SMTP you can create your own transport here
@@ -19,11 +18,9 @@ const transporter = nodemailer.createTransport({
 });
 
 // verify connection configuration
-transporter.verify((error, success) => {
+transporter.verify((error) => {
   if (error) {
     console.log('error with email connection', error);
-  } else {
-    console.log('Server is ready to take our emails', success);
   }
 });
 
@@ -50,8 +47,7 @@ exports.sendPasswordReset = async (passwordResetObject) => {
         // can enter a new password along with passing the resetToken in the params
         passwordResetUrl: `https://your-app/new-password/view?resetToken=${passwordResetObject.resetToken}`,
       },
-    })
-    .catch(err => console.error('error sending email', err));
+    });
 };
 
 exports.sendPasswordChangeEmail = async (user) => {
@@ -75,6 +71,5 @@ exports.sendPasswordChangeEmail = async (user) => {
         productName: 'Test App',
         name: user.name,
       },
-    })
-    .catch(err => console.error('error sending email', err));
+    });
 };

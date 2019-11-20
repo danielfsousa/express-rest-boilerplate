@@ -427,15 +427,15 @@ describe('Authentication API', () => {
         });
     });
   });
-
   describe('POST /v1/auth/reset-password', () => {
     it('should update password and send confirmation email when email and reset token are valid', async () => {
       await PasswordResetToken.create(resetToken);
 
       const emailProviderStub = sandbox
         .stub(emailProvider, 'sendPasswordChangeEmail')
-        .callsFake(() => Promise.resolve());
+        .callsFake(() => Promise.resolve('email sent'));
 
+      expect(await emailProviderStub()).to.be.equal('email sent');
       expect(emailProviderStub.called);
 
       return request(app)
