@@ -387,7 +387,7 @@ describe('Authentication API', () => {
       expect(emailProviderStub()).to.be.equal('email sent');
       expect(emailProviderStub.called);
 
-      emailProviderStub.resetBehavior();
+      emailProviderStub.reset();
 
       return request(app)
         .post('/v1/auth/send-password-reset')
@@ -432,13 +432,13 @@ describe('Authentication API', () => {
       await PasswordResetToken.create(resetToken);
 
       const emailProviderStub = sandbox
-        .stub(emailProvider, 'sendPasswordReset')
+        .stub(emailProvider, 'sendPasswordChangeEmail')
         .returns('email sent');
 
       expect(emailProviderStub()).to.be.equal('email sent');
       expect(emailProviderStub.called);
 
-      emailProviderStub.resetBehavior();
+      emailProviderStub.reset();
 
       return request(app)
         .post('/v1/auth/reset-password')
