@@ -382,9 +382,12 @@ describe('Authentication API', () => {
 
       const emailProviderStub = sandbox
         .stub(emailProvider, 'sendPasswordReset')
-        .callsFake(() => Promise.resolve());
+        .callsFake(() => 'email sent');
 
       expect(emailProviderStub.called);
+      expect(emailProviderStub()).to.be.equal('email sent');
+
+      emailProviderStub.resetBehavior();
 
       return request(app)
         .post('/v1/auth/send-password-reset')
@@ -404,7 +407,7 @@ describe('Authentication API', () => {
         .then((res) => {
           const { code } = res.body;
           const { message } = res.body;
-          expect(code).to.be.equal(401);
+          expect(code).to.be.equal(httpStatus.UNAUTHORIZED);
           expect(message).to.be.equal('No account found with that email');
         });
     });
