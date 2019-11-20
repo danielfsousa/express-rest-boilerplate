@@ -20,7 +20,7 @@ const transporter = nodemailer.createTransport({
 // verify connection configuration
 transporter.verify((error) => {
   if (error) {
-    console.log('error with email connection', error);
+    console.log('error with email connection');
   }
 });
 
@@ -73,5 +73,5 @@ exports.sendPasswordChangeEmail = async (user) => {
         name: user.name,
       },
     })
-    .catch(err => console.log('error sending change password email', err));
+    .catch(() => console.log('error sending change password email'));
 };
