@@ -48,7 +48,7 @@ exports.sendPasswordReset = async (passwordResetObject) => {
         passwordResetUrl: `https://your-app/new-password/view?resetToken=${passwordResetObject.resetToken}`,
       },
     })
-    .catch(err => console.log('error sending email', err));
+    .catch(() => console.log('error sending password reset email'));
 };
 
 exports.sendPasswordChangeEmail = async (user) => {
@@ -73,5 +73,5 @@ exports.sendPasswordChangeEmail = async (user) => {
         name: user.name,
       },
     })
-    .catch(err => console.log('error sending email', err));
+    .catch(err => console.log('error sending change password email', err));
 };

@@ -515,7 +515,7 @@ describe('Authentication API', () => {
 
     it('should report error when the resetToken is expired', async () => {
       const expiredPasswordResetTokenObj = await PasswordResetToken.create(expiredResetToken);
-      console.log('this is expired reset obj', expiredPasswordResetTokenObj);
+
       expect(expiredPasswordResetTokenObj.resetToken).to.be.equal('5947397b323ae82d8c3a333b.c69d0435e62c9f4953af912442a3d064e20291f0d228c0552ed4be473e7d191ba40b18c2c47e8b9d');
       expect(expiredPasswordResetTokenObj.userId.toString()).to.be.equal('5947397b323ae82d8c3a333b');
       expect(expiredPasswordResetTokenObj.userEmail).to.be.equal(dbUser.email);

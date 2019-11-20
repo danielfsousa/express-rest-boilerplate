@@ -202,8 +202,6 @@ describe('Users API', async () => {
 
           const includesjonSnow = some(res.body, john);
 
-          console.log('this is resp', res.body);
-
           expect(res.body).to.be.an('array');
           expect(res.body).to.have.lengthOf(1);
           expect(includesjonSnow).to.be.true;
