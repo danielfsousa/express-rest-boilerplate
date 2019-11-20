@@ -438,6 +438,8 @@ describe('Authentication API', () => {
       expect(await emailProviderStub()).to.be.equal('email sent');
       expect(emailProviderStub.called);
 
+      emailProviderStub.reset();
+
       return request(app)
         .post('/v1/auth/reset-password')
         .send({
