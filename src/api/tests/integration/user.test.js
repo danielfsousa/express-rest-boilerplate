@@ -195,16 +195,11 @@ describe('Users API', async () => {
         .expect(httpStatus.OK)
         .then(async (res) => {
           delete dbUsers.jonSnow.password;
-          const john = await format(dbUsers.jonSnow);
-
-          // before comparing it is necessary to convert String to Date
-          res.body[0].createdAt = new Date(res.body[0].createdAt);
-
-          const includesjonSnow = some(res.body, john);
 
           expect(res.body).to.be.an('array');
+          expect(res.body[0]).to.be.an('object');
           expect(res.body).to.have.lengthOf(1);
-          expect(includesjonSnow).to.be.true;
+          expect(res.body[0].name).to.be.equal('Jon Snow');
         });
     });
 

@@ -27,6 +27,10 @@ env:
     - JWT_EXPIRATION_MINUTES=15
     - MONGO_URI=mongodb://localhost/express-rest-es2017-boilerplate
     - MONGO_URI_TESTS=mongodb://localhost/express-rest-es2017-boilerplate
+    - EMAIL_PORT=587
+    - EMAIL_HOST=smtp-relay.sendinblue.com
+    - EMAIL_USERNAME=smtp-username
+    - EMAIL_PASSWORD=smtp-password
 
 script: yarn validate
 after_success: yarn coverage

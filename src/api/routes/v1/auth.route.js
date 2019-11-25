@@ -7,6 +7,8 @@ const {
   register,
   oAuth,
   refresh,
+  sendPasswordReset,
+  passwordReset,
 } = require('../../validations/auth.validation');
 
 const router = express.Router();
@@ -96,10 +98,11 @@ router.route('/refresh-token')
   .post(validate(refresh), controller.refresh);
 
 
-/**
- * TODO: POST /v1/auth/reset-password
- */
+router.route('/send-password-reset')
+  .post(validate(sendPasswordReset), controller.sendPasswordReset);
 
+router.route('/reset-password')
+  .post(validate(passwordReset), controller.resetPassword);
 
 /**
  * @api {post} v1/auth/facebook Facebook Login
