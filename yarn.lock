@@ -2552,8 +2552,8 @@ https-proxy-agent@^2.2.1:
     debug "^3.1.0"
 
 husky@^3.0.7:
-  version "3.0.9"
-  resolved "https://registry.yarnpkg.com/husky/-/husky-3.0.9.tgz#a2c3e9829bfd6b4957509a9500d2eef5dbfc8044"
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/husky/-/husky-3.1.0.tgz#5faad520ab860582ed94f0c1a77f0f04c90b57c0"
   dependencies:
     chalk "^2.4.2"
     ci-info "^2.0.0"
