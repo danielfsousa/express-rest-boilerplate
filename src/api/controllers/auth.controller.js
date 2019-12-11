@@ -128,7 +128,7 @@ exports.resetPassword = async (req, res, next) => {
       err.message = 'Cannot find matching reset token';
       throw new APIError(err);
     }
-    if (moment().isAfter(resetTokenObject.expires)) {
+    if (moment(resetTokenObject.expires).isAfter(moment.now())) {
       err.message = 'Reset token is expired';
       throw new APIError(err);
     }
