@@ -1410,8 +1410,8 @@ ee-first@1.1.1:
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"
 
 email-templates@^6.0.3:
-  version "6.0.4"
-  resolved "https://registry.yarnpkg.com/email-templates/-/email-templates-6.0.4.tgz#d24710200af946d229d3936d2770976d30899f39"
+  version "6.0.6"
+  resolved "https://registry.yarnpkg.com/email-templates/-/email-templates-6.0.6.tgz#b32163b17900fd6fdacb526e81ee32656cb9cf9c"
   dependencies:
     "@ladjs/i18n" "^2.0.0"
     "@sindresorhus/is" "^1.2.0"
