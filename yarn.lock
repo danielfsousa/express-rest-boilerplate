@@ -2389,8 +2389,8 @@ http-signature@~1.2.0:
     sshpk "^1.7.0"
 
 http-status@^1.0.1:
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/http-status/-/http-status-1.4.1.tgz#eee383f10179305415dc2010bf534513e93abe5f"
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/http-status/-/http-status-1.5.0.tgz#2edfb02068d236ba60fd1481ad89219aa96e1677"
 
 https-proxy-agent@^2.2.1:
   version "2.2.4"
