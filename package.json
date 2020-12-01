@@ -88,7 +88,7 @@
     "passport-jwt": "4.0.0",
     "pm2": "^4.2.0",
     "pug": "^2.0.4",
-    "uuid": "^3.1.0",
+    "uuid": "^8.3.1",
     "winston": "^3.1.0"
   },
   "devDependencies": {
