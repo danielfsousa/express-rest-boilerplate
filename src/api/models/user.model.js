@@ -92,12 +92,12 @@ userSchema.method({
   },
 
   token() {
-    const playload = {
+    const payload = {
       exp: moment().add(jwtExpirationInterval, 'minutes').unix(),
       iat: moment().unix(),
       sub: this._id,
     };
-    return jwt.encode(playload, jwtSecret);
+    return jwt.encode(payload, jwtSecret);
   },
 
   async passwordMatches(password) {
