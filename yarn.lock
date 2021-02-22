@@ -4986,8 +4986,8 @@ supports-color@^7.1.0:
     has-flag "^4.0.0"
 
 systeminformation@^4.14.16:
-  version "4.30.7"
-  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-4.30.7.tgz#7e211875aada42abc8bb46cd6c652a274d7e78e0"
+  version "4.34.14"
+  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-4.34.14.tgz#81ddcb3998a53554bb7156fef8f57ee071cd1a3c"
 
 table@^5.2.3:
   version "5.4.6"
