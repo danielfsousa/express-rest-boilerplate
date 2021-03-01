@@ -3542,8 +3542,8 @@ node-environment-flags@1.0.5:
     semver "^5.7.0"
 
 nodemailer@^6.3.1:
-  version "6.4.11"
-  resolved "https://registry.yarnpkg.com/nodemailer/-/nodemailer-6.4.11.tgz#1f00b4ffd106403f17c03f3d43d5945b2677046c"
+  version "6.5.0"
+  resolved "https://registry.yarnpkg.com/nodemailer/-/nodemailer-6.5.0.tgz#d12c28d8d48778918e25f1999d97910231b175d9"
 
 nodemon@^2.0.1:
   version "2.0.4"
