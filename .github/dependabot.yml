@@ -1,0 +1,56 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "08:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: eslint
+    versions:
+    - 7.18.0
+    - 7.19.0
+    - 7.20.0
+    - 7.21.0
+    - 7.22.0
+    - 7.23.0
+    - 7.24.0
+  - dependency-name: mongoose
+    versions:
+    - 5.11.13
+    - 5.11.14
+    - 5.11.15
+    - 5.11.16
+    - 5.11.17
+    - 5.11.18
+    - 5.11.19
+    - 5.12.0
+    - 5.12.1
+    - 5.12.2
+    - 5.12.3
+  - dependency-name: y18n
+    versions:
+    - 4.0.1
+  - dependency-name: systeminformation
+    versions:
+    - 4.34.11
+    - 4.34.13
+    - 4.34.14
+    - 4.34.15
+    - 4.34.16
+    - 4.34.19
+    - 4.34.9
+  - dependency-name: nodemailer
+    versions:
+    - 6.4.17
+    - 6.4.18
+  - dependency-name: helmet
+    versions:
+    - 4.4.1
+  - dependency-name: apidoc
+    versions:
+    - 0.26.0
+  - dependency-name: joi
+    versions:
+    - 17.3.0
