@@ -3392,8 +3392,8 @@ module-details-from-path@^1.0.3:
   resolved "https://registry.npmjs.org/module-details-from-path/-/module-details-from-path-1.0.3.tgz"
 
 moment-timezone@^0.5.13, moment-timezone@^0.5.x:
-  version "0.5.27"
-  resolved "https://registry.npmjs.org/moment-timezone/-/moment-timezone-0.5.27.tgz"
+  version "0.5.33"
+  resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.33.tgz#b252fd6bb57f341c9b59a5ab61a8e51a73bbd22c"
   dependencies:
     moment ">= 2.9.0"
 
