@@ -43,7 +43,6 @@ const router = express.Router();
 router.route('/register')
   .post(validate(register), controller.register);
 
-
 /**
  * @api {post} v1/auth/login Login
  * @apiDescription Get an accessToken
@@ -74,7 +73,6 @@ router.route('/register')
 router.route('/login')
   .post(validate(login), controller.login);
 
-
 /**
  * @api {post} v1/auth/refresh-token Refresh Token
  * @apiDescription Refresh expired accessToken
@@ -96,7 +94,6 @@ router.route('/login')
  */
 router.route('/refresh-token')
   .post(validate(refresh), controller.refresh);
-
 
 router.route('/send-password-reset')
   .post(validate(sendPasswordReset), controller.sendPasswordReset);
@@ -145,6 +142,5 @@ router.route('/facebook')
  */
 router.route('/google')
   .post(validate(oAuth), oAuthLogin('google'), controller.oAuth);
-
 
 module.exports = router;

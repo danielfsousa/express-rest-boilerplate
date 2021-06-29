@@ -1,6 +1,6 @@
+const Email = require('email-templates');
 const nodemailer = require('nodemailer');
 const { emailConfig } = require('../../../config/vars');
-const Email = require('email-templates');
 
 // SMTP is the main transport in Nodemailer for delivering messages.
 // SMTP is also the protocol used between almost all email hosts, so its truly universal.

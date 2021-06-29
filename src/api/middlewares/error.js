@@ -1,6 +1,6 @@
 const httpStatus = require('http-status');
 const expressValidation = require('express-validation');
-const APIError = require('../utils/APIError');
+const APIError = require('../errors/api-error');
 const { env } = require('../../config/vars');
 
 /**

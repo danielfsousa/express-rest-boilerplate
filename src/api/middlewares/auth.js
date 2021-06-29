@@ -1,7 +1,7 @@
 const httpStatus = require('http-status');
 const passport = require('passport');
 const User = require('../models/user.model');
-const APIError = require('../utils/APIError');
+const APIError = require('../errors/api-error');
 
 const ADMIN = 'admin';
 const LOGGED_USER = '_loggedUser';
@@ -44,11 +44,9 @@ const handleJWT = (req, res, next, roles) => async (err, user, info) => {
 exports.ADMIN = ADMIN;
 exports.LOGGED_USER = LOGGED_USER;
 
-exports.authorize = (roles = User.roles) => (req, res, next) =>
-  passport.authenticate(
-    'jwt', { session: false },
-    handleJWT(req, res, next, roles),
-  )(req, res, next);
+exports.authorize = (roles = User.roles) => (req, res, next) => passport.authenticate(
+  'jwt', { session: false },
+  handleJWT(req, res, next, roles),
+)(req, res, next);
 
-exports.oAuth = service =>
-  passport.authenticate(service, { session: false });
+exports.oAuth = (service) => passport.authenticate(service, { session: false });

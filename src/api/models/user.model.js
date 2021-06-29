@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const moment = require('moment-timezone');
 const jwt = require('jwt-simple');
 const uuidv4 = require('uuid/v4');
-const APIError = require('../utils/APIError');
+const APIError = require('../errors/api-error');
 const { env, jwtSecret, jwtExpirationInterval } = require('../../config/vars');
 
 /**
@@ -119,23 +119,19 @@ userSchema.statics = {
    * @returns {Promise<User, APIError>}
    */
   async get(id) {
-    try {
-      let user;
+    let user;
 
-      if (mongoose.Types.ObjectId.isValid(id)) {
-        user = await this.findById(id).exec();
-      }
-      if (user) {
-        return user;
-      }
-
-      throw new APIError({
-        message: 'User does not exist',
-        status: httpStatus.NOT_FOUND,
-      });
-    } catch (error) {
-      throw error;
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      user = await this.findById(id).exec();
     }
+    if (user) {
+      return user;
+    }
+
+    throw new APIError({
+      message: 'User does not exist',
+      status: httpStatus.NOT_FOUND,
+    });
   },
 
   /**

@@ -73,8 +73,8 @@ exports.update = (req, res, next) => {
   const user = Object.assign(req.locals.user, updatedUser);
 
   user.save()
-    .then(savedUser => res.json(savedUser.transform()))
-    .catch(e => next(User.checkDuplicateEmail(e)));
+    .then((savedUser) => res.json(savedUser.transform()))
+    .catch((e) => next(User.checkDuplicateEmail(e)));
 };
 
 /**
@@ -84,7 +84,7 @@ exports.update = (req, res, next) => {
 exports.list = async (req, res, next) => {
   try {
     const users = await User.list(req.query);
-    const transformedUsers = users.map(user => user.transform());
+    const transformedUsers = users.map((user) => user.transform());
     res.json(transformedUsers);
   } catch (error) {
     next(error);
@@ -100,5 +100,5 @@ exports.remove = (req, res, next) => {
 
   user.remove()
     .then(() => res.status(httpStatus.NO_CONTENT).end())
-    .catch(e => next(e));
+    .catch((e) => next(e));
 };

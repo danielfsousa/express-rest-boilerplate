@@ -13,14 +13,13 @@ const emailProvider = require('../../services/emails/emailProvider');
 
 const sandbox = sinon.createSandbox();
 
-const fakeOAuthRequest = () =>
-  Promise.resolve({
-    service: 'facebook',
-    id: '123',
-    name: 'user',
-    email: 'test@test.com',
-    picture: 'test.jpg',
-  });
+const fakeOAuthRequest = () => Promise.resolve({
+  service: 'facebook',
+  id: '123',
+  name: 'user',
+  email: 'test@test.com',
+  picture: 'test.jpg',
+});
 
 describe('Authentication API', () => {
   let dbUser;
