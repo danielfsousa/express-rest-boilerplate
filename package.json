@@ -69,7 +69,7 @@
     "compression": "^1.6.2",
     "cors": "^2.8.3",
     "cross-env": "^7.0.3",
-    "dotenv-safe": "^6.0.0",
+    "dotenv-safe": "^8.2.0",
     "email-templates": "^6.0.3",
     "express": "^4.15.2",
     "express-validation": "^1.0.2",

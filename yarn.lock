@@ -1638,15 +1638,15 @@ dot-prop@^5.2.0:
   dependencies:
     is-obj "^2.0.0"
 
-dotenv-safe@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/dotenv-safe/-/dotenv-safe-6.0.0.tgz#8e5e5a8a7b0f588d22a8d7e8000d21a8ec42194f"
+dotenv-safe@^8.2.0:
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/dotenv-safe/-/dotenv-safe-8.2.0.tgz#8d548c7318a62c09a66c4dc8c31864cc007c78ba"
   dependencies:
-    dotenv "^6.0.0"
+    dotenv "^8.2.0"
 
-dotenv@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-6.0.0.tgz#24e37c041741c5f4b25324958ebbc34bca965935"
+dotenv@^8.2.0:
+  version "8.6.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-8.6.0.tgz#061af664d19f7f4d8fc6e4ff9b584ce237adcb8b"
 
 duplexer3@^0.1.4:
   version "0.1.4"
