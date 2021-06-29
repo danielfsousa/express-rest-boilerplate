@@ -1330,8 +1330,8 @@ country-language@^0.1.7:
     underscore.deep "~0.5.1"
 
 coveralls@^3.0.0:
-  version "3.1.0"
-  resolved "https://registry.npmjs.org/coveralls/-/coveralls-3.1.0.tgz"
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/coveralls/-/coveralls-3.1.1.tgz#f5d4431d8b5ae69c5079c8f8ca00d64ac77cf081"
   dependencies:
     js-yaml "^3.13.1"
     lcov-parse "^1.0.0"
