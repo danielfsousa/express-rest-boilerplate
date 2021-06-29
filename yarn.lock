@@ -4295,9 +4295,9 @@ pug-lexer@^4.1.0:
     is-expression "^3.0.0"
     pug-error "^1.3.3"
 
-pug-lexer@^5.0.0:
+pug-lexer@^5.0.1:
   version "5.0.1"
-  resolved "https://registry.npmjs.org/pug-lexer/-/pug-lexer-5.0.1.tgz"
+  resolved "https://registry.yarnpkg.com/pug-lexer/-/pug-lexer-5.0.1.tgz#ae44628c5bef9b190b665683b288ca9024b8b0d5"
   dependencies:
     character-parser "^2.2.0"
     is-expression "^4.0.0"
@@ -4349,7 +4349,7 @@ pug-runtime@^2.0.5:
   version "2.0.5"
   resolved "https://registry.npmjs.org/pug-runtime/-/pug-runtime-2.0.5.tgz"
 
-pug-runtime@^3.0.0:
+pug-runtime@^3.0.0, pug-runtime@^3.0.1:
   version "3.0.1"
   resolved "https://registry.npmjs.org/pug-runtime/-/pug-runtime-3.0.1.tgz"
 
@@ -4387,16 +4387,16 @@ pug@^2.0.4:
     pug-strip-comments "^1.0.4"
 
 pug@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.npmjs.org/pug/-/pug-3.0.1.tgz"
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/pug/-/pug-3.0.2.tgz#f35c7107343454e43bc27ae0ff76c731b78ea535"
   dependencies:
     pug-code-gen "^3.0.2"
     pug-filters "^4.0.0"
-    pug-lexer "^5.0.0"
+    pug-lexer "^5.0.1"
     pug-linker "^4.0.0"
     pug-load "^3.0.0"
     pug-parser "^6.0.0"
-    pug-runtime "^3.0.0"
+    pug-runtime "^3.0.1"
     pug-strip-comments "^2.0.0"
 
 pump@^3.0.0:
