@@ -3953,8 +3953,8 @@ passport-strategy@1.x.x, passport-strategy@^1.0.0:
   resolved "https://registry.npmjs.org/passport-strategy/-/passport-strategy-1.0.0.tgz"
 
 passport@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.npmjs.org/passport/-/passport-0.4.0.tgz"
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/passport/-/passport-0.4.1.tgz#941446a21cb92fc688d97a0861c38ce9f738f270"
   dependencies:
     passport-strategy "1.x.x"
     pause "0.0.1"
