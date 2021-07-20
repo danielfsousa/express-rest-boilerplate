@@ -6,6 +6,7 @@ const methodOverride = require('method-override');
 const cors = require('cors');
 const helmet = require('helmet');
 const passport = require('passport');
+const { OpticMiddleware } = require('@useoptic/express-middleware');
 const routes = require('../api/routes/v1');
 const { logs } = require('./vars');
 const strategies = require('./passport');
@@ -23,6 +24,9 @@ app.use(morgan(logs));
 // parse body params and attache them to req.body
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// API Documentation
+app.use(OpticMiddleware({ enabled: !!(process.env.NODE_ENV !== 'production') }));
 
 // gzip compression
 app.use(compress());

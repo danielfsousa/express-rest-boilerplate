@@ -62,6 +62,7 @@
     "starter project"
   ],
   "dependencies": {
+    "@useoptic/express-middleware": "^0.0.5",
     "axios": "^0.21.1",
     "bcryptjs": "2.4.3",
     "bluebird": "^3.5.0",
