@@ -6,9 +6,7 @@
       "request": "launch",
       "name": "nodemon",
       "runtimeExecutable": "nodemon",
-      "runtimeArgs": [
-        "--inspect"
-      ],
+      "runtimeArgs": ["--inspect"],
       "program": "${workspaceRoot}/src/index.js",
       "restart": true,
       "port": 9229,
@@ -21,9 +19,7 @@
       "request": "launch",
       "name": "node",
       "runtimeExecutable": "node",
-      "runtimeArgs": [
-        "--inspect"
-      ],
+      "runtimeArgs": ["--inspect"],
       "program": "${workspaceRoot}/src/index.js",
       "restart": true,
       "port": 9229,
