@@ -1,13 +1,7 @@
 node_modules/
 .git/
-.vscode/
 coverage/
-
-.dockerignore
 Dockerfile
-
+.dockerignore
 .gitignore
 .env
-.eslintrc
-.editorconfig
-.gitlab-ci.yml
