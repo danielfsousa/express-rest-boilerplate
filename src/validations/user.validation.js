@@ -1,5 +1,4 @@
 import Joi from 'joi'
-
 import User from '#models/user'
 
 // GET /v1/users

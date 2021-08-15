@@ -1,5 +1,4 @@
 import httpStatus from 'http-status'
-
 import ExtendableError from '#errors/extandable'
 
 export default class APIError extends ExtendableError {

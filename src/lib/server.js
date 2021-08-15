@@ -1,14 +1,13 @@
-import express from 'express'
-import cors from 'cors'
-import helmet from 'helmet'
-import passport from 'passport'
-import logger from 'morgan'
 import bodyParser from 'body-parser'
-
+import cors from 'cors'
+import express from 'express'
+import helmet from 'helmet'
+import logger from 'morgan'
+import passport from 'passport'
 import config from '#config'
-import routes from '#routes/v1/index'
 import * as authStrategies from '#lib/passport'
 import * as errorHandlingMiddlewares from '#middlewares/error'
+import routes from '#routes/v1/index'
 
 const app = express()
 

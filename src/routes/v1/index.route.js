@@ -1,7 +1,6 @@
 import express from 'express'
-
-import userRoutes from '#routes/v1/user'
 import authRoutes from '#routes/v1/auth'
+import userRoutes from '#routes/v1/user'
 
 // prettier-ignore
 const router = express.Router()

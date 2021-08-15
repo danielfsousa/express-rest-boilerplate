@@ -1,6 +1,5 @@
 import httpStatus from 'http-status'
 import { omit } from 'lodash-es'
-
 import User from '#models/user'
 
 export async function load(req, res, next, id) {

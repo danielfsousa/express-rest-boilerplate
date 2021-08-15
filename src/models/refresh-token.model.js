@@ -1,7 +1,7 @@
-import mongoose from 'mongoose'
 import crypto from 'crypto'
 // TODO: use date-fns or temporal
 import moment from 'moment-timezone'
+import mongoose from 'mongoose'
 
 /**
  * Refresh Token Schema

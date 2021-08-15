@@ -1,6 +1,5 @@
 import Email from 'email-templates'
 import nodemailer from 'nodemailer'
-
 import config from '#config'
 
 // SMTP is the main transport in Nodemailer for delivering messages.

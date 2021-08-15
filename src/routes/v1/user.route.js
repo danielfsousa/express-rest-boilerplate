@@ -1,6 +1,5 @@
 import express from 'express'
 import validate from 'express-validation'
-
 import * as controller from '#controllers/user'
 import { authorize, ADMIN, LOGGED_USER } from '#middlewares/auth'
 import { listUsers, createUser, replaceUser, updateUser } from '#validations/user'

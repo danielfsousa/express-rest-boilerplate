@@ -1,7 +1,7 @@
 import config from '#config'
 import logger from '#lib/logger'
-import app from '#lib/server'
 import { connect as connectDatabase } from '#lib/mongoose'
+import app from '#lib/server'
 
 const { port, env } = config
 

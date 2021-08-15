@@ -1,8 +1,7 @@
 import httpStatus from 'http-status'
 import passport from 'passport'
-
-import User from '#models/user'
 import APIError from '#errors/api'
+import User from '#models/user'
 
 export const ADMIN = 'admin'
 export const LOGGED_USER = '_loggedUser'
