@@ -1,14 +1,16 @@
-FROM node:14-alpine
-
-EXPOSE 3000
-
-ARG NODE_ENV
-ENV NODE_ENV $NODE_ENV
-
-RUN mkdir /app
+FROM node:14 AS base
 WORKDIR /app
-ADD package.json yarn.lock /app/
-RUN yarn --pure-lockfile
-ADD . /app
+COPY package*.json ./
+COPY . .
 
-CMD ["yarn", "docker:start"]
+FROM base AS development
+RUN npm ci
+CMD ["node", "src/main.js"]
+
+FROM base AS build
+RUN npm ci --only=production
+
+FROM gcr.io/distroless/nodejs:14 AS production
+WORKDIR /app
+COPY --from=build /app /app
+CMD ["src/main.js"]
