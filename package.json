@@ -25,8 +25,8 @@
   "scripts": {
     "start": "node ./src/main.js",
     "dev": "nodemon ./src/main.js",
-    "lint": "eslint . && prettier . --check",
-    "lint:fix": "eslint . --fix && prettier --write .",
+    "lint": "eslint . ; prettier . --check",
+    "lint:fix": "eslint . --fix ; prettier --write .",
     "test": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text mocha --timeout 20000 --exit --recursive src/api/tests",
     "test:unit": "cross-env NODE_ENV=test mocha src/api/tests/unit",
     "test:integration": "cross-env NODE_ENV=test mocha --timeout 20000 --exit src/api/tests/integration",
