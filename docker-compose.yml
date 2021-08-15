@@ -1,15 +1,17 @@
 version: '3.9'
 services:
-  # express-rest-boilerplate:
-  #   build: .
-  #   environment:
-  #     - MONGO_URI=mongodb://mongodb:27017/express-rest-boilerplate
-  #   volumes:
-  #     - .:/app
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - mongodb
+  api:
+    build:
+      context: .
+      target: development
+    env_file:
+      - .env
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/app
+    depends_on:
+      - mongodb
 
   mongodb:
     image: mongo

@@ -1,7 +1,4 @@
 node_modules/
 .git/
 coverage/
-Dockerfile
-.dockerignore
-.gitignore
 .env

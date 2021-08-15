@@ -4,6 +4,8 @@
 
 Boilerplate/Generator/Starter project for building RESTful APIs and microservices using Node.js, Express and MongoDB.
 
+This is a highly optionated and fully featured starter project, if you don't need some feature or dependency just delete it.
+
 ## Features
 
 - No transpilers, just vanilla javascript
@@ -13,7 +15,7 @@ Boilerplate/Generator/Starter project for building RESTful APIs and microservice
 - Uses [yarn](https://yarnpkg.com)
 - Express + MongoDB ([Mongoose](http://mongoosejs.com/))
 - Consistent coding styles with [editorconfig](http://editorconfig.org)
-- [Docker](https://www.docker.com/) support
+- [Docker](https://www.docker.com/) and [Docker compose](https://docs.docker.com/compose/) with [multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build/) and [distroless](https://github.com/GoogleContainerTools/distroless) image for production
 - Uses [helmet](https://github.com/helmetjs/helmet) to set some HTTP headers for security
 - Load environment variables from .env files with [dotenv](https://github.com/rolodato/dotenv-safe)
 - Request validation with [joi](https://github.com/hapijs/joi)
