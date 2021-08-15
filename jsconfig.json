@@ -5,6 +5,7 @@
     "paths": {
       "#config": ["./src/config"],
       "#controllers/*": ["./src/controllers/*.controller"],
+      "#enums/*": ["./src/enums/*.enum"],
       "#errors/*": ["./src/errors/*.error"],
       "#lib/*": ["./src/lib/*"],
       "#middlewares/*": ["./src/middlewares/*.middleware"],

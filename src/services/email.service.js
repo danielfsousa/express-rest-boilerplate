@@ -1,38 +1,17 @@
 import Email from 'email-templates'
-import nodemailer from 'nodemailer'
 import config from '#config'
-
-// SMTP is the main transport in Nodemailer for delivering messages.
-// SMTP is also the protocol used between almost all email hosts, so its truly universal.
-// if you dont want to use SMTP you can create your own transport here
-// such as an email service API or nodemailer-sendgrid-transport
-
-const transporter = nodemailer.createTransport({
-  port: config.email.port,
-  host: config.email.host,
-  auth: {
-    user: config.email.username,
-    pass: config.email.password,
-  },
-  secure: false, // upgrades later with STARTTLS -- change this based on the PORT
-})
-
-// verify connection configuration
-transporter.verify(error => {
-  if (error) {
-    console.error('error with email connection')
-  }
-})
+import transport from '#lib/email'
+import logger from '#lib/logger'
 
 export async function sendPasswordReset(passwordResetObject) {
   const email = new Email({
-    views: { root: __dirname },
+    transport,
+    views: { root: config.appPath },
     message: {
       from: 'support@your-app.com',
     },
     // uncomment below to send emails in development/test env:
     send: true,
-    transport: transporter,
   })
 
   try {
@@ -48,20 +27,20 @@ export async function sendPasswordReset(passwordResetObject) {
         passwordResetUrl: `https://your-app/new-password/view?resetToken=${passwordResetObject.resetToken}`,
       },
     })
-  } catch (error) {
-    console.error('error sending password reset email:', error)
+  } catch (err) {
+    logger.error({ err, msg: 'error sending password reset email:' })
   }
 }
 
 export async function sendEmail(user) {
   const email = new Email({
-    views: { root: __dirname },
+    transport,
+    views: { root: config.appPath },
     message: {
       from: 'support@your-app.com',
     },
     // uncomment below to send emails in development/test env:
     send: true,
-    transport: transporter,
   })
 
   try {
@@ -75,7 +54,7 @@ export async function sendEmail(user) {
         name: user.name,
       },
     })
-  } catch (error) {
-    console.error('error sending change password email:', error)
+  } catch (err) {
+    logger.error({ err, msg: 'error sending change password email:' })
   }
 }

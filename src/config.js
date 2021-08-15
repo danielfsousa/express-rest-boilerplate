@@ -1,5 +1,6 @@
 import dotenv from 'dotenv-safe'
 import path from 'path'
+import LogLevel from '#enums/loglevel'
 
 const appPath = path.dirname(import.meta.url).replace('file:', '')
 
@@ -9,8 +10,12 @@ dotenv.config({
   sample: path.join(appPath, '../.env.example'),
 })
 
+const logLevel = process.env.LOG_LEVEL ?? LogLevel.INFO.str
+
 export default {
   appPath,
+  logLevel,
+  isProduction: process.env.NODE_ENV === 'production',
   env: process.env.NODE_ENV,
   port: process.env.PORT,
   jwtSecret: process.env.JWT_SECRET,
@@ -18,7 +23,6 @@ export default {
   mongo: {
     uri: process.env.NODE_ENV === 'test' ? process.env.MONGO_URI_TESTS : process.env.MONGO_URI,
   },
-  logs: process.env.NODE_ENV === 'production' ? 'combined' : 'dev',
   email: {
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
