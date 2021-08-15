@@ -1,6 +1,5 @@
 import express from 'express'
 import validate from 'express-validation'
-
 import * as controller from '#controllers/auth'
 import { oAuth as oAuthLogin } from '#middlewares/auth'
 import {

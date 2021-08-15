@@ -1,14 +1,13 @@
 /* eslint-disable no-unused-expressions */
-import request from 'supertest'
-import httpStatus from 'http-status'
-import { expect } from 'chai'
-import sinon from 'sinon'
 import bcrypt from 'bcryptjs'
+import { expect } from 'chai'
+import httpStatus from 'http-status'
 import { some, omitBy, isNil } from 'lodash-es'
-
+import sinon from 'sinon'
+import request from 'supertest'
+import { jwtExpirationInterval as JWT_EXPIRATION } from '#config'
 import app from '#lib/server'
 import User from '#models/user'
-import { jwtExpirationInterval as JWT_EXPIRATION } from '#config'
 
 /**
  * root level hooks

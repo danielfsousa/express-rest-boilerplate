@@ -1,6 +1,6 @@
-import mongoose from 'mongoose'
 import crypto from 'crypto'
 import moment from 'moment-timezone'
+import mongoose from 'mongoose'
 
 /**
  * Refresh Token Schema

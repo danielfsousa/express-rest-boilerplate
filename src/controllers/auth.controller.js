@@ -1,12 +1,11 @@
 import httpStatus from 'http-status'
-import moment from 'moment-timezone'
 import { omit } from 'lodash-es'
-
+import moment from 'moment-timezone'
 import config from '#config'
-import User from '#models/user'
-import RefreshToken from '#models/refresh-token'
-import PasswordResetToken from '#models/password-reset-token'
 import APIError from '#errors/api'
+import PasswordResetToken from '#models/password-reset-token'
+import RefreshToken from '#models/refresh-token'
+import User from '#models/user'
 import * as emailProvider from '#services/email-provider'
 
 function generateTokenResponse(user, accessToken) {

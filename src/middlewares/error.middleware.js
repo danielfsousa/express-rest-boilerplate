@@ -1,6 +1,5 @@
-import httpStatus from 'http-status'
 import expressValidation from 'express-validation'
-
+import httpStatus from 'http-status'
 import config from '#config'
 import APIError from '#errors/api'
 

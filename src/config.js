@@ -1,5 +1,5 @@
-import path from 'path'
 import dotenv from 'dotenv-safe'
+import path from 'path'
 
 const appPath = path.dirname(import.meta.url).replace('file:', '')
 

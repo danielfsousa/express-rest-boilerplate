@@ -1,13 +1,12 @@
-import request from 'supertest'
-import httpStatus from 'http-status'
 import { expect } from 'chai'
-import sinon from 'sinon'
+import httpStatus from 'http-status'
 import moment from 'moment-timezone'
-
+import sinon from 'sinon'
+import request from 'supertest'
 import app from '#lib/server'
-import User from '#models/user'
-import RefreshToken from '#models/refresh-token'
 import PasswordResetToken from '#models/password-reset-token'
+import RefreshToken from '#models/refresh-token'
+import User from '#models/user'
 import authProviders from '#services/auth-provider'
 import emailProvider from '#services/email-provider'
 

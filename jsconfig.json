@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "target": "es2020",
     "baseUrl": ".",
     "paths": {
       "#config": ["./src/config"],
@@ -12,5 +13,9 @@
       "#services/*": ["./src/services/*.service"],
       "#validations/*": ["./src/validations/*.validation]"]
     }
+  },
+  "include": ["src/**/*"],
+  "typeAcquisition": {
+    "exclude": ["agent-base", "socks-proxy-agent"]
   }
 }
