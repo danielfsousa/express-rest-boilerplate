@@ -1,8 +1,9 @@
+import passport from 'passport'
 import BearerStrategy from 'passport-http-bearer'
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt'
 import config from '#config'
 import User from '#models/user'
-import * as authProviders from '#services/auth-provider'
+import * as authProviders from '#services/auth'
 
 const jwtOptions = {
   secretOrKey: config.jwtSecret,
@@ -31,8 +32,10 @@ function oAuthHandler(service) {
   }
 }
 
-const jwt = new JwtStrategy(jwtOptions, jwtHandler)
-const facebook = new BearerStrategy(oAuthHandler('facebook'))
-const google = new BearerStrategy(oAuthHandler('google'))
+const authMiddleware = passport.initialize()
 
-export { jwt, facebook, google }
+passport.use('jwt', new JwtStrategy(jwtOptions, jwtHandler))
+passport.use('facebook', new BearerStrategy(oAuthHandler('facebook')))
+passport.use('google', new BearerStrategy(oAuthHandler('google')))
+
+export default authMiddleware

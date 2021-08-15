@@ -6,7 +6,7 @@ import APIError from '#errors/api'
 import PasswordResetToken from '#models/password-reset-token'
 import RefreshToken from '#models/refresh-token'
 import User from '#models/user'
-import * as emailProvider from '#services/email-provider'
+import * as emailProvider from '#services/email'
 
 function generateTokenResponse(user, accessToken) {
   const tokenType = 'Bearer'
