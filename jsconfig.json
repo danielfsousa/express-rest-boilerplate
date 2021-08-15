@@ -16,6 +16,17 @@
   },
   "include": ["src/**/*"],
   "typeAcquisition": {
-    "exclude": ["agent-base", "socks-proxy-agent"]
+    "exclude": [
+      "agent-base",
+      "socks-proxy-agent",
+      "defer-to-connect",
+      "degenerator",
+      "express-validation",
+      "fast-safe-stringify",
+      "file-uri-to-path",
+      "https-proxy-agent",
+      "source-map",
+      "tsconfig-paths"
+    ]
   }
 }
