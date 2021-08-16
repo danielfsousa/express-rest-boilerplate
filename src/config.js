@@ -1,32 +1,49 @@
-import dotenv from 'dotenv-safe'
+import dotenv from 'dotenv'
+import { cleanEnv, str, num } from 'envalid'
 import path from 'path'
 import LogLevel from '#enums/loglevel'
 
 const appPath = path.dirname(import.meta.url).replace('file:', '')
 
-// TODO: use a better library
 dotenv.config({
   path: path.join(appPath, '../.env'),
-  sample: path.join(appPath, '../.env.example'),
 })
 
-const logLevel = process.env.LOG_LEVEL ?? LogLevel.INFO.str
+const env = cleanEnv(process.env, {
+  NODE_ENV: str({
+    choices: ['development', 'test', 'production', 'staging'],
+    default: 'development',
+  }),
+  PORT: num({ default: 3000 }),
+  JWT_SECRET: str(),
+  JWT_EXPIRATION_MINUTES: num({ default: 15 }),
+  MONGO_URI: str(),
+  MONGO_URI_TESTS: str({ default: '' }),
+  EMAIL_HOST: str(),
+  EMAIL_PORT: num({ default: 25 }),
+  EMAIL_USERNAME: str(),
+  EMAIL_PASSWORD: str(),
+  LOG_LEVEL: str({
+    choices: Object.values(LogLevel).map(l => l.str),
+    default: LogLevel.INFO.str,
+  }),
+})
 
-export default {
+export default Object.freeze({
   appPath,
-  logLevel,
-  isProduction: process.env.NODE_ENV === 'production',
-  env: process.env.NODE_ENV,
-  port: process.env.PORT,
-  jwtSecret: process.env.JWT_SECRET,
-  jwtExpirationInterval: process.env.JWT_EXPIRATION_MINUTES,
+  logLevel: env.LOG_LEVEL,
+  isProduction: env.isProduction,
+  env: env.NODE_ENV,
+  port: env.PORT,
+  jwtSecret: env.JWT_SECRET,
+  jwtExpirationInterval: env.JWT_EXPIRATION_MINUTES,
   mongo: {
-    uri: process.env.NODE_ENV === 'test' ? process.env.MONGO_URI_TESTS : process.env.MONGO_URI,
+    uri: env.isTest ? env.MONGO_URI_TESTS : env.MONGO_URI,
   },
   email: {
-    host: process.env.EMAIL_HOST,
-    port: process.env.EMAIL_PORT,
-    username: process.env.EMAIL_USERNAME,
-    password: process.env.EMAIL_PASSWORD,
+    host: env.EMAIL_HOST,
+    port: env.EMAIL_PORT,
+    username: env.EMAIL_USERNAME,
+    password: env.EMAIL_PASSWORD,
   },
-}
+})
