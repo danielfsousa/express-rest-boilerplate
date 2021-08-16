@@ -569,9 +569,9 @@ apidoc-core@^0.15.0:
     lodash "^4.17.20"
     semver "~7.3.2"
 
-apidoc@^0.28.1:
-  version "0.28.1"
-  resolved "https://registry.npmjs.org/apidoc/-/apidoc-0.28.1.tgz"
+apidoc@^0.29.0:
+  version "0.29.0"
+  resolved "https://registry.yarnpkg.com/apidoc/-/apidoc-0.29.0.tgz#1374fa111edb00d523782ccea169e77526c19fc6"
   dependencies:
     apidoc-core "^0.15.0"
     commander "^2.20.0"
