@@ -1,25 +1,52 @@
+import { createTerminus } from '@godaddy/terminus'
+import http from 'http'
 import config from '#config'
-import { connect as connectDatabase } from '#lib/database'
-// import { verifySMTPConnection } from '#lib/email'
+import * as database from '#lib/database'
+import * as email from '#lib/email'
 import logger from '#lib/logger'
 import app from '#lib/server'
 
 const { port, env } = config
+const server = http.createServer(app)
 
 async function main() {
   setupErrorHandling()
-  await connectDatabase()
-  // await verifySMTPConnection()
-  app.listen(port, onAppListening)
+  await database.connect()
+  await email.verifyConnection()
+
+  createTerminus(server, {
+    onSignal,
+    onShutdown,
+    logger: (msg, err) => logger.error({ msg, err }),
+    healthChecks: {
+      '/health': onHealthCheck,
+      __unsafeExposeStackTraces: !config.isProduction,
+    },
+  })
+
+  server.listen(port, onListening)
 }
 
-function onAppListening() {
+function onListening() {
   logger.info({ env, msg: 'server started', url: `http://localhost:${port}` })
 }
 
-function onAppError(err) {
+function onError(err) {
   logger.fatal(err)
   process.exit(1)
+}
+
+async function onSignal() {
+  logger.info('server is starting cleanup')
+  await database.disconnect()
+}
+
+function onShutdown() {
+  logger.info('cleanup finished, server is shutting down')
+}
+
+async function onHealthCheck() {
+  await database.ping()
 }
 
 function setupErrorHandling() {
@@ -36,4 +63,4 @@ function setupErrorHandling() {
   })
 }
 
-main().catch(onAppError)
+main().catch(onError)

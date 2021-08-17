@@ -50,6 +50,7 @@
     "*.{js,json,md,yaml,yml,pug}": "prettier --write"
   },
   "dependencies": {
+    "@godaddy/terminus": "^4.9.0",
     "axios": "^0.21.1",
     "bcryptjs": "2.4.3",
     "bluebird": "^3.5.0",
