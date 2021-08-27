@@ -1,5 +1,5 @@
-import { createTerminus } from '@godaddy/terminus'
 import http from 'http'
+import { createTerminus } from '@godaddy/terminus'
 import config from '#config'
 import * as database from '#lib/database'
 import * as email from '#lib/email'
@@ -36,9 +36,12 @@ function onError(err) {
   process.exit(1)
 }
 
-async function onSignal() {
+function onSignal() {
   logger.info('server is starting cleanup')
-  await database.disconnect()
+  database
+    .disconnect()
+    .then(() => logger.info('database disconnected'))
+    .catch(err => logger.error({ err, msg: 'error during disconnection' }))
 }
 
 function onShutdown() {
