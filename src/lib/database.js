@@ -1,3 +1,4 @@
+import assert from 'assert'
 import mongoose from 'mongoose'
 import config from '#config'
 import LogLevel from '#enums/loglevel'
@@ -18,4 +19,13 @@ export async function connect() {
   })
 
   return mongoose.connection
+}
+
+export async function disconnect() {
+  await mongoose.disconnect()
+}
+
+export async function ping() {
+  const result = await mongoose.connection.db.admin().ping()
+  assert(result?.ok === 1)
 }

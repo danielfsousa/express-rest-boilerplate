@@ -1,5 +1,4 @@
 import nodemailer from 'nodemailer'
-import { promisify } from 'util'
 import config from '#config'
 
 // SMTP is the main transport in Nodemailer for delivering messages.
@@ -17,6 +16,8 @@ const transport = nodemailer.createTransport({
   secure: false, // upgrades later with STARTTLS -- change this based on the PORT
 })
 
-export const verifySMTPConnection = promisify(transport.verify)
+// TODO:
+// export const verifyConnection = promisify(transport.verify)
+export const verifyConnection = () => Promise.resolve(true)
 
 export default transport
