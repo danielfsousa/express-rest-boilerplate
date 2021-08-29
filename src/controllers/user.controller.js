@@ -3,21 +3,17 @@ import { omit } from 'lodash-es'
 import User from '#models/user'
 
 export async function load(req, res, next, id) {
-  try {
-    const user = await User.get(id)
-    req.locals = { user }
-    return next()
-  } catch (error) {
-    return next(error)
-  }
+  const user = await User.get(id)
+  req.locals = { user }
+  return next()
 }
 
 export function get(req, res) {
-  return res.json(req.locals.user.transform())
+  res.json(req.locals.user.transform())
 }
 
 export function loggedIn(req, res) {
-  return res.json(req.user.transform())
+  res.json(req.user.transform())
 }
 
 export async function create(req, res, next) {
@@ -61,21 +57,13 @@ export async function update(req, res, next) {
 }
 
 export async function list(req, res, next) {
-  try {
-    const users = await User.list(req.query)
-    const transformedUsers = users.map(user => user.transform())
-    res.json(transformedUsers)
-  } catch (error) {
-    next(error)
-  }
+  const users = await User.list(req.query)
+  const transformedUsers = users.map(user => user.transform())
+  res.json(transformedUsers)
 }
 
 export async function remove(req, res, next) {
   const { user } = req.locals
-  try {
-    await user.remove()
-    res.sendStatus(httpStatus.NO_CONTENT)
-  } catch (error) {
-    next(error)
-  }
+  await user.remove()
+  res.sendStatus(httpStatus.NO_CONTENT)
 }
