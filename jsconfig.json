@@ -1,6 +1,11 @@
 {
+  "include": ["src/**/*"],
   "compilerOptions": {
     "target": "es2020",
+    "module": "es2020",
+    "checkJs": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
       "#config": ["./src/config"],
@@ -15,8 +20,8 @@
       "#validations/*": ["./src/validations/*.validation]"]
     }
   },
-  "include": ["src/**/*"],
   "typeAcquisition": {
+    "include": ["http-status"],
     "exclude": [
       "agent-base",
       "socks-proxy-agent",
