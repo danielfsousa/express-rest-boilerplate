@@ -1,5 +1,3 @@
-import fs from 'fs'
-import path from 'path'
 import pino from 'pino'
 import config from '#config'
 
@@ -21,12 +19,6 @@ const escapeCodeByLevel = {
   60: escapeCodes.brightRed,
 }
 
-function getAppVersion() {
-  const packageJsonPath = path.join(config.appPath, '../package.json')
-  const pkg = JSON.parse(fs.readFileSync(packageJsonPath))
-  return pkg.version
-}
-
 function messageFormat(log) {
   const uid = `${escapeCodes.reset}[${log.uid}]`
   const message = escapeCodeByLevel[log.level] + (log.msg ?? log.err?.message ?? '')
@@ -42,7 +34,7 @@ const logger = pino({
   timestamp: true,
   level: config.logLevel,
   base: {
-    appVersion: getAppVersion(),
+    appVersion: config.version,
   },
   prettyPrint: !config.isProduction && {
     messageFormat,

@@ -21,7 +21,6 @@
     }
   },
   "typeAcquisition": {
-    "include": ["http-status"],
     "exclude": [
       "agent-base",
       "socks-proxy-agent",
