@@ -1,5 +1,6 @@
 import dotenv from 'dotenv'
 import { cleanEnv, str, num } from 'envalid'
+import fs from 'fs'
 import path from 'path'
 import LogLevel from '#enums/loglevel'
 
@@ -8,6 +9,8 @@ const appPath = path.dirname(import.meta.url).replace('file:', '')
 dotenv.config({
   path: path.join(appPath, '../.env'),
 })
+
+const pkg = JSON.parse(fs.readFileSync(path.join(appPath, '../package.json')))
 
 const env = cleanEnv(process.env, {
   NODE_ENV: str({
@@ -31,6 +34,8 @@ const env = cleanEnv(process.env, {
 
 export default Object.freeze({
   appPath,
+  openApiPath: path.join(appPath, '../openapi.yaml'),
+  version: pkg.version,
   logLevel: env.LOG_LEVEL,
   isProduction: env.isProduction,
   env: env.NODE_ENV,

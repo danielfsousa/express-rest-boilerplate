@@ -1,4 +1,5 @@
 import httpStatus from 'http-status'
+import openApiValidation from 'openapi-validator-middleware'
 import config from '#config'
 import APIError from '#errors/api'
 import logger from '#lib/logger'
@@ -10,6 +11,20 @@ export function notFoundErrorHandler(req, res, next) {
   })
 
   return catchAllErrorHandler(err, req, res, next)
+}
+
+export function validationErrorHandler(err, req, res, next) {
+  const convertedError =
+    err instanceof openApiValidation.InputValidationError
+      ? new APIError({
+          message: 'Validation Error',
+          errors: err.errors,
+          status: httpStatus.BAD_REQUEST,
+          stack: err.stack,
+        })
+      : err
+
+  return catchAllErrorHandler(convertedError, req, res, next)
 }
 
 export function genericErrorHandler(err, req, res, next) {

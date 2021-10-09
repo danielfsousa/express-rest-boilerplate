@@ -1,8 +1,7 @@
 import express from 'express'
-import validate from 'express-validation'
 import * as controller from '#controllers/user'
 import { authorize, ADMIN, LOGGED_USER } from '#middlewares/auth'
-import { listUsers, createUser, replaceUser, updateUser } from '#validations/user'
+import validate from '#middlewares/validation'
 
 const router = express.Router()
 
@@ -11,18 +10,20 @@ const router = express.Router()
  */
 router.param('userId', controller.load)
 
-router
+router //
   .route('/')
-  .get(authorize(ADMIN), validate(listUsers), controller.list)
-  .post(authorize(ADMIN), validate(createUser), controller.create)
+  .get(validate, authorize(ADMIN), controller.list)
+  .post(validate, authorize(ADMIN), controller.create)
 
-router.route('/profile').get(authorize(), controller.loggedIn)
+router //
+  .route('/profile')
+  .get(validate, authorize(), controller.loggedIn)
 
-router
+router //
   .route('/:userId')
-  .get(authorize(LOGGED_USER), controller.get)
-  .put(authorize(LOGGED_USER), validate(replaceUser), controller.replace)
-  .patch(authorize(LOGGED_USER), validate(updateUser), controller.update)
-  .delete(authorize(LOGGED_USER), controller.remove)
+  .get(validate, authorize(LOGGED_USER), controller.get)
+  .put(validate, authorize(LOGGED_USER), controller.replace)
+  .patch(validate, authorize(LOGGED_USER), controller.update)
+  .delete(validate, authorize(LOGGED_USER), controller.remove)
 
 export default router

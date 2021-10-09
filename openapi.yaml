@@ -1,0 +1,438 @@
+openapi: 3.0.3
+info:
+  description: Express boilerplate for building RESTful APIs
+  version: 2.0.0
+  title: express-rest-boilerplate
+tags:
+  - name: admin
+    description: Administrative endpoints
+  - name: auth
+    description: Authentication endpoints
+  - name: users
+    description: User endpoints
+externalDocs:
+  description: Github
+  url: https://github.com/danielfsousa/express-rest-boilerplate
+servers:
+  - description: development
+    url: http://localhost:3000
+  - description: staging
+    url: https://express-rest-boilerplate.staging.danisousa.me
+  - description: production
+    url: https://express-rest-boilerplate.danisousa.me
+paths:
+  /health:
+    get:
+      tags: [admin]
+      summary: Health check
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Ok
+        '500':
+          description: Not healthy
+
+  /v1/auth/register:
+    post:
+      tags: [auth]
+      summary: Register by email
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's email
+                password:
+                  type: string
+                  format: password
+                  description: User's password
+                  minLength: 8
+              example: { 'email': 'your@email.com', 'password': '*********' }
+      responses:
+        '201':
+          description: User Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /v1/auth/login:
+    post:
+      tags: [auth]
+      summary: Login by email
+      operationId: loginByEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's email
+                password:
+                  type: string
+                  description: User's password
+              example: { 'email': 'your@email.com', 'password': '*********' }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/auth/facebook:
+    post:
+      tags: [auth]
+      summary: Login by facebook
+      description: Login by facebook. Creates a new user if it does not exist
+      operationId: loginByFacebook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - accessToken
+              properties:
+                accessToken:
+                  type: string
+                  description: Facebook's access_token
+              example: { 'accessToken': 'abc' }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/auth/google:
+    post:
+      tags: [auth]
+      summary: Login by google
+      description: Login by google. Creates a new user if it does not exist
+      operationId: loginByGoogle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - accessToken
+              properties:
+                accessToken:
+                  type: string
+                  description: Google's access_token
+              example: { 'accessToken': 'abc' }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/auth/refresh-token:
+    post:
+      tags: [auth]
+      summary: Refresh expired accessToken
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - refreshToken
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's email
+                refreshToken:
+                  type: string
+                  description: Refresh token returned by any login route
+              example: { 'email': 'your@email.com', 'accessToken': 'abc' }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    $ref: '#/components/schemas/AuthToken'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/auth/send-password-reset:
+    post:
+      tags: [auth]
+      summary: Send password reset link
+      operationId: sendPasswordReset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's email
+              example: { 'email': 'your@email.com' }
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /v1/auth/reset-password:
+    post:
+      tags: [auth]
+      summary: Reset password
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's email
+                password:
+                  type: string
+                  format: password
+                  description: User's new password
+                  minLength: 8
+                resetToken:
+                  type: string
+                  description: Reset token sent to user's email
+              example: { 'email': 'your@email.com', 'password': '********', 'accessToken': 'abc' }
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /v1/users:
+    get:
+      tags: [users]
+      security:
+        - jwt: []
+      summary: List users
+      operationId: listUsers
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    post:
+      tags: [admin, users]
+      security:
+        - jwt: []
+      summary: Create user
+      description: Internal endpoint for user creation
+      operationId: createUser
+      responses:
+        '201':
+          description: Success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /v1/users/current:
+    get:
+      tags: [users]
+      security:
+        - jwt: []
+      summary: Get current logged user
+      operationId: getCurrentUser
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /v1/users/{userId}:
+    get:
+      tags: [users]
+      security:
+        - jwt: []
+      summary: Get user info
+      operationId: getUser
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    patch:
+      tags: [users]
+      security:
+        - jwt: []
+      summary: Update user info
+      operationId: updateUser
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    delete:
+      tags: [users]
+      security:
+        - jwt: []
+      summary: Delete user
+      operationId: deleteUser
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+components:
+  securitySchemes:
+    jwt:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: JWT Authentication
+  requestBodies:
+    UserArray:
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/User'
+      description: List of user object
+      required: true
+  responses:
+    BadRequest:
+      description: 'Bad Request: Some parameters may contain invalid values'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example: { 'code': 'BadRequest', 'message': 'Something is required' }
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example: { 'code': 'NotFound', 'message': 'User 1 not found' }
+    Unauthorized:
+      description: 'Unauthorized: Incorrect email or password'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example: { 'code': 'Unauthorized', 'message': 'Invalid access key' }
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example: { 'code': 'Forbidden', 'message': 'Insufficient permission' }
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+      required:
+        - code
+        - message
+    AuthToken:
+      type: object
+      properties:
+        tokenType:
+          type: string
+          description: Access Token's type
+        accessToken:
+          type: string
+          description: Authorization Token
+        refreshToken:
+          type: string
+          description: Token to get a new accessToken after expiration time
+        expiresIn:
+          type: integer
+          description: Access Token's expiration time in miliseconds
+      example: { 'tokenType': 'Bearer', 'accessToken': 'a', 'refreshToken': 'b', 'expiresIn': 123 }
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      example:
+        {
+          'id': 1,
+          'name': 'Daniel Sousa',
+          'email': 'your@email.com',
+          'role': 'admin',
+          'createdAt': '',
+        }
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          $ref: '#/components/schemas/AuthToken'
+        user:
+          $ref: '#/components/schemas/User'
