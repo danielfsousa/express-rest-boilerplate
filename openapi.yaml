@@ -16,10 +16,8 @@ externalDocs:
 servers:
   - description: development
     url: http://localhost:3000
-  - description: staging
-    url: https://express-rest-boilerplate.staging.danisousa.me
   - description: production
-    url: https://express-rest-boilerplate.danisousa.me
+    url: https://node-express-rest-boilerplate.herokuapp.com
 paths:
   /health:
     get:

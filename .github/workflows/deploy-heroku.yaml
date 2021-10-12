@@ -1,0 +1,77 @@
+name: Deploy
+on:
+  workflow_run:
+    workflows: ['Docker Build and Push']
+    branches:
+      - main
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag (leave empty for latest)'
+        required: false
+
+env:
+  APP_URL: https://node-express-rest-boilerplate.herokuapp.com
+  DOCKER_HUB_REPOSITORY: danielfsousa/express-rest-boilerplate
+  HEROKU_REPOSITORY: registry.heroku.com/node-express-rest-boilerplate/web
+
+jobs:
+  deploy-cops:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == null }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Tag
+        id: setup-tag
+        run: |
+          LATEST_TAG=$(git describe --tags --always `git rev-list --tags --max-count=1`)
+          INPUT_TAG="${{ github.event.inputs.tag }}"
+          DEPLOY_TAG="${INPUT_TAG:-$LATEST_TAG}"
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 $DEPLOY_TAG^)
+          echo "DEPLOY_TAG=$DEPLOY_TAG"
+          echo ::set-output name=tag::$DEPLOY_TAG
+
+      - uses: chrnorm/deployment-action@releases/v1
+        name: Create GitHub deployment
+        id: deployment
+        with:
+          token: ${{ github.token }}
+          target_url: ${{ env.APP_URL }}
+          ref: ${{ steps.setup-tag.outputs.tag }}
+          environment: production
+
+      - name: Login to Heroku Container registry
+        run: heroku container:login
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
+      - name: Deploy to heroku
+        run: |
+          docker tag ${{ env.DOCKER_HUB_REPOSITORY }}:${{ steps.setup-tag.outputs.tag }} ${{ env.HEROKU_REPOSITORY }}
+          docker push ${{ env.HEROKU_REPOSITORY }}
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
+      - name: Update deployment status (success)
+        if: success()
+        uses: chrnorm/deployment-status@releases/v1
+        with:
+          token: ${{ github.token }}
+          target_url: ${{ env.APP_URL }}
+          state: success
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+
+      - name: Update deployment status (failure)
+        if: failure()
+        uses: chrnorm/deployment-status@releases/v1
+        with:
+          token: ${{ github.token }}
+          target_url: ${{ env.APP_URL }}
+          state: failure
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
