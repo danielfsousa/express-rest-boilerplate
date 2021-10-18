@@ -100,7 +100,7 @@
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.2.0",
     "husky": "^3.0.7",
-    "mocha": "^6.2.2",
+    "mocha": "^9.1.3",
     "nodemon": "^2.0.1",
     "nyc": "^15.1.0",
     "opn-cli": "^5.0.0",
