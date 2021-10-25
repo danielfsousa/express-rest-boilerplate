@@ -393,12 +393,6 @@
   dependencies:
     "@types/babel-types" "*"
 
-"@types/bson@*":
-  version "4.0.3"
-  resolved "https://registry.npmjs.org/@types/bson/-/bson-4.0.3.tgz"
-  dependencies:
-    "@types/node" "*"
-
 "@types/color-name@^1.1.1":
   version "1.1.1"
   resolved "https://registry.npmjs.org/@types/color-name/-/color-name-1.1.1.tgz"
@@ -415,13 +409,6 @@
   version "3.0.3"
   resolved "https://registry.npmjs.org/@types/minimatch/-/minimatch-3.0.3.tgz"
 
-"@types/mongodb@^3.5.27":
-  version "3.6.18"
-  resolved "https://registry.npmjs.org/@types/mongodb/-/mongodb-3.6.18.tgz"
-  dependencies:
-    "@types/bson" "*"
-    "@types/node" "*"
-
 "@types/node@*":
   version "15.12.5"
   resolved "https://registry.npmjs.org/@types/node/-/node-15.12.5.tgz"
@@ -429,6 +416,17 @@
 "@types/normalize-package-data@^2.4.0":
   version "2.4.0"
   resolved "https://registry.npmjs.org/@types/normalize-package-data/-/normalize-package-data-2.4.0.tgz"
+
+"@types/webidl-conversions@*":
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/@types/webidl-conversions/-/webidl-conversions-6.1.1.tgz#e33bc8ea812a01f63f90481c666334844b12a09e"
+
+"@types/whatwg-url@^8.2.1":
+  version "8.2.1"
+  resolved "https://registry.yarnpkg.com/@types/whatwg-url/-/whatwg-url-8.2.1.tgz#f1aac222dab7c59e011663a0cb0a3117b2ef05d4"
+  dependencies:
+    "@types/node" "*"
+    "@types/webidl-conversions" "*"
 
 abbrev@1:
   version "1.1.1"
@@ -743,6 +741,10 @@ balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.0.tgz"
 
+base64-js@^1.3.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.5.1.tgz#1b1b440160a5bf7ad40b650f095963481903930a"
+
 basic-auth@~2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/basic-auth/-/basic-auth-2.0.1.tgz#b998279bf47ce38344b4f3cf916d4679bbf51e3a"
@@ -763,20 +765,9 @@ binary-extensions@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/binary-extensions/-/binary-extensions-2.0.0.tgz"
 
-bl@^2.2.1:
-  version "2.2.1"
-  resolved "https://registry.npmjs.org/bl/-/bl-2.2.1.tgz"
-  dependencies:
-    readable-stream "^2.3.5"
-    safe-buffer "^5.1.1"
-
 blessed@0.1.81:
   version "0.1.81"
   resolved "https://registry.npmjs.org/blessed/-/blessed-0.1.81.tgz"
-
-bluebird@3.5.1:
-  version "3.5.1"
-  resolved "https://registry.npmjs.org/bluebird/-/bluebird-3.5.1.tgz"
 
 bluebird@^3.1.1, bluebird@^3.5.0:
   version "3.7.2"
@@ -853,9 +844,11 @@ browserslist@^4.16.6:
     escalade "^3.1.1"
     node-releases "^1.1.71"
 
-bson@^1.1.4:
-  version "1.1.5"
-  resolved "https://registry.npmjs.org/bson/-/bson-1.1.5.tgz"
+bson@^4.2.2, bson@^4.5.2:
+  version "4.5.3"
+  resolved "https://registry.yarnpkg.com/bson/-/bson-4.5.3.tgz#de3783b357a407d935510beb1fbb285fef43bb06"
+  dependencies:
+    buffer "^5.6.0"
 
 buffer-equal-constant-time@1.0.1:
   version "1.0.1"
@@ -864,6 +857,13 @@ buffer-equal-constant-time@1.0.1:
 buffer-from@^1.0.0:
   version "1.1.0"
   resolved "https://registry.npmjs.org/buffer-from/-/buffer-from-1.1.0.tgz"
+
+buffer@^5.6.0:
+  version "5.7.1"
+  resolved "https://registry.yarnpkg.com/buffer/-/buffer-5.7.1.tgz#ba62e7c13133053582197160851a8f648e99eed0"
+  dependencies:
+    base64-js "^1.3.1"
+    ieee754 "^1.1.13"
 
 bytes@3.0.0:
   version "3.0.0"
@@ -1412,6 +1412,12 @@ debug@3.2.6:
   dependencies:
     ms "^2.1.1"
 
+debug@4.x:
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.2.tgz#f0a49c18ac8779e31d4a0c6029dfb76873c7428b"
+  dependencies:
+    ms "2.1.2"
+
 debug@^3.2.6, debug@^3.2.7:
   version "3.2.7"
   resolved "https://registry.yarnpkg.com/debug/-/debug-3.2.7.tgz#72580b7e9145fb39b6676f9c5e5fb100b934179a"
@@ -1477,9 +1483,9 @@ delayed-stream@~1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/delayed-stream/-/delayed-stream-1.0.0.tgz"
 
-denque@^1.4.1:
-  version "1.4.1"
-  resolved "https://registry.npmjs.org/denque/-/denque-1.4.1.tgz"
+denque@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/denque/-/denque-2.0.1.tgz#bcef4c1b80dc32efe97515744f21a4229ab8934a"
 
 depd@~1.1.2:
   version "1.1.2"
@@ -2495,6 +2501,10 @@ iconv-lite@^0.6.2:
   dependencies:
     safer-buffer ">= 2.1.2 < 3.0.0"
 
+ieee754@^1.1.13:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.2.1.tgz#8eb7a10a63fff25d15a57b001586d177d1b0d352"
+
 ignore-by-default@^1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/ignore-by-default/-/ignore-by-default-1.0.1.tgz"
@@ -3418,37 +3428,34 @@ moment-timezone@^0.5.13, moment-timezone@^0.5.x:
   version "2.24.0"
   resolved "https://registry.npmjs.org/moment/-/moment-2.24.0.tgz"
 
-mongodb@3.6.10:
-  version "3.6.10"
-  resolved "https://registry.yarnpkg.com/mongodb/-/mongodb-3.6.10.tgz#f10e990113c86b195c8af0599b9b3a90748b6ee4"
+mongodb-connection-string-url@^2.0.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/mongodb-connection-string-url/-/mongodb-connection-string-url-2.1.0.tgz#9c522c11c37f571fecddcb267ac4a76ef432aeb7"
   dependencies:
-    bl "^2.2.1"
-    bson "^1.1.4"
-    denque "^1.4.1"
-    optional-require "^1.0.3"
-    safe-buffer "^5.1.2"
+    "@types/whatwg-url" "^8.2.1"
+    whatwg-url "^9.1.0"
+
+mongodb@4.1.3:
+  version "4.1.3"
+  resolved "https://registry.yarnpkg.com/mongodb/-/mongodb-4.1.3.tgz#8bf24d782ba3f3833201f4e60b0307d87980ba71"
+  dependencies:
+    bson "^4.5.2"
+    denque "^2.0.1"
+    mongodb-connection-string-url "^2.0.0"
   optionalDependencies:
-    saslprep "^1.0.0"
+    saslprep "^1.0.3"
 
-mongoose-legacy-pluralize@1.0.2:
-  version "1.0.2"
-  resolved "https://registry.npmjs.org/mongoose-legacy-pluralize/-/mongoose-legacy-pluralize-1.0.2.tgz"
-
-mongoose@^5.2.17:
-  version "5.13.5"
-  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-5.13.5.tgz#9c8c0b46d35116dd4ea47683dfa836137e475243"
+mongoose@^6.0.12:
+  version "6.0.12"
+  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-6.0.12.tgz#a22727d52ca9e9ce3996330b895afe5cde75af3c"
   dependencies:
-    "@types/mongodb" "^3.5.27"
-    bson "^1.1.4"
+    bson "^4.2.2"
     kareem "2.3.2"
-    mongodb "3.6.10"
-    mongoose-legacy-pluralize "1.0.2"
-    mpath "0.8.3"
-    mquery "3.2.5"
+    mongodb "4.1.3"
+    mpath "0.8.4"
+    mquery "4.0.0"
     ms "2.1.2"
-    optional-require "1.0.x"
     regexp-clone "1.0.0"
-    safe-buffer "5.2.1"
     sift "13.5.2"
     sliced "1.0.1"
 
@@ -3462,18 +3469,16 @@ morgan@^1.8.1:
     on-finished "~2.3.0"
     on-headers "~1.0.2"
 
-mpath@0.8.3:
-  version "0.8.3"
-  resolved "https://registry.npmjs.org/mpath/-/mpath-0.8.3.tgz"
+mpath@0.8.4:
+  version "0.8.4"
+  resolved "https://registry.yarnpkg.com/mpath/-/mpath-0.8.4.tgz#6b566d9581621d9e931dd3b142ed3618e7599313"
 
-mquery@3.2.5:
-  version "3.2.5"
-  resolved "https://registry.npmjs.org/mquery/-/mquery-3.2.5.tgz"
+mquery@4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/mquery/-/mquery-4.0.0.tgz#6c62160ad25289e99e0840907757cdfd62bde775"
   dependencies:
-    bluebird "3.5.1"
-    debug "3.1.0"
+    debug "4.x"
     regexp-clone "^1.0.0"
-    safe-buffer "5.1.2"
     sliced "1.0.1"
 
 ms@2.0.0:
@@ -3752,10 +3757,6 @@ opn-cli@^5.0.0:
     meow "^5.0.0"
     open "^6.3.0"
     temp-write "^4.0.0"
-
-optional-require@1.0.x, optional-require@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/optional-require/-/optional-require-1.0.3.tgz#275b8e9df1dc6a17ad155369c2422a440f89cb07"
 
 optionator@^0.8.1:
   version "0.8.3"
@@ -4458,7 +4459,7 @@ readable-stream@1.1.x:
     isarray "0.0.1"
     string_decoder "~0.10.x"
 
-readable-stream@^2.3.5, readable-stream@^2.3.7:
+readable-stream@^2.3.7:
   version "2.3.7"
   resolved "https://registry.npmjs.org/readable-stream/-/readable-stream-2.3.7.tgz"
   dependencies:
@@ -4623,7 +4624,7 @@ safe-buffer@5.1.2, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.2"
   resolved "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.1.2.tgz"
 
-safe-buffer@5.2.1, safe-buffer@^5.0.1, safe-buffer@^5.1.1, safe-buffer@^5.1.2, safe-buffer@^5.2.1:
+safe-buffer@^5.0.1, safe-buffer@^5.1.2, safe-buffer@^5.2.1:
   version "5.2.1"
   resolved "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.2.1.tgz"
 
@@ -4631,9 +4632,9 @@ safe-buffer@5.2.1, safe-buffer@^5.0.1, safe-buffer@^5.1.1, safe-buffer@^5.1.2, s
   version "2.1.2"
   resolved "https://registry.npmjs.org/safer-buffer/-/safer-buffer-2.1.2.tgz"
 
-saslprep@^1.0.0:
+saslprep@^1.0.3:
   version "1.0.3"
-  resolved "https://registry.npmjs.org/saslprep/-/saslprep-1.0.3.tgz"
+  resolved "https://registry.yarnpkg.com/saslprep/-/saslprep-1.0.3.tgz#4c02f946b56cf54297e347ba1093e7acac4cf226"
   dependencies:
     sparse-bitfield "^3.0.3"
 
@@ -5123,6 +5124,12 @@ tough-cookie@~2.5.0:
     psl "^1.1.28"
     punycode "^2.1.1"
 
+tr46@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/tr46/-/tr46-2.1.0.tgz#fa87aa81ca5d5941da8cbf1f9b749dc969a4e240"
+  dependencies:
+    punycode "^2.1.1"
+
 trim-newlines@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/trim-newlines/-/trim-newlines-2.0.0.tgz"
@@ -5370,6 +5377,17 @@ web-resource-inliner@^4.3.3:
     safer-buffer "^2.1.2"
     valid-data-url "^2.0.0"
     xtend "^4.0.2"
+
+webidl-conversions@^6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/webidl-conversions/-/webidl-conversions-6.1.0.tgz#9111b4d7ea80acd40f5270d666621afa78b69514"
+
+whatwg-url@^9.1.0:
+  version "9.1.0"
+  resolved "https://registry.yarnpkg.com/whatwg-url/-/whatwg-url-9.1.0.tgz#1b112cf237d72cd64fa7882b9c3f6234a1c3050d"
+  dependencies:
+    tr46 "^2.1.0"
+    webidl-conversions "^6.1.0"
 
 which-boxed-primitive@^1.0.2:
   version "1.0.2"
