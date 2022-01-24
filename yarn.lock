@@ -707,11 +707,17 @@ aws4@^1.8.0:
   version "1.8.0"
   resolved "https://registry.npmjs.org/aws4/-/aws4-1.8.0.tgz"
 
-axios@^0.21.0, axios@^0.21.1:
+axios@^0.21.0:
   version "0.21.1"
   resolved "https://registry.npmjs.org/axios/-/axios-0.21.1.tgz"
   dependencies:
     follow-redirects "^1.10.0"
+
+axios@^0.25.0:
+  version "0.25.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.25.0.tgz#349cfbb31331a9b4453190791760a8d35b093e0a"
+  dependencies:
+    follow-redirects "^1.14.7"
 
 babel-runtime@^6.26.0:
   version "6.26.0"
@@ -2081,9 +2087,9 @@ fn.name@1.x.x:
   version "1.1.0"
   resolved "https://registry.npmjs.org/fn.name/-/fn.name-1.1.0.tgz"
 
-follow-redirects@^1.10.0:
-  version "1.13.1"
-  resolved "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.13.1.tgz"
+follow-redirects@^1.10.0, follow-redirects@^1.14.7:
+  version "1.14.7"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.7.tgz#2004c02eb9436eee9a21446a6477debf17e81685"
 
 foreground-child@^2.0.0:
   version "2.0.0"
