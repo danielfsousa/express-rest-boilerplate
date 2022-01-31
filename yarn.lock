@@ -222,6 +222,16 @@
   version "8.5.0"
   resolved "https://registry.npmjs.org/@hapi/hoek/-/hoek-8.5.0.tgz"
 
+"@hapi/hoek@^9.0.0":
+  version "9.2.1"
+  resolved "https://registry.yarnpkg.com/@hapi/hoek/-/hoek-9.2.1.tgz#9551142a1980503752536b5050fd99f4a7f13b17"
+
+"@hapi/topo@^5.0.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@hapi/topo/-/topo-5.1.0.tgz#dc448e332c6c6e37a4dc02fd84ba8d44b9afb012"
+  dependencies:
+    "@hapi/hoek" "^9.0.0"
+
 "@humanwhocodes/config-array@^0.5.0":
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/config-array/-/config-array-0.5.0.tgz#1407967d4c6eecd7388f83acf1eaf4d0c6e58ef9"
@@ -339,6 +349,20 @@
   resolved "https://registry.yarnpkg.com/@pm2/pm2-version-check/-/pm2-version-check-1.0.4.tgz#cf97fbb14b0eca95430ca05eedccbd2683806e43"
   dependencies:
     debug "^4.3.1"
+
+"@sideway/address@^4.1.3":
+  version "4.1.3"
+  resolved "https://registry.yarnpkg.com/@sideway/address/-/address-4.1.3.tgz#d93cce5d45c5daec92ad76db492cc2ee3c64ab27"
+  dependencies:
+    "@hapi/hoek" "^9.0.0"
+
+"@sideway/formula@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@sideway/formula/-/formula-3.0.0.tgz#fe158aee32e6bd5de85044be615bc08478a0a13c"
+
+"@sideway/pinpoint@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@sideway/pinpoint/-/pinpoint-2.0.0.tgz#cff8ffadc372ad29fd3f78277aeb29e632cc70df"
 
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"
@@ -2370,10 +2394,6 @@ helmet@^4.6.0:
   version "4.6.0"
   resolved "https://registry.npmjs.org/helmet/-/helmet-4.6.0.tgz"
 
-hoek@4.x.x:
-  version "4.2.1"
-  resolved "https://registry.npmjs.org/hoek/-/hoek-4.2.1.tgz"
-
 hosted-git-info@^2.1.4:
   version "2.8.9"
   resolved "https://registry.npmjs.org/hosted-git-info/-/hosted-git-info-2.8.9.tgz"
@@ -2736,10 +2756,6 @@ isarray@~1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/isarray/-/isarray-1.0.0.tgz"
 
-isemail@2.x.x:
-  version "2.2.1"
-  resolved "https://registry.npmjs.org/isemail/-/isemail-2.2.1.tgz"
-
 isexe@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/isexe/-/isexe-2.0.0.tgz"
@@ -2802,18 +2818,15 @@ istanbul-reports@^3.0.2:
     html-escaper "^2.0.0"
     istanbul-lib-report "^3.0.0"
 
-items@2.x.x:
-  version "2.1.1"
-  resolved "https://registry.npmjs.org/items/-/items-2.1.1.tgz"
-
-joi@^10.4.1:
-  version "10.6.0"
-  resolved "https://registry.npmjs.org/joi/-/joi-10.6.0.tgz"
+joi@^17.6.0:
+  version "17.6.0"
+  resolved "https://registry.yarnpkg.com/joi/-/joi-17.6.0.tgz#0bb54f2f006c09a96e75ce687957bd04290054b2"
   dependencies:
-    hoek "4.x.x"
-    isemail "2.x.x"
-    items "2.x.x"
-    topo "2.x.x"
+    "@hapi/hoek" "^9.0.0"
+    "@hapi/topo" "^5.0.0"
+    "@sideway/address" "^4.1.3"
+    "@sideway/formula" "^3.0.0"
+    "@sideway/pinpoint" "^2.0.0"
 
 js-git@^0.7.8:
   version "0.7.8"
@@ -5103,12 +5116,6 @@ token-stream@0.0.1:
 token-stream@1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/token-stream/-/token-stream-1.0.0.tgz"
-
-topo@2.x.x:
-  version "2.0.2"
-  resolved "https://registry.npmjs.org/topo/-/topo-2.0.2.tgz"
-  dependencies:
-    hoek "4.x.x"
 
 touch@^3.1.0:
   version "3.1.0"

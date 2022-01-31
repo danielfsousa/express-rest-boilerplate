@@ -75,7 +75,7 @@
     "express-validation": "^1.0.2",
     "helmet": "^4.6.0",
     "http-status": "^1.0.1",
-    "joi": "^10.4.1",
+    "joi": "^17.6.0",
     "jwt-simple": "0.5.6",
     "lodash": "^4.17.4",
     "method-override": "^3.0.0",
