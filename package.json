@@ -80,7 +80,7 @@
     "lodash": "^4.17.4",
     "method-override": "^3.0.0",
     "moment-timezone": "^0.5.13",
-    "mongoose": "^5.2.17",
+    "mongoose": "^6.4.0",
     "morgan": "^1.8.1",
     "nodemailer": "^6.3.1",
     "passport": "^0.4.0",
