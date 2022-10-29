@@ -28,7 +28,7 @@ jobs:
       - name: Run tests
         run: npm run test:cov
         env:
-          CI: true
+          CI: 'true'
           DEBUG: testcontainers*
 
       - name: Upload coverage to Codecov
