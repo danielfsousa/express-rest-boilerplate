@@ -32,7 +32,7 @@ function messageFormat(log) {
 
 const logger = pino({
   timestamp: true,
-  level: config.logLevel,
+  level: config.isTest ? config.logLevelTests : config.logLevel,
   base: {
     appVersion: config.version,
   },

@@ -4,28 +4,35 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "nodemon",
-      "runtimeExecutable": "nodemon",
+      "name": "Debug",
+      "runtimeExecutable": "node",
       "runtimeArgs": ["--inspect"],
       "program": "${workspaceRoot}/src/main.js",
       "restart": true,
-      "port": 9229,
-      "protocol": "inspector",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
     },
     {
       "type": "node",
       "request": "launch",
-      "name": "node",
-      "runtimeExecutable": "node",
+      "name": "Debug with nodemon",
+      "runtimeExecutable": "nodemon",
       "runtimeArgs": ["--inspect"],
       "program": "${workspaceRoot}/src/main.js",
       "restart": true,
-      "port": 9229,
-      "protocol": "inspector",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Current Test File",
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",
+      "args": ["run", "${relativeFile}"],
+      "smartStep": true,
+      "console": "integratedTerminal"
     }
   ],
   "compounds": []

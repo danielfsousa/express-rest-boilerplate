@@ -11,7 +11,7 @@ const server = http.createServer(app)
 
 async function main() {
   setupErrorHandling()
-  await database.connect()
+  await database.connect(config.mongo.uri)
   await email.verifyConnection()
 
   createTerminus(server, {
@@ -36,7 +36,7 @@ function onError(err) {
   process.exit(1)
 }
 
-function onSignal() {
+async function onSignal() {
   logger.info('server is starting cleanup')
   database
     .disconnect()
@@ -44,7 +44,7 @@ function onSignal() {
     .catch(err => logger.error({ err, msg: 'error during disconnection' }))
 }
 
-function onShutdown() {
+async function onShutdown() {
   logger.info('cleanup finished, server is shutting down')
 }
 

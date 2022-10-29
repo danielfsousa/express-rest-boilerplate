@@ -32,7 +32,7 @@ export async function sendPasswordReset(passwordResetObject) {
   }
 }
 
-export async function sendEmail(user) {
+export async function sendPasswordChangeEmail(user) {
   const email = new Email({
     transport,
     views: { root: config.appPath },

@@ -6,7 +6,6 @@
     "sourceType": "module"
   },
   "env": {
-    "node": true,
-    "mocha": true
+    "node": true
   }
 }

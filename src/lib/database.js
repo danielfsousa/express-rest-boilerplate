@@ -1,6 +1,5 @@
 import assert from 'assert'
 import mongoose from 'mongoose'
-import config from '#config'
 import LogLevel from '#enums/loglevel'
 import logger from '#lib/logger'
 
@@ -8,9 +7,8 @@ if (logger.levelVal <= LogLevel.DEBUG.val) {
   mongoose.set('debug', true)
 }
 
-export async function connect() {
-  // TODO: extract configuration to config.js file
-  await mongoose.connect(config.mongo.uri, {
+export async function connect(uri) {
+  await mongoose.connect(uri, {
     useCreateIndex: true,
     keepAlive: 1,
     useNewUrlParser: true,

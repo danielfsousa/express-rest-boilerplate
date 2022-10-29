@@ -51,7 +51,7 @@ paths:
                   description: User's email
                 password:
                   type: string
-                  format: password
+                  # format: password
                   description: User's password
                   minLength: 8
               example: { 'email': 'your@email.com', 'password': '*********' }
@@ -86,6 +86,7 @@ paths:
                   description: User's email
                 password:
                   type: string
+                  # format: password
                   description: User's password
               example: { 'email': 'your@email.com', 'password': '*********' }
       responses:
@@ -113,12 +114,12 @@ paths:
             schema:
               type: object
               required:
-                - accessToken
+                - access_token
               properties:
-                accessToken:
+                access_token:
                   type: string
                   description: Facebook's access_token
-              example: { 'accessToken': 'abc' }
+              example: { 'access_token': 'abc' }
       responses:
         '200':
           description: Success
@@ -144,12 +145,12 @@ paths:
             schema:
               type: object
               required:
-                - accessToken
+                - access_token
               properties:
-                accessToken:
+                access_token:
                   type: string
                   description: Google's access_token
-              example: { 'accessToken': 'abc' }
+              example: { 'access_token': 'abc' }
       responses:
         '200':
           description: Success
@@ -245,7 +246,6 @@ paths:
                   description: User's email
                 password:
                   type: string
-                  format: password
                   description: User's new password
                   minLength: 8
                 resetToken:
@@ -265,6 +265,36 @@ paths:
         - jwt: []
       summary: List users
       operationId: listUsers
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+        - name: perPage
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: email
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: role
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [user, admin]
       responses:
         '200':
           description: Success
@@ -303,6 +333,12 @@ paths:
         - jwt: []
       summary: Get user info
       operationId: getUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -314,6 +350,12 @@ paths:
         - jwt: []
       summary: Update user info
       operationId: updateUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -325,6 +367,12 @@ paths:
         - jwt: []
       summary: Delete user
       operationId: deleteUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Success

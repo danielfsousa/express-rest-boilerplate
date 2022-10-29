@@ -5,9 +5,7 @@ import validate from '#middlewares/validation'
 
 const router = express.Router()
 
-/**
- * Load user when API with userId route parameter is hit
- */
+// Load user when API with userId route parameter is hit
 router.param('userId', controller.load)
 
 router //
@@ -16,13 +14,12 @@ router //
   .post(validate, authorize(ADMIN), controller.create)
 
 router //
-  .route('/profile')
-  .get(validate, authorize(), controller.loggedIn)
+  .route('/current')
+  .get(validate, authorize(), controller.getCurrent)
 
 router //
   .route('/:userId')
   .get(validate, authorize(LOGGED_USER), controller.get)
-  .put(validate, authorize(LOGGED_USER), controller.replace)
   .patch(validate, authorize(LOGGED_USER), controller.update)
   .delete(validate, authorize(LOGGED_USER), controller.remove)
 

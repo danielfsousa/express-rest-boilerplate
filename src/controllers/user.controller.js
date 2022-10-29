@@ -12,7 +12,7 @@ export function get(req, res) {
   res.json(req.locals.user.transform())
 }
 
-export function loggedIn(req, res) {
+export function getCurrent(req, res) {
   res.json(req.user.transform())
 }
 
@@ -21,22 +21,6 @@ export async function create(req, res, next) {
     const user = new User(req.body)
     const savedUser = await user.save()
     res.status(httpStatus.CREATED)
-    res.json(savedUser.transform())
-  } catch (error) {
-    next(User.checkDuplicateEmail(error))
-  }
-}
-
-export async function replace(req, res, next) {
-  try {
-    const { user } = req.locals
-    const newUser = new User(req.body)
-    const ommitRole = user.role !== 'admin' ? 'role' : ''
-    const newUserObject = omit(newUser.toObject(), '_id', ommitRole)
-
-    await user.updateOne(newUserObject, { override: true, upsert: true })
-    const savedUser = await User.findById(user._id)
-
     res.json(savedUser.transform())
   } catch (error) {
     next(User.checkDuplicateEmail(error))
