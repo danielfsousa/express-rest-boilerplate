@@ -16,11 +16,28 @@ function generateTokenResponse(user, accessToken) {
 }
 
 export async function register(req, res, next) {
-  const userData = omit(req.body, 'role')
-  const user = await new User(userData).save()
-  const userTransformed = user.transform()
-  const token = generateTokenResponse(user, user.token())
-  res.status(httpStatus.CREATED).json({ token, user: userTransformed })
+  try {
+    const userData = omit(req.body, 'role')
+    const user = await new User(userData).save()
+    const userTransformed = user.transform()
+    const token = generateTokenResponse(user, user.token())
+    res.status(httpStatus.CREATED).json({ token, user: userTransformed })
+  } catch (err) {
+    if (err.message.includes('duplicate key error')) {
+      throw new APIError({
+        message: '"email" already exists',
+        status: httpStatus.CONFLICT,
+        errors: [
+          {
+            field: 'email',
+            location: 'body',
+            messages: ['"email" already exists'],
+          },
+        ],
+      })
+    }
+    throw err
+  }
 }
 
 export async function login(req, res, next) {

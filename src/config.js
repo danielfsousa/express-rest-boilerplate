@@ -30,6 +30,10 @@ const env = cleanEnv(process.env, {
     choices: Object.values(LogLevel).map(l => l.str),
     default: LogLevel.INFO.str,
   }),
+  LOG_LEVEL_TESTS: str({
+    choices: Object.values(LogLevel).map(l => l.str),
+    default: LogLevel.FATAL.str,
+  }),
 })
 
 export default Object.freeze({
@@ -37,6 +41,8 @@ export default Object.freeze({
   openApiPath: path.join(appPath, '../openapi.yaml'),
   version: pkg.version,
   logLevel: env.LOG_LEVEL,
+  logLevelTests: env.LOG_LEVEL_TESTS,
+  isTest: env.NODE_ENV === 'test',
   isProduction: env.isProduction,
   env: env.NODE_ENV,
   port: env.PORT,

@@ -7,10 +7,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Use Node.js 14.x
+      - name: Use Node.js 16.x
         uses: actions/setup-node@v2
         with:
-          node-version: 14.x
+          node-version: 16.x
 
       - name: Cache npm
         uses: actions/cache@v2
@@ -26,9 +26,10 @@ jobs:
         run: npm run lint
 
       - name: Run tests
-        run: npm test
+        run: npm run test:cov
+        env:
+          CI: 'true'
+          DEBUG: testcontainers*
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
-        with:
-          fail_ci_if_error: false

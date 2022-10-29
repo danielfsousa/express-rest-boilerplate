@@ -8,7 +8,10 @@
     "url": "git@github.com:danielfsousa/express-rest-boilerplate.git"
   },
   "license": "MIT",
-  "author": "Daniel Sousa <sousa.dfs@gmail.com>",
+  "author": {
+    "name": "Daniel Sousa",
+    "email": "sousa.dfs@gmail.com"
+  },
   "type": "module",
   "imports": {
     "#config": "./src/config.js",
@@ -31,10 +34,8 @@
     "lint:fix": "eslint . --fix ; prettier --write .",
     "prepare": "husky install",
     "start": "node ./src/main.js",
-    "test": "echo no tests",
-    "test:integration": "cross-env NODE_ENV=test mocha --timeout 20000 --exit src/api/tests/integration",
-    "test:unit": "cross-env NODE_ENV=test mocha src/api/tests/unit",
-    "test:watch": "cross-env NODE_ENV=test mocha --watch src/api/tests/unit",
+    "test": "vitest",
+    "test:cov": "vitest run test.test.js --coverage",
     "validate": "lint-staged"
   },
   "lint-staged": {
@@ -61,7 +62,7 @@
     "mongoose": "^5.2.17",
     "nodemailer": "^6.3.1",
     "openapi-validator-middleware": "^3.2.3",
-    "passport": "^0.4.0",
+    "passport": "^0.6.0",
     "passport-http-bearer": "^1.0.1",
     "passport-jwt": "4.0.0",
     "pino": "^6.13.0",
@@ -73,10 +74,7 @@
     "@danielfsousa/prettier-config": "^1.1.0",
     "@prettier/plugin-pug": "^1.16.4",
     "@trivago/prettier-plugin-sort-imports": "^2.0.2",
-    "apidoc": "^0.28.1",
-    "chai": "^4.1.0",
-    "chai-as-promised": "^7.1.1",
-    "coveralls": "^3.0.0",
+    "@vitest/coverage-c8": "^0.24.3",
     "cross-env": "^7.0.3",
     "eslint": "^7.29.0",
     "eslint-config-prettier": "^8.3.0",
@@ -86,19 +84,17 @@
     "eslint-plugin-promise": "^5.1.0",
     "husky": "^7.0.1",
     "lint-staged": "^11.2.3",
-    "mocha": "^6.2.2",
     "nodemon": "^2.0.1",
-    "nyc": "^15.1.0",
     "open-cli": "^7.0.0",
     "pino-pretty": "^5.1.3",
     "prettier": "^2.3.2",
     "prettier-plugin-packagejson": "^2.2.13",
-    "sinon": "^7.5.0",
-    "sinon-chai": "^3.0.0",
     "supertest": "^6.1.3",
-    "swagger-ui-express": "^4.1.6"
+    "swagger-ui-express": "^4.1.6",
+    "testcontainers": "^9.0.0",
+    "vitest": "^0.23.4"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=16"
   }
 }
