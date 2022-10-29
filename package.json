@@ -35,7 +35,7 @@
     "prepare": "husky install",
     "start": "node ./src/main.js",
     "test": "vitest",
-    "test:cov": "vitest run test.test.js --coverage",
+    "test:cov": "vitest run --coverage",
     "validate": "lint-staged"
   },
   "lint-staged": {
@@ -95,6 +95,6 @@
     "vitest": "^0.23.4"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   }
 }
