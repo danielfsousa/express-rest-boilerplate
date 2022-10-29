@@ -26,7 +26,7 @@ jobs:
         run: npm run lint
 
       - name: Run tests
-        run: npm run test:cov
+        run: DEBUG=testcontainers* npm run test:cov
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
