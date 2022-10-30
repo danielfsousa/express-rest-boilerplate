@@ -1,6 +1,5 @@
 import crypto from 'crypto'
-// TODO: use date-fns or temporal
-import moment from 'moment-timezone'
+import { addDays } from 'date-fns'
 import mongoose from 'mongoose'
 
 /**
@@ -37,7 +36,7 @@ refreshTokenSchema.statics = {
     const userId = user._id
     const userEmail = user.email
     const token = `${userId}.${crypto.randomBytes(40).toString('hex')}`
-    const expires = moment().add(30, 'days').toDate()
+    const expires = addDays(Date.now(), 30)
     const tokenObject = new RefreshToken({
       token,
       userId,

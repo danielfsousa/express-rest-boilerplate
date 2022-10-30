@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import moment from 'moment-timezone'
+import { addHours } from 'date-fns'
 import mongoose from 'mongoose'
 
 /**
@@ -28,15 +28,12 @@ const passwordResetTokenSchema = new mongoose.Schema({
 passwordResetTokenSchema.statics = {
   /**
    * Generate a reset token object and saves it into the database
-   *
-   * @param {User} user
-   * @returns {ResetToken}
    */
   async generate(user) {
     const userId = user._id
     const userEmail = user.email
     const resetToken = `${userId}.${crypto.randomBytes(40).toString('hex')}`
-    const expires = moment().add(2, 'hours').toDate()
+    const expires = addHours(Date.now(), 2)
     const ResetTokenObject = new PasswordResetToken({
       resetToken,
       userId,
