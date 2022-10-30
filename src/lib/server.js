@@ -7,6 +7,7 @@ import helmet from 'helmet'
 import authMiddleware from '#lib/auth'
 import logger from '#lib/logger'
 import { notFoundMiddleware, errorHandlerMiddleware } from '#middlewares/error'
+import metricsMidddleware from '#middlewares/metrics'
 import openApiMidddlewares from '#middlewares/openapi'
 import v1routes from '#routes/v1/v1'
 
@@ -17,6 +18,7 @@ app.use(bodyParser.json())
 app.use(helmet())
 app.use(cors())
 app.use(pino({ logger }))
+app.use(metricsMidddleware)
 app.use(authMiddleware)
 
 app.use('/docs', ...openApiMidddlewares)
