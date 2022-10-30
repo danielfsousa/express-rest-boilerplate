@@ -1,6 +1,6 @@
+import { addMinutes, isAfter } from 'date-fns'
 import httpStatus from 'http-status'
 import { omit } from 'lodash-es'
-import moment from 'moment-timezone'
 import config from '#config'
 import APIError from '#errors/api'
 import PasswordResetToken from '#models/password-reset-token'
@@ -11,7 +11,7 @@ import * as emailProvider from '#services/email'
 function generateTokenResponse(user, accessToken) {
   const tokenType = 'Bearer'
   const refreshToken = RefreshToken.generate(user).token
-  const expiresIn = moment().add(config.jwtExpirationInterval, 'minutes')
+  const expiresIn = addMinutes(Date.now(), config.jwtExpirationInterval)
   return { tokenType, accessToken, refreshToken, expiresIn }
 }
 
@@ -112,7 +112,7 @@ export async function resetPassword(req, res, next) {
     throw new APIError(err)
   }
 
-  if (moment().isAfter(resetTokenObject.expires)) {
+  if (isAfter(Date.now(), resetTokenObject.expires)) {
     err.message = 'Reset token is expired'
     throw new APIError(err)
   }

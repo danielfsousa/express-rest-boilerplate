@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs'
+import { addMinutes, getUnixTime, isBefore } from 'date-fns'
 import httpStatus from 'http-status'
 import jwt from 'jwt-simple'
-import { omitBy, isNil } from 'lodash-es'
-import moment from 'moment-timezone'
+import { isNil, omitBy } from 'lodash-es'
 import mongoose from 'mongoose'
 import { v4 as uuidv4 } from 'uuid'
 import config from '#config'
@@ -81,8 +81,8 @@ userSchema.method({
 
   token() {
     const payload = {
-      exp: moment().add(jwtExpirationInterval, 'minutes').unix(),
-      iat: moment().unix(),
+      exp: getUnixTime(addMinutes(Date.now(), jwtExpirationInterval)),
+      iat: getUnixTime(Date.now()),
       sub: this._id,
     }
     return jwt.encode(payload, jwtSecret)
@@ -139,7 +139,7 @@ userSchema.statics = {
       }
       err.message = 'Incorrect email or password'
     } else if (refreshObject && refreshObject.userEmail === email) {
-      if (moment(refreshObject.expires).isBefore()) {
+      if (isBefore(refreshObject.expires, Date.now())) {
         err.message = 'Invalid refresh token.'
       } else {
         return { user, accessToken: user.token() }

@@ -1,9 +1,9 @@
+import { add, sub } from 'date-fns'
 import httpStatus from 'http-status'
 import { omit } from 'lodash-es'
-import moment from 'moment-timezone'
 import request from 'supertest'
 import { MongoDBContainer } from 'testcontainers'
-import { expect, describe, it, beforeEach, vi, beforeAll, afterAll } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as database from '#lib/database'
 import app from '#lib/server'
 import PasswordResetToken from '#models/password-reset-token'
@@ -48,12 +48,14 @@ afterAll(async () => {
 })
 
 beforeEach(async () => {
+  const now = new Date()
+
   refreshToken = {
     token:
       '5947397b323ae82d8c3a333b.c69d0435e62c9f4953af912442a3d064e20291f0d228c0552ed4be473e7d191ba40b18c2c47e8b9d',
     userId: '5947397b323ae82d8c3a333b',
     userEmail: dbUser.email,
-    expires: moment().add(1, 'day').toDate(),
+    expires: add(now, { days: 1 }),
   }
 
   resetToken = {
@@ -61,7 +63,7 @@ beforeEach(async () => {
       '5947397b323ae82d8c3a333b.c69d0435e62c9f4953af912442a3d064e20291f0d228c0552ed4be473e7d191ba40b18c2c47e8b9d',
     userId: '5947397b323ae82d8c3a333b',
     userEmail: dbUser.email,
-    expires: moment().add(2, 'hours').toDate(),
+    expires: add(now, { hours: 2 }),
   }
 
   expiredRefreshToken = {
@@ -69,7 +71,7 @@ beforeEach(async () => {
       '5947397b323ae82d8c3a333b.c69d0435e62c9f4953af912442a3d064e20291f0d228c0552ed4be473e7d191ba40b18c2c47e8b9d',
     userId: '5947397b323ae82d8c3a333b',
     userEmail: dbUser.email,
-    expires: moment().subtract(1, 'day').toDate(),
+    expires: sub(now, { days: 1 }),
   }
 
   expiredResetToken = {
@@ -77,7 +79,7 @@ beforeEach(async () => {
       '5947397b323ae82d8c3a333b.c69d0435e62c9f4953af912442a3d064e20291f0d228c0552ed4be473e7d191ba40b18c2c47e8b9d',
     userId: '5947397b323ae82d8c3a333b',
     userEmail: dbUser.email,
-    expires: moment().subtract(2, 'hours').toDate(),
+    expires: sub(now, { hours: 2 }),
   }
 
   await RefreshToken.deleteMany()
@@ -353,7 +355,7 @@ describe('POST /v1/auth/send-password-reset', () => {
     )
     expect(PasswordResetTokenObj.userId.toString()).toEqual('5947397b323ae82d8c3a333b')
     expect(PasswordResetTokenObj.userEmail).toEqual(dbUser.email)
-    expect(PasswordResetTokenObj.expires).to.be.above(moment().add(1, 'hour').toDate())
+    expect(PasswordResetTokenObj.expires).to.be.above(add(Date.now(), { hours: 1 }))
 
     vi.spyOn(emailProviders, 'sendPasswordReset').mockResolvedValue('email sent')
 
@@ -486,7 +488,7 @@ describe('POST /v1/auth/reset-password', () => {
     )
     expect(expiredPasswordResetTokenObj.userId.toString()).toEqual('5947397b323ae82d8c3a333b')
     expect(expiredPasswordResetTokenObj.userEmail).toEqual(dbUser.email)
-    expect(expiredPasswordResetTokenObj.expires).to.be.below(moment().toDate())
+    expect(expiredPasswordResetTokenObj.expires).to.be.below(new Date())
 
     return request(app)
       .post('/v1/auth/reset-password')
