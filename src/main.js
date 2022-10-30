@@ -10,6 +10,15 @@ const { port, env } = config
 const server = http.createServer(app)
 
 async function main() {
+  try {
+    await startServer()
+  } catch (err) {
+    logger.fatal(err)
+    process.exit(1)
+  }
+}
+
+async function startServer() {
   setupErrorHandling()
   await database.connect(config.mongo.uri)
   await email.verifyConnection()
@@ -29,11 +38,6 @@ async function main() {
 
 function onListening() {
   logger.info({ env, msg: 'server started', url: `http://localhost:${port}` })
-}
-
-function onError(err) {
-  logger.fatal(err)
-  process.exit(1)
 }
 
 async function onSignal() {
@@ -66,4 +70,4 @@ function setupErrorHandling() {
   })
 }
 
-main().catch(onError)
+await main()
