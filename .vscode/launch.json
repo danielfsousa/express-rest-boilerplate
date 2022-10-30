@@ -15,9 +15,9 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug with nodemon",
-      "runtimeExecutable": "nodemon",
-      "runtimeArgs": ["--inspect"],
+      "name": "Debug and watch for changes",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--inspect", "--watch"],
       "program": "${workspaceRoot}/src/main.js",
       "restart": true,
       "console": "integratedTerminal",
@@ -26,7 +26,7 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug Current Test File",
+      "name": "Debug current test file",
       "autoAttachChildProcesses": true,
       "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
       "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",

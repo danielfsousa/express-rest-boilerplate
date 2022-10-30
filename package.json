@@ -27,13 +27,11 @@
   },
   "main": "src/main.js",
   "scripts": {
-    "dev": "nodemon ./src/main.js",
-    "docker:down": "docker compose down",
-    "docker:up": "docker compose up",
     "lint": "eslint . ; prettier . --check",
     "lint:fix": "eslint . --fix ; prettier --write .",
     "prepare": "husky install",
     "start": "node ./src/main.js",
+    "start:dev": "node --watch ./src/main.js",
     "test": "vitest",
     "test:cov": "vitest run --coverage",
     "validate": "lint-staged"
