@@ -70,5 +70,4 @@ function setupErrorHandling() {
   })
 }
 
-// prettier-ignore
 await main()
