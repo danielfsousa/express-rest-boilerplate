@@ -15,7 +15,7 @@ function generateTokenResponse(user, accessToken) {
   return { tokenType, accessToken, refreshToken, expiresIn }
 }
 
-export async function register(req, res, next) {
+export async function register(req, res) {
   try {
     const userData = omit(req.body, 'role')
     const user = await new User(userData).save()
@@ -40,7 +40,7 @@ export async function register(req, res, next) {
   }
 }
 
-export async function login(req, res, next) {
+export async function login(req, res) {
   const { user, accessToken } = await User.findAndGenerateToken(req.body)
   const token = generateTokenResponse(user, accessToken)
   const userTransformed = user.transform()
@@ -52,7 +52,7 @@ export async function login(req, res, next) {
  * Returns jwt token
  * @public
  */
-export async function oAuth(req, res, next) {
+export async function oAuth(req, res) {
   const { user } = req
   const accessToken = user.token()
   const token = generateTokenResponse(user, accessToken)
@@ -64,7 +64,7 @@ export async function oAuth(req, res, next) {
  * Returns a new jwt when given a valid refresh token
  * @public
  */
-export async function refresh(req, res, next) {
+export async function refresh(req, res) {
   const { email, refreshToken } = req.body
 
   const refreshObject = await RefreshToken.findOneAndRemove({
@@ -78,7 +78,7 @@ export async function refresh(req, res, next) {
   res.json(response)
 }
 
-export async function sendPasswordReset(req, res, next) {
+export async function sendPasswordReset(req, res) {
   const { email } = req.body
   const user = await User.findOne({ email }).exec()
 
@@ -95,7 +95,7 @@ export async function sendPasswordReset(req, res, next) {
   res.status(httpStatus.OK).json('success')
 }
 
-export async function resetPassword(req, res, next) {
+export async function resetPassword(req, res) {
   const { email, password, resetToken } = req.body
   const resetTokenObject = await PasswordResetToken.findOneAndRemove({
     userEmail: email,

@@ -8,6 +8,9 @@ const router = express.Router()
 // Load user when API with userId route parameter is hit
 router.param('userId', controller.load)
 
+// TODO: remove
+router.get('/test', controller.test)
+
 router //
   .route('/')
   .get(validate, authorize(ADMIN), controller.list)

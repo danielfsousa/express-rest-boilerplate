@@ -1,6 +1,6 @@
-import assert from 'assert'
+import assert from 'node:assert'
 import mongoose from 'mongoose'
-import LogLevel from '#enums/loglevel'
+import { LogLevel } from '#enums/log'
 import logger from '#lib/logger'
 
 if (logger.levelVal <= LogLevel.DEBUG.val) {

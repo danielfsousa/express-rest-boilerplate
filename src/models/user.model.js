@@ -1,10 +1,10 @@
+import { randomUUID } from 'node:crypto'
 import bcrypt from 'bcryptjs'
 import { addMinutes, getUnixTime, isBefore } from 'date-fns'
 import httpStatus from 'http-status'
 import jwt from 'jwt-simple'
 import { isNil, omitBy } from 'lodash-es'
 import mongoose from 'mongoose'
-import { v4 as uuidv4 } from 'uuid'
 import config from '#config'
 import APIError from '#errors/api'
 
@@ -201,7 +201,7 @@ userSchema.statics = {
       if (!user.picture) user.picture = picture
       return user.save()
     }
-    const password = uuidv4()
+    const password = randomUUID()
     return this.create({
       services: { [service]: id },
       email,

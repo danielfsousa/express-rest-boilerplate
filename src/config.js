@@ -1,16 +1,16 @@
-import dotenv from 'dotenv'
-import { cleanEnv, str, num } from 'envalid'
 import fs from 'fs'
 import path from 'path'
-import LogLevel from '#enums/loglevel'
+import dotenv from 'dotenv'
+import { cleanEnv, str, num, bool } from 'envalid'
+import { LogLevel, LogFormat } from '#enums/log'
 
 const appPath = path.dirname(import.meta.url).replace('file:', '')
+const pkgPath = path.join(appPath, '../package.json')
+const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'))
 
 dotenv.config({
   path: path.join(appPath, '../.env'),
 })
-
-const pkg = JSON.parse(fs.readFileSync(path.join(appPath, '../package.json')))
 
 const env = cleanEnv(process.env, {
   NODE_ENV: str({
@@ -21,11 +21,14 @@ const env = cleanEnv(process.env, {
   JWT_SECRET: str(),
   JWT_EXPIRATION_MINUTES: num({ default: 15 }),
   MONGO_URI: str(),
-  MONGO_URI_TESTS: str({ default: '' }),
   EMAIL_HOST: str(),
   EMAIL_PORT: num({ default: 25 }),
   EMAIL_USERNAME: str(),
   EMAIL_PASSWORD: str(),
+  LOG_FORMAT: str({
+    choices: Object.values(LogFormat),
+    default: LogFormat.JSON,
+  }),
   LOG_LEVEL: str({
     choices: Object.values(LogLevel).map(l => l.str),
     default: LogLevel.INFO.str,
@@ -34,22 +37,33 @@ const env = cleanEnv(process.env, {
     choices: Object.values(LogLevel).map(l => l.str),
     default: LogLevel.FATAL.str,
   }),
+  OTEL_ENABLED: bool({
+    default: false,
+  }),
+  OTEL_SERVICE_NAME: str(),
+  OTEL_EXPORTER_JAEGER_ENDPOINT: str(),
 })
 
 export default Object.freeze({
   appPath,
   openApiPath: path.join(appPath, '../openapi.yaml'),
   version: pkg.version,
-  logLevel: env.LOG_LEVEL,
-  logLevelTests: env.LOG_LEVEL_TESTS,
   isTest: env.NODE_ENV === 'test',
   isProduction: env.isProduction,
   env: env.NODE_ENV,
   port: env.PORT,
   jwtSecret: env.JWT_SECRET,
   jwtExpirationInterval: env.JWT_EXPIRATION_MINUTES,
+  log: {
+    format: env.LOG_FORMAT,
+    level: env.LOG_LEVEL,
+    levelTests: env.LOG_LEVEL_TESTS,
+  },
+  otel: {
+    isEnabled: env.OTEL_ENABLED,
+  },
   mongo: {
-    uri: env.isTest ? env.MONGO_URI_TESTS : env.MONGO_URI,
+    uri: env.MONGO_URI,
   },
   email: {
     host: env.EMAIL_HOST,

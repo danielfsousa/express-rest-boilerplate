@@ -7,4 +7,9 @@ const LogLevel = {
   FATAL: { val: 60, str: 'fatal' },
 }
 
-export default LogLevel
+const LogFormat = {
+  JSON: 'json',
+  PRETTY: 'pretty',
+}
+
+export { LogLevel, LogFormat }

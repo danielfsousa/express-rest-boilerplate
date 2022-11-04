@@ -1,4 +1,4 @@
-import crypto from 'crypto'
+import crypto from 'node:crypto'
 import { addDays } from 'date-fns'
 import mongoose from 'mongoose'
 

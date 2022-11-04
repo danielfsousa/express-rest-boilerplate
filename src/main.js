@@ -1,4 +1,4 @@
-import http from 'http'
+import http from 'node:http'
 import { createTerminus } from '@godaddy/terminus'
 import config from '#config'
 import * as database from '#lib/database'

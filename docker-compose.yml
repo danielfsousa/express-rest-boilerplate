@@ -1,3 +1,17 @@
+x-logging: &default-logging
+  driver: loki
+  options:
+    loki-url: http://localhost:3100/api/prom/push
+    labels: namespace
+    loki-relabel-config: |
+      - action: replace
+        source_labels: ["namespace","compose_service"]
+        separator: "/"
+        target_label: job
+      - action: replace
+        source_labels: ["container_name"]
+        target_label: instance
+
 version: '3.9'
 services:
   api:
@@ -7,14 +21,102 @@ services:
     env_file:
       - .env
     ports:
-      - 3000:3000
+      - 8000:8000
     volumes:
       - .:/app
       - /app/node_modules
+    labels:
+      namespace: app
+    logging: *default-logging
     depends_on:
-      - mongodb
+      - db
 
-  mongodb:
+  db:
     image: mongo:6
     ports:
       - 27017:27017
+    labels:
+      namespace: app
+    logging: *default-logging
+
+  prometheus:
+    profiles: ['o11y']
+    image: prom/prometheus:v2.39.1
+    ports:
+      - 9090:9090
+    command:
+      - --config.file=/etc/prometheus.yaml
+      - --web.enable-remote-write-receiver
+      - --enable-feature=exemplar-storage
+    volumes:
+      - ./config/prometheus.yaml:/etc/prometheus.yaml
+    labels:
+      namespace: o11y
+    logging: *default-logging
+
+  loki:
+    profiles: ['o11y']
+    image: grafana/loki:2.6.1
+    command: -config.file=/etc/loki/loki.yaml
+    ports:
+      - 3100:3100
+    environment:
+      - JAEGER_AGENT_HOST=tempo
+      - JAEGER_ENDPOINT=http://tempo:14268/api/traces
+      - JAEGER_SAMPLER_TYPE=const
+      - JAEGER_SAMPLER_PARAM=1
+    volumes:
+      - ./config/loki.yaml:/etc/loki/loki.yaml
+      - ./data/loki:/tmp/loki
+    labels:
+      namespace: o11y
+    # logging: *default-logging
+
+  tempo:
+    profiles: ['o11y']
+    image: grafana/tempo:1.5.0
+    command: -config.file=/etc/tempo.yaml
+    volumes:
+      - ./config/tempo-local.yaml:/etc/tempo.yaml
+      - ./data/tempo:/tmp/tempo
+    ports:
+      - 14268:14268 # jaeger ingest
+      - 4318:4318 # otlp http
+    labels:
+      namespace: o11y
+    logging: *default-logging
+
+  tempo-query:
+    profiles: ['o11y']
+    image: grafana/tempo-query:1.5.0
+    command: --grpc-storage-plugin.configuration-file=/etc/tempo-query.yaml
+    volumes:
+      - ./etc/tempo-query.yaml:/etc/tempo-query.yaml
+    ports:
+      - 16686:16686
+    labels:
+      namespace: o11y
+    logging: *default-logging
+    depends_on:
+      - tempo
+
+  grafana:
+    profiles: ['o11y']
+    image: grafana/grafana:9.2.2
+    volumes:
+      - ./config/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasource.yaml
+      - ./config/grafana-dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml
+      - ./data/grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    ports:
+      - 3000:3000
+    labels:
+      namespace: o11y
+    logging: *default-logging
+    depends_on:
+      - prometheus
+      - tempo-query
+      - loki

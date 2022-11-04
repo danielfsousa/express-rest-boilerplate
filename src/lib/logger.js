@@ -1,4 +1,5 @@
-import pino from 'pino'
+import { pino } from 'pino'
+import { context, trace, isSpanContextValid } from '@opentelemetry/api'
 import config from '#config'
 
 const escapeCodes = {
@@ -30,19 +31,48 @@ function messageFormat(log) {
   return message
 }
 
+function otelMixin() {
+  if (!config.otel.isEnabled) {
+    return {}
+  }
+
+  const span = trace.getSpan(context.active())
+  if (!span) {
+    return {}
+  }
+
+  const spanContext = span.spanContext()
+  if (!isSpanContextValid(spanContext)) {
+    return {}
+  }
+
+  return {
+    trace_id: spanContext.traceId,
+    span_id: spanContext.spanId,
+    trace_flags: `0${spanContext.traceFlags.toString(16)}`,
+  }
+}
+
 const logger = pino({
   timestamp: true,
-  level: config.isTest ? config.logLevelTests : config.logLevel,
+  level: config.isTest ? config.log.levelTests : config.log.level,
   base: {
     appVersion: config.version,
   },
-  prettyPrint: !config.isProduction && {
-    messageFormat,
-    colorize: true,
-    hideObject: false,
-    ignore: 'appVersion,uid',
-    translateTime: 'SYS:HH:MM:ss.l',
-  },
+  mixin: otelMixin,
+  // TODO: v7+ transports
+  // https://github.com/pinojs/pino/blob/master/docs/transports.md#pino-pretty
+  // https://github.com/pinojs/pino-pretty#handling-non-serializable-options
+  // transport:
+  //   config.logLevel === LogFormat.JSON
+  //     ? undefined
+  //     : {
+  //         target: 'pino-pretty',
+  //         options: {
+  //           ignore: 'appVersion',
+  //           translateTime: 'SYS:HH:MM:ss.l',
+  //         },
+  //       },
 })
 
 export default logger

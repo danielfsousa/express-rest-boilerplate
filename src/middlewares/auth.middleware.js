@@ -1,5 +1,5 @@
-import httpStatus from 'http-status'
 import { promisify } from 'node:util'
+import httpStatus from 'http-status'
 import passport from 'passport'
 import APIError from '#errors/api'
 import User from '#models/user'

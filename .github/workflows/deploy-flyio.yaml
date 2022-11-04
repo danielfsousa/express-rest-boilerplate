@@ -18,7 +18,7 @@ env:
   HEROKU_REPOSITORY: registry.heroku.com/node-express-rest-boilerplate/web
 
 jobs:
-  deploy-cops:
+  deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == null }}
     runs-on: ubuntu-latest
     steps:

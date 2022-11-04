@@ -1,5 +1,6 @@
 import httpStatus from 'http-status'
 import { omit } from 'lodash-es'
+import logger from '#lib/logger'
 import User from '#models/user'
 
 export async function load(req, res, next, id) {
@@ -10,6 +11,12 @@ export async function load(req, res, next, id) {
 
 export function get(req, res) {
   res.json(req.locals.user.transform())
+}
+
+export async function test(req, res) {
+  logger.info('calling test endpoint')
+  await fetch('https://eo5n9n6lx2nkcsm.m.pipedream.net')
+  res.json({ test: 'ok' })
 }
 
 export function getCurrent(req, res) {
@@ -40,13 +47,13 @@ export async function update(req, res, next) {
   }
 }
 
-export async function list(req, res, next) {
+export async function list(req, res) {
   const users = await User.list(req.query)
   const transformedUsers = users.map(user => user.transform())
   res.json(transformedUsers)
 }
 
-export async function remove(req, res, next) {
+export async function remove(req, res) {
   const { user } = req.locals
   await user.remove()
   res.sendStatus(httpStatus.NO_CONTENT)
