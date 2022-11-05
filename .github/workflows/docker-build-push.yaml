@@ -23,6 +23,7 @@ jobs:
         uses: mathieudutour/github-tag-action@v5.6
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          custom_release_rules: chore:patch:Chores
           tag_prefix: ''
 
       - name: Create a GitHub release
