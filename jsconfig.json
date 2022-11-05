@@ -8,16 +8,16 @@
     "moduleResolution": "NodeNext",
     "baseUrl": ".",
     "paths": {
-      "#config": ["./src/config"],
-      "#controllers/*": ["./src/controllers/*.controller"],
-      "#enums/*": ["./src/enums/*.enum"],
-      "#errors/*": ["./src/errors/*.error"],
-      "#lib/*": ["./src/lib/*"],
-      "#middlewares/*": ["./src/middlewares/*.middleware"],
-      "#models/*": ["./src/models/*.model"],
-      "#routes/*": ["./src/routes/*.route"],
-      "#services/*": ["./src/services/*.service"],
-      "#validations/*": ["./src/validations/*.validation]"]
+      "#config": ["./src/config.js"],
+      "#controllers/*": ["./src/controllers/*.controller.js"],
+      "#enums/*": ["./src/enums/*.enum.js"],
+      "#errors/*": ["./src/errors/*.error.js"],
+      "#lib/*": ["./src/lib/*.js"],
+      "#middlewares/*": ["./src/middlewares/*.middleware.js"],
+      "#models/*": ["./src/models/*.model.js"],
+      "#routes/*": ["./src/routes/*.route.js"],
+      "#services/*": ["./src/services/*.service.js"],
+      "#validations/*": ["./src/validations/*.validation.js"]
     }
   },
   "typeAcquisition": {
