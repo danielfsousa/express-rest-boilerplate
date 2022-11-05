@@ -4,7 +4,7 @@
     "target": "ES2022",
     "module": "NodeNext",
     "checkJs": true,
-    "esModuleInterop": true,
+    "esModuleInterop": false,
     "moduleResolution": "NodeNext",
     "baseUrl": ".",
     "paths": {

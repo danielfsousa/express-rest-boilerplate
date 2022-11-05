@@ -1,4 +1,4 @@
-import * as openapi from 'openapi-validator-middleware'
+import openapi from 'openapi-validator-middleware'
 import config from '#config'
 
 const { validate } = openapi
