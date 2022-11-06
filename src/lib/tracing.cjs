@@ -17,17 +17,21 @@ const config = {
   },
 }
 
-// TODO: remove
-diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
+function applyPatches() {
+  // TODO: remove
+  diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG)
 
-const spanExporter = new JaegerExporter({ endpoint: config.opentelemetry.endpoint })
+  const spanExporter = new JaegerExporter({ endpoint: config.opentelemetry.endpoint })
 
-const sdk = new opentelemetry.NodeSDK({
-  serviceName: config.opentelemetry.serviceName,
-  spanProcessor: new opentelemetry.tracing.BatchSpanProcessor(spanExporter),
-  instrumentations: [getNodeAutoInstrumentations()],
-})
+  const sdk = new opentelemetry.NodeSDK({
+    serviceName: config.opentelemetry.serviceName,
+    spanProcessor: new opentelemetry.tracing.BatchSpanProcessor(spanExporter),
+    instrumentations: [getNodeAutoInstrumentations()],
+  })
+
+  sdk.start()
+}
 
 if (env.OTEL_ENABLED === 'true') {
-  sdk.start()
+  applyPatches()
 }
