@@ -25,20 +25,10 @@ jobs:
       - name: Run lint
         run: npm run lint
 
-      - name: Show docker info
-        run: docker system info
-
-      - name: Run testcontainers script
-        run: node -r dotenv/config ./src/testcontainers.js
-        env:
-          DEBUG: 'testcontainers*'
-          DOTENV_CONFIG_PATH: '.env.test'
-
       - name: Run tests
         run: npm run test:cov
         env:
           CI: 'true'
-          DEBUG: 'testcontainers*'
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
