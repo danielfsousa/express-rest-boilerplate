@@ -18,7 +18,7 @@ const app = express()
 app.use(bodyParser.json())
 app.use(helmet())
 app.use(cors())
-// @ts-ignore
+// @ts-ignore pino version mismatch
 app.use(pino({ logger }))
 app.use(authMiddleware)
 app.use(metricsMidddleware)

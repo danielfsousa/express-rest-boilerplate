@@ -1,13 +1,17 @@
+import { readFileSync } from 'fs'
 import { resolve } from 'path'
+import { parse } from 'dotenv'
+import { defineConfig } from 'vite'
 
 function absolute(path) {
   return resolve(__dirname, path)
 }
 
-export default {
+export default defineConfig({
   test: {
     restoreMocks: true,
     hookTimeout: 60000,
+    env: parse(readFileSync(absolute('.env.test'), 'utf8')),
     alias: [
       { find: '#config', replacement: absolute('./src/config.js') },
       { find: /#controllers\/(.+)/, replacement: absolute('./src/controllers/$1.controller.js') },
@@ -21,4 +25,4 @@ export default {
       { find: /#validations\/(.+)/, replacement: absolute('./src/validations/$1.validation.js') },
     ],
   },
-}
+})
