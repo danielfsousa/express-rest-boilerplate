@@ -3,7 +3,7 @@ import openApiValidation from 'openapi-validator-middleware'
 import APIError from '#errors/api'
 import logger from '#lib/logger'
 
-export function errorHandlerMiddleware(err, req, res) {
+export function errorHandlerMiddleware(err, req, res, _next) {
   logger.error({ err })
 
   if (err instanceof openApiValidation.InputValidationError) {
