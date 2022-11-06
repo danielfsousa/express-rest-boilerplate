@@ -33,10 +33,6 @@ const env = cleanEnv(process.env, {
     choices: Object.values(LogLevel).map(l => l.str),
     default: LogLevel.INFO.str,
   }),
-  LOG_LEVEL_TESTS: str({
-    choices: Object.values(LogLevel).map(l => l.str),
-    default: LogLevel.FATAL.str,
-  }),
   OTEL_ENABLED: bool({
     default: false,
   }),
@@ -57,7 +53,6 @@ export default Object.freeze({
   log: {
     format: env.LOG_FORMAT,
     level: env.LOG_LEVEL,
-    levelTests: env.LOG_LEVEL_TESTS,
   },
   otel: {
     isEnabled: env.OTEL_ENABLED,

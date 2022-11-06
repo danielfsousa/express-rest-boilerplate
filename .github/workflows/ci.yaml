@@ -29,9 +29,10 @@ jobs:
         run: docker system info
 
       - name: Run testcontainers script
-        run: node ./src/testcontainers.js
+        run: node -r dotenv/config ./src/testcontainers.js
         env:
           DEBUG: 'testcontainers*'
+          DOTENV_CONFIG_PATH: '.env.test'
 
       - name: Run tests
         run: npm run test:cov

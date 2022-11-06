@@ -55,7 +55,7 @@ function otelMixin() {
 
 const logger = pino({
   timestamp: true,
-  level: config.isTest ? config.log.levelTests : config.log.level,
+  level: config.log.level,
   base: {
     appVersion: config.version,
   },
