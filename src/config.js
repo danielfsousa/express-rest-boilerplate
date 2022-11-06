@@ -33,6 +33,9 @@ const env = cleanEnv(process.env, {
     choices: Object.values(LogLevel).map(l => l.str),
     default: LogLevel.INFO.str,
   }),
+  LOG_DATABASE_QUERIES: bool({
+    default: false,
+  }),
   OTEL_ENABLED: bool({
     default: false,
   }),
@@ -44,15 +47,17 @@ export default Object.freeze({
   appPath,
   openApiPath: path.join(appPath, '../openapi.yaml'),
   version: pkg.version,
-  isTest: env.NODE_ENV === 'test',
-  isProduction: env.isProduction,
   env: env.NODE_ENV,
+  isProduction: env.NODE_ENV === 'production',
   port: env.PORT,
-  jwtSecret: env.JWT_SECRET,
-  jwtExpirationInterval: env.JWT_EXPIRATION_MINUTES,
+  auth: {
+    jwtSecret: env.JWT_SECRET,
+    jwtExpirationInterval: env.JWT_EXPIRATION_MINUTES,
+  },
   log: {
     format: env.LOG_FORMAT,
     level: env.LOG_LEVEL,
+    databaseQueries: env.LOG_DATABASE_QUERIES,
   },
   otel: {
     isEnabled: env.OTEL_ENABLED,

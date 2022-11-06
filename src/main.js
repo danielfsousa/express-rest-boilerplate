@@ -6,7 +6,7 @@ import * as email from '#lib/email'
 import logger from '#lib/logger'
 import app from '#lib/server'
 
-const { port, env } = config
+const { port } = config
 const server = http.createServer(app)
 
 async function main() {
@@ -37,7 +37,7 @@ async function startServer() {
 }
 
 function onListening() {
-  logger.info({ env, msg: 'server started', url: `http://localhost:${port}` })
+  logger.info({ msg: `listening on http://localhost:${port}`, config })
 }
 
 async function onSignal() {
