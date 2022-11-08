@@ -308,7 +308,7 @@ describe('GET /v1/users/current', () => {
     const expiredAccessToken = (await User.findAndGenerateToken(dbUsers.branStark)).accessToken
 
     // move clock forward by minutes set in config + 1 minute
-    vi.useFakeTimers().advanceTimersByTime(config.jwtExpirationInterval * 60000 + 60000)
+    vi.useFakeTimers().advanceTimersByTime(config.auth.jwtExpirationInterval * 60000 + 60000)
 
     return request(app)
       .get('/v1/users/current')
