@@ -70,6 +70,7 @@
     "passport-http-bearer": "^1.0.1",
     "passport-jwt": "4.0.0",
     "pino": "^8.7.0",
+    "pino-pretty": "^9.1.1",
     "pug": "^3.0.1",
     "yamljs": "^0.3.0"
   },
@@ -89,7 +90,6 @@
     "lint-staged": "^11.2.3",
     "nodemon": "^2.0.1",
     "open-cli": "^7.0.0",
-    "pino-pretty": "^9.1.1",
     "prettier": "^2.7.1",
     "prettier-plugin-packagejson": "^2.3.0",
     "supertest": "^6.1.3",

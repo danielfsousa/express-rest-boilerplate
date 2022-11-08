@@ -8,7 +8,8 @@ import mongoose from 'mongoose'
 import config from '#config'
 import APIError from '#errors/api'
 
-const { env, jwtSecret, jwtExpirationInterval } = config
+const { env } = config
+const { jwtSecret, jwtExpirationInterval } = config.auth
 const roles = ['user', 'admin']
 
 const userSchema = new mongoose.Schema(
@@ -99,7 +100,7 @@ userSchema.statics = {
   /**
    * Get user
    *
-   * @param {ObjectId} id - The objectId of user.
+   * @param {import('mongoose').ObjectId} id - The objectId of user.
    * @returns {Promise<User, APIError>}
    */
   async get(id) {

@@ -1,21 +1,35 @@
 import assert from 'node:assert'
 import mongoose from 'mongoose'
-import { LogLevel } from '#enums/log'
+import config from '#config'
 import logger from '#lib/logger'
 
-if (logger.levelVal <= LogLevel.DEBUG.val) {
-  mongoose.set('debug', true)
+const formatArg = mongoose.Collection.prototype.$format
+
+function queryLogger(collectionName, methodName, ...methodArgs) {
+  const functionCall = [collectionName, methodName].join('.')
+
+  const args = []
+  for (let arg = methodArgs.length - 1; arg >= 0; --arg) {
+    if (formatArg(methodArgs[arg]) || args.length) {
+      args.unshift(formatArg(methodArgs[arg]))
+    }
+  }
+
+  const query = `${functionCall}(${args.join(', ')})`
+  logger.debug({ query }, 'executing mongodb query')
+}
+
+if (config.log.databaseQueries) {
+  mongoose.set('debug', queryLogger)
 }
 
 export async function connect(uri) {
   await mongoose.connect(uri, {
     useCreateIndex: true,
-    keepAlive: 1,
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
   })
-
   return mongoose.connection
 }
 

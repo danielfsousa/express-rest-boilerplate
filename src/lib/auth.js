@@ -6,7 +6,7 @@ import User from '#models/user'
 import * as authProviders from '#services/auth'
 
 const jwtOptions = {
-  secretOrKey: config.jwtSecret,
+  secretOrKey: config.auth.jwtSecret,
   jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('Bearer'),
 }
 
