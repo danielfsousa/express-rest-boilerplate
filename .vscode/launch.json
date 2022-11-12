@@ -6,7 +6,7 @@
       "request": "launch",
       "name": "Debug",
       "runtimeArgs": ["-r", "./src/lib/tracing.cjs", "--inspect"],
-      "program": "${workspaceRoot}/src/main.js",
+      "program": "${workspaceRoot}/bin/www.js",
       "restart": true,
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
@@ -16,7 +16,7 @@
       "request": "launch",
       "name": "Debug and watch for changes",
       "runtimeArgs": ["-r", "./src/lib/tracing.cjs", "--inspect", "--watch"],
-      "program": "${workspaceRoot}/src/main.js",
+      "program": "${workspaceRoot}/bin/www.js",
       "restart": true,
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
