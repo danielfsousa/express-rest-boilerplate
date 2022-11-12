@@ -30,8 +30,8 @@
     "lint": "eslint . ; prettier . --check",
     "lint:fix": "eslint . --fix ; prettier --write .",
     "prepare": "husky install",
-    "start": "node -r ./src/lib/tracing.cjs ./src/main.js",
-    "start:dev": "node -r ./src/lib/tracing.cjs --watch ./src/main.js",
+    "start": "bin/www.js",
+    "start:dev": "node -r ./src/lib/tracing.cjs --watch bin/www.js",
     "test": "vitest",
     "test:cov": "vitest run --coverage",
     "validate": "lint-staged"

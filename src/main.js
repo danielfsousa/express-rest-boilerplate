@@ -9,7 +9,7 @@ import app from '#lib/server'
 const { port } = config
 const server = http.createServer(app)
 
-async function main() {
+export default async function main() {
   try {
     await startServer()
   } catch (err) {
@@ -69,5 +69,3 @@ function setupErrorHandling() {
     process.exit(1)
   })
 }
-
-await main()
