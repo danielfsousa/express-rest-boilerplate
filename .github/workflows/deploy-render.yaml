@@ -4,6 +4,7 @@ on:
     workflows: ['Docker Build and Push']
     branches:
       - main
+      - v2
     types:
       - completed
   workflow_dispatch:
@@ -13,9 +14,8 @@ on:
         required: false
 
 env:
-  APP_URL: https://node-express-rest-boilerplate.herokuapp.com
+  APP_URL: https://express-rest-boilerplate.onrender.com
   DOCKER_HUB_REPOSITORY: danielfsousa/express-rest-boilerplate
-  HEROKU_REPOSITORY: registry.heroku.com/node-express-rest-boilerplate/web
 
 jobs:
   deploy:
@@ -46,17 +46,10 @@ jobs:
           ref: ${{ steps.setup-tag.outputs.tag }}
           environment: production
 
-      - name: Login to Heroku Container registry
-        run: heroku container:login
+      - name: Deploy to Render.com
+        run: curl $DEPLOY_HOOK_URL
         env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-
-      - name: Deploy to heroku
-        run: |
-          docker tag ${{ env.DOCKER_HUB_REPOSITORY }}:${{ steps.setup-tag.outputs.tag }} ${{ env.HEROKU_REPOSITORY }}
-          docker push ${{ env.HEROKU_REPOSITORY }}
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_URL }}
 
       - name: Update deployment status (success)
         if: success()

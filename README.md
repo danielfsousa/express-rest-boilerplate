@@ -2,10 +2,13 @@
 
 ![CI](https://github.com/danielfsousa/express-rest-boilerplate/actions/workflows/ci.yaml/badge.svg?branch=main)
 [![codecov](https://codecov.io/gh/danielfsousa/express-rest-boilerplate/branch/main/graph/badge.svg?token=oSbnKr4vBP)](https://codecov.io/gh/danielfsousa/express-rest-boilerplate)
+[![swagger](https://img.shields.io/badge/docs-swagger-green)](https://express-rest-boilerplate.onrender.com/docs)
 
 A Boilerplate/Generator/Starter template for building RESTful APIs and microservices using modern Javascript, Node.js, Express and MongoDB.
 
 This is a highly opinionated and fully featured starter template, if you don't need some feature or dependency, just delete it.
+
+Swagger: https://express-rest-boilerplate.onrender.com/docs
 
 ## Table of Contents
 
