@@ -29,7 +29,7 @@
   "scripts": {
     "lint": "eslint . ; prettier . --check",
     "lint:fix": "eslint . --fix ; prettier --write .",
-    "prepare": "husky install",
+    "prepare": "husky install || true",
     "start": "bin/www.js",
     "start:dev": "node -r ./src/lib/tracing.cjs --watch bin/www.js",
     "test": "vitest",
@@ -42,7 +42,6 @@
   },
   "dependencies": {
     "@godaddy/terminus": "^4.9.0",
-    "@ianvs/prettier-plugin-sort-imports": "^3.7.1",
     "@opentelemetry/api": "^1.2.0",
     "@opentelemetry/auto-instrumentations-node": "^0.33.1",
     "@opentelemetry/exporter-jaeger": "^1.7.0",
@@ -76,6 +75,7 @@
   },
   "devDependencies": {
     "@danielfsousa/prettier-config": "^1.1.0",
+    "@ianvs/prettier-plugin-sort-imports": "^3.7.1",
     "@prettier/plugin-pug": "^1.16.4",
     "@vitest/coverage-c8": "^0.24.3",
     "cross-env": "^7.0.3",

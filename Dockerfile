@@ -11,7 +11,7 @@ RUN npm ci --only=production
 COPY . .
 
 FROM base-dev AS development
-CMD ["node", "-r", "src/lib/tracing.cjs", "--watch", "bin/www.js"]
+CMD ["node", "-r", "./src/lib/tracing.cjs", "--watch", "bin/www.js"]
 
 FROM gcr.io/distroless/nodejs:18 AS production
 WORKDIR /app
