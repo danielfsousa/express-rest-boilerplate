@@ -65,3 +65,5 @@ jobs:
           context: .
           push: true
           tags: ${{ env.REPOSITORY }}:latest,${{ env.REPOSITORY }}:${{ env.TAG }}
+        env:
+          TAG: ${{ needs.bump-version.outputs.tag }}
