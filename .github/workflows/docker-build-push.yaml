@@ -19,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ github.event.workflow_run.head_branch }}
 
       - name: Bump version and push tag
         id: tag-version
@@ -47,7 +47,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ github.event.workflow_run.head_branch }}
 
       - name: Update package.json version
         run: echo "`jq '.version="${{ env.TAG }}"' package.json`" > package.json
