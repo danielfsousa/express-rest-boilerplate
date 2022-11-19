@@ -1,0 +1,70 @@
+name: Deploy
+on:
+  workflow_run:
+    workflows: ["Docker Build and Push"]
+    branches:
+      - main
+      - v2
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag (leave empty for latest)"
+        required: false
+
+env:
+  APP_URL: https://express-rest-boilerplate.onrender.com
+  DOCKER_HUB_REPOSITORY: danielfsousa/express-rest-boilerplate
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == null }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Tag
+        id: setup-tag
+        run: |
+          LATEST_TAG=$(git describe --tags --always `git rev-list --tags --max-count=1`)
+          INPUT_TAG="${{ github.event.inputs.tag }}"
+          DEPLOY_TAG="${INPUT_TAG:-$LATEST_TAG}"
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 $DEPLOY_TAG^)
+          echo "DEPLOY_TAG=$DEPLOY_TAG"
+          echo ::set-output name=tag::$DEPLOY_TAG
+
+      - uses: chrnorm/deployment-action@releases/v1
+        name: Create GitHub deployment
+        id: deployment
+        with:
+          token: ${{ github.token }}
+          target_url: ${{ env.APP_URL }}
+          ref: ${{ steps.setup-tag.outputs.tag }}
+          environment: production
+
+      - name: Deploy to Render.com
+        run: curl $DEPLOY_HOOK_URL
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_URL }}
+
+      - name: Update deployment status (success)
+        if: success()
+        uses: chrnorm/deployment-status@releases/v1
+        with:
+          token: ${{ github.token }}
+          target_url: ${{ env.APP_URL }}
+          state: success
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+
+      - name: Update deployment status (failure)
+        if: failure()
+        uses: chrnorm/deployment-status@releases/v1
+        with:
+          token: ${{ github.token }}
+          target_url: ${{ env.APP_URL }}
+          state: failure
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
