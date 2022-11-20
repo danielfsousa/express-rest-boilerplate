@@ -1,60 +1,46 @@
 import httpStatus from 'http-status'
-import { omit } from 'lodash-es'
-import logger from '#lib/logger'
-import User from '#models/user'
+import { EmailAlreadyExistsError, UserNotFoundError } from '#errors/user'
+import * as userRepository from '#repositories/user'
 
-export async function load(req, res, next, id) {
-  const user = await User.get(id)
-  req.locals = { user }
-  return next()
-}
-
-export function get(req, res) {
-  res.json(req.locals.user.transform())
-}
-
-export async function test(req, res) {
-  logger.info('calling test endpoint')
-  await fetch('https://eo5n9n6lx2nkcsm.m.pipedream.net')
-  res.json({ test: 'ok' })
+export async function get(req, res) {
+  const user = await userRepository.findById(req.params.id)
+  if (!user) {
+    throw new UserNotFoundError()
+  }
+  res.json(user.format())
 }
 
 export function getCurrent(req, res) {
-  res.json(req.user.transform())
+  res.json(req.user.format())
 }
 
-export async function create(req, res, next) {
+export async function update(req, res) {
   try {
-    const user = new User(req.body)
-    const savedUser = await user.save()
-    res.status(httpStatus.CREATED)
-    res.json(savedUser.transform())
-  } catch (error) {
-    next(User.checkDuplicateEmail(error))
-  }
-}
-
-export async function update(req, res, next) {
-  const ommitRole = req.locals.user.role !== 'admin' ? 'role' : ''
-  const updatedUser = omit(req.body, ommitRole)
-  const user = Object.assign(req.locals.user, updatedUser)
-
-  try {
-    const updatedUser = await user.save()
-    res.json(updatedUser.transform())
-  } catch (e) {
-    next(User.checkDuplicateEmail(e))
+    // TODO: check if user can be updated by
+    // TODO: check if user can update user.role
+    const { user, modifiedCount } = await userRepository.update(req.params.id, req.body)
+    if (!modifiedCount) {
+      throw new UserNotFoundError()
+    }
+    res.json(user.format())
+  } catch (err) {
+    if (err.name === 'MongoError' && err.code === 11000) {
+      throw new EmailAlreadyExistsError()
+    }
+    throw err
   }
 }
 
 export async function list(req, res) {
-  const users = await User.list(req.query)
-  const transformedUsers = users.map(user => user.transform())
-  res.json(transformedUsers)
+  const { users, nextToken } = await userRepository.findMany(req.query)
+  const data = users.map(user => user.format())
+  res.json({ nextToken, data })
 }
 
 export async function remove(req, res) {
-  const { user } = req.locals
-  await user.remove()
+  const modifiedCount = await userRepository.delete(req.params.id)
+  if (!modifiedCount) {
+    throw new UserNotFoundError()
+  }
   res.sendStatus(httpStatus.NO_CONTENT)
 }

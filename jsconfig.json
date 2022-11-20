@@ -16,6 +16,7 @@
       "#middlewares/*": ["./src/middlewares/*.middleware.js"],
       "#models/*": ["./src/models/*.model.js"],
       "#routes/*": ["./src/routes/*.route.js"],
+      "#repositories/*": ["./src/repositories/*.repository.js"],
       "#services/*": ["./src/services/*.service.js"],
       "#validations/*": ["./src/validations/*.validation.js"]
     }

@@ -2,11 +2,7 @@ import crypto from 'node:crypto'
 import { addHours } from 'date-fns'
 import mongoose from 'mongoose'
 
-/**
- * Refresh Token Schema
- * @private
- */
-const passwordResetTokenSchema = new mongoose.Schema({
+const schema = new mongoose.Schema({
   resetToken: {
     type: String,
     required: true,
@@ -25,10 +21,7 @@ const passwordResetTokenSchema = new mongoose.Schema({
   expires: { type: Date },
 })
 
-passwordResetTokenSchema.statics = {
-  /**
-   * Generate a reset token object and saves it into the database
-   */
+schema.statics = {
   async generate(user) {
     const userId = user._id
     const userEmail = user.email
@@ -45,6 +38,6 @@ passwordResetTokenSchema.statics = {
   },
 }
 
-const PasswordResetToken = mongoose.model('PasswordResetToken', passwordResetTokenSchema)
+const PasswordResetToken = mongoose.model('PasswordResetToken', schema)
 
 export default PasswordResetToken

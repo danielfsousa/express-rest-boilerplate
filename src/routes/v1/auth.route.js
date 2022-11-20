@@ -7,7 +7,7 @@ const router = express.Router()
 
 router //
   .route('/register')
-  .post(validate, controller.register)
+  .post(validate, controller.signUp)
 
 router //
   .route('/login')

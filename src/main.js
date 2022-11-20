@@ -28,7 +28,7 @@ async function startServer() {
     onShutdown,
     logger: (msg, err) => logger.error({ msg, err }),
     healthChecks: {
-      '/health': onHealthCheck,
+      '/healthz': onHealthCheck,
       __unsafeExposeStackTraces: !config.isProduction,
     },
   })

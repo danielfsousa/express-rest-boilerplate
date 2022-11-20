@@ -24,12 +24,7 @@ if (config.log.databaseQueries) {
 }
 
 export async function connect(uri) {
-  await mongoose.connect(uri, {
-    useCreateIndex: true,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false,
-  })
+  await mongoose.connect(uri)
   return mongoose.connection
 }
 

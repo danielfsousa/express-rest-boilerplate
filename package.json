@@ -22,6 +22,7 @@
     "#middlewares/*": "./src/middlewares/*.middleware.js",
     "#models/*": "./src/models/*.model.js",
     "#routes/*": "./src/routes/*.route.js",
+    "#repositories/*": "./src/repositories/*.repository.js",
     "#services/*": "./src/services/*.service.js",
     "#validations/*": "./src/validations/*.validation.js"
   },
@@ -62,7 +63,8 @@
     "http-status": "^1.5.0",
     "jwt-simple": "0.5.6",
     "lodash-es": "^4.17.21",
-    "mongoose": "^5.2.17",
+    "mongodb": "^4.12.0",
+    "mongoose": "^6.7.2",
     "nodemailer": "^6.3.1",
     "openapi-validator-middleware": "^3.2.3",
     "passport": "^0.6.0",

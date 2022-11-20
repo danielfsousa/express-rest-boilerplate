@@ -11,7 +11,7 @@ import app from '#lib/server'
 import User from '#models/user'
 
 async function format(user) {
-  const dbUser = (await User.findOne({ email: user.email })).transform()
+  const dbUser = (await User.findOne({ email: user.email })).format()
   return omitBy(dbUser, isNil)
 }
 
