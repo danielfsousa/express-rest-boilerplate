@@ -7,10 +7,10 @@ export function errorHandlerMiddleware(err, req, res, _next) {
   logger.error({ err })
 
   if (err instanceof openApiValidation.InputValidationError) {
-    const status = httpStatus.BAD_REQUEST
-    return res.status(status).json({
+    return res.status(httpStatus.BAD_REQUEST).json({
       type: 'validation',
-      message: 'Validation error',
+      title: 'Validation error',
+      detail: err.message,
       invalidParams: err.errors,
     })
   }
@@ -21,7 +21,6 @@ export function errorHandlerMiddleware(err, req, res, _next) {
       type: err.type,
       title: err.title ?? httpStatus[status],
       detail: err.detail,
-      // invalidParams: err?.invalidParams,
     })
   }
 

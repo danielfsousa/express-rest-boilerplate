@@ -1,7 +1,7 @@
 import { promisify } from 'node:util'
 import httpStatus from 'http-status'
 import passport from 'passport'
-import APIError from '#errors/common'
+import { APIError } from '#errors/common'
 import User from '#models/user'
 
 export const ADMIN = 'admin'

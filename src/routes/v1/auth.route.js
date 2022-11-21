@@ -14,10 +14,6 @@ router //
   .post(validate, controller.login)
 
 router //
-  .route('/refresh-token')
-  .post(validate, controller.refresh)
-
-router //
   .route('/send-password-reset')
   .post(validate, controller.sendPasswordReset)
 

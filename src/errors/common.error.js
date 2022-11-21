@@ -1,8 +1,9 @@
 import httpStatus from 'http-status'
 
 export class APIError extends Error {
-  constructor({ type, title, detail, status = httpStatus.INTERNAL_SERVER_ERROR }) {
-    super(title)
+  constructor(options) {
+    const { type, title, detail, cause, status = httpStatus.INTERNAL_SERVER_ERROR } = options
+    super(title, { cause })
     this.type = type
     this.title = title
     this.detail = detail
@@ -11,8 +12,8 @@ export class APIError extends Error {
 }
 
 export class ValidationError extends APIError {
-  constructor({ invalidParams, ...rest }) {
-    // @ts-ignore
+  constructor(options) {
+    const { invalidParams, ...rest } = options
     super(rest)
     this.invalidParams = invalidParams
   }

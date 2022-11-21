@@ -15,7 +15,7 @@ externalDocs:
   url: https://github.com/danielfsousa/express-rest-boilerplate
 servers:
   - description: development
-    url: http://localhost:3000
+    url: http://localhost:8000
   - description: production
     url: https://node-express-rest-boilerplate.herokuapp.com
 paths:
@@ -42,19 +42,25 @@ paths:
             schema:
               type: object
               required:
+                - name
                 - email
                 - password
               properties:
+                name:
+                  type: string
+                  description: User's name
+                  example: Your Name
                 email:
                   type: string
                   format: email
                   description: User's email
+                  example: your@email.com
                 password:
                   type: string
                   # format: password
                   description: User's password
                   minLength: 8
-              example: { 'email': 'your@email.com', 'password': '*********' }
+                  example: '*********'
       responses:
         '201':
           description: User Created
@@ -244,10 +250,12 @@ paths:
                   type: string
                   format: email
                   description: User's email
+                  example: your@email.com
                 password:
                   type: string
                   description: User's new password
                   minLength: 8
+                  example: '********'
                 resetToken:
                   type: string
                   description: Reset token sent to user's email
@@ -271,11 +279,20 @@ paths:
             type: integer
             minimum: 1
             maximum: 100
+            example: 50
         - name: after
           in: query
           required: false
           schema:
             type: string
+            example: 637a90364135a25bba513d4f
+        - name: orderBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            example: desc
         - name: role
           in: query
           required: false
@@ -310,6 +327,7 @@ paths:
           required: true
           schema:
             type: string
+            example: 637a90364135a25bba513d4f
       responses:
         '200':
           description: Success
@@ -325,6 +343,18 @@ paths:
           required: true
           schema:
             type: string
+            example: 637a84ba27d760e22e476dc9
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: User's name
+                  example: My New Name
       responses:
         '200':
           description: Success
@@ -340,6 +370,7 @@ paths:
           required: true
           schema:
             type: string
+            example: 637a84ba27d760e22e476dc9
       responses:
         '200':
           description: Success

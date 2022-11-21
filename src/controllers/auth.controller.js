@@ -3,13 +3,13 @@ import * as authService from '#services/auth'
 
 export async function signUp(req, res) {
   const { user, ...tokens } = await authService.signUp(req.body)
-  res.status(httpStatus.CREATED).json({ user: user.format(), ...tokens })
+  res.status(httpStatus.CREATED).json({ data: user.format(), ...tokens })
 }
 
 export async function login(req, res) {
   const { email, password } = req.body
   const { user, ...tokens } = await authService.logInWithEmailAndPassword(email, password)
-  res.json({ user: user.format(), ...tokens })
+  res.json({ data: user.format(), ...tokens })
 }
 
 export async function oAuth(req, res) {

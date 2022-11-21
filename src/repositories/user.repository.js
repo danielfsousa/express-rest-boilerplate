@@ -2,23 +2,25 @@ import { ObjectId } from 'mongodb'
 import User from '#models/user'
 
 export async function findById(id) {
-  const model = await User.findById(id).exec()
-  return model?.toObject()
+  return await User.findById(id).exec()
 }
 
 export async function findByEmail(email) {
-  const model = await User.findOne({ email }).exec()
-  return model?.toObject()
+  return await User.findOne({ email }).exec()
 }
 
-export async function findMany({ after, role, limit = 50 }) {
-  const filters = { role }
+export async function findMany({ after, role, orderBy = 'asc', limit = 50 }) {
+  const sort = orderBy === 'asc' ? 1 : -1
+  const condition = orderBy === 'asc' ? '$gt' : '$lt'
+  const filters = {
+    ...(role && { role }),
+  }
 
   const users = await User.find({
-    ...(after && { _id: { $lt: new ObjectId(after) } }),
+    ...(after && { _id: { [condition]: new ObjectId(after) } }),
     ...filters,
   })
-    .sort({ _id: -1 })
+    .sort({ _id: sort })
     .limit(limit)
     .exec()
 
@@ -28,7 +30,7 @@ export async function findMany({ after, role, limit = 50 }) {
     users.length === limit &&
     !!(await User.findOne(
       {
-        _id: { $lt: lastId },
+        _id: { [condition]: lastId },
         ...filters,
       },
       { fields: ['_id'] }
@@ -40,11 +42,13 @@ export async function findMany({ after, role, limit = 50 }) {
 }
 
 export async function create(params) {
-  const model = await User.create(params)
-  return model.toObject()
+  return await User.create(params)
 }
 
 export async function update(id, params) {
-  const model = await User.updateOne({ _id: id }, params).exec()
-  return model?.toObject()
+  return await User.findOneAndUpdate({ _id: id }, params, { new: true }).exec()
+}
+
+export async function deleteById(id) {
+  return await User.deleteOne({ _id: id }).exec()
 }

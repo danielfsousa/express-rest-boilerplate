@@ -13,7 +13,7 @@ export async function signUp(userParams) {
     const passwordHash = await bcrypt.hash(userParams.password, 10)
     const user = await userRepository.create({ ...userParams, password: passwordHash })
     const accessToken = createAccessToken(user)
-    const refreshToken = await createRefreshToken(user)
+    const refreshToken = createRefreshToken(user)
     return { user, accessToken, refreshToken }
   } catch (err) {
     if (err.message.includes('duplicate key error')) {
@@ -126,7 +126,7 @@ function createAccessToken(user) {
   }
 }
 
-async function createRefreshToken(user) {
+function createRefreshToken(user) {
   return {
     tokenType: TOKEN_TYPE,
     expiresIn: addDays(Date.now(), 30),

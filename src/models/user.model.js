@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb'
 import mongoose from 'mongoose'
 
 const roles = ['user', 'admin']
@@ -15,12 +16,13 @@ const schema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      minlength: 6,
-      maxlength: 128,
+      minlength: 8,
+      maxlength: 500,
     },
     name: {
       type: String,
-      maxlength: 128,
+      required: true,
+      maxlength: 500,
       index: true,
       trim: true,
     },
@@ -33,9 +35,13 @@ const schema = new mongoose.Schema(
       enum: roles,
       default: 'user',
     },
-    picture: {
+    photoUrl: {
       type: String,
       trim: true,
+    },
+    emailVerified: {
+      type: Boolean,
+      default: false,
     },
   },
   {
@@ -44,19 +50,28 @@ const schema = new mongoose.Schema(
 )
 
 class UserClass {
-  _id
-  name
-  role
-  picture
-  createdAt
+  constructor({ name, email, role, photoUrl, createdAt, updatedAt }) {
+    this._id = new ObjectId()
+    this.emailVerified = false
+    this.name = name
+    this.email = email
+    this.role = role
+    this.photoUrl = photoUrl
+    this.createdAt = createdAt
+    this.updatedAt = updatedAt
+  }
+
   format() {
     return {
       type: 'users',
       id: this._id,
       name: this.name,
+      email: this.email,
       role: this.role,
-      photoUrl: this.picture,
+      photoUrl: this.photoUrl,
+      emailVerified: this.emailVerified,
       createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
     }
   }
 }
