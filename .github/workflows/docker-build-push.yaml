@@ -1,0 +1,73 @@
+name: Docker Build and Push
+on:
+  workflow_run:
+    workflows: ['CI']
+    branches:
+      - main
+      - v2
+    types:
+      - completed
+
+env:
+  REPOSITORY: danielfsousa/express-rest-boilerplate
+
+jobs:
+  bump-version:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+
+      - name: Bump version and push tag
+        id: tag-version
+        uses: mathieudutour/github-tag-action@v5.6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          custom_release_rules: chore:patch:Chores
+          tag_prefix: ''
+
+      - name: Create a GitHub release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag-version.outputs.new_tag }}
+          release_name: ${{ steps.tag-version.outputs.new_tag }}
+          body: ${{ steps.tag-version.outputs.changelog }}
+    outputs:
+      tag: ${{ steps.tag-version.outputs.new_tag }}
+
+  docker-build-push:
+    needs: [bump-version]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+
+      - name: Update package.json version
+        run: echo "`jq '.version="${{ env.TAG }}"' package.json`" > package.json
+        env:
+          TAG: ${{ needs.bump-version.outputs.tag }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ${{ env.REPOSITORY }}:latest,${{ env.REPOSITORY }}:${{ env.TAG }}
+        env:
+          TAG: ${{ needs.bump-version.outputs.tag }}
