@@ -62,7 +62,7 @@
     "starter project"
   ],
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^1.2.2",
     "bcryptjs": "2.4.3",
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.0",
