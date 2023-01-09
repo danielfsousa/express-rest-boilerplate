@@ -99,7 +99,7 @@
     "eslint": "^7.29.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.2.0",
-    "husky": "^3.0.7",
+    "husky": "^8.0.3",
     "mocha": "^6.2.2",
     "nodemon": "^2.0.1",
     "nyc": "^15.1.0",
