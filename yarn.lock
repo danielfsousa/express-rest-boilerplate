@@ -707,11 +707,19 @@ aws4@^1.8.0:
   version "1.8.0"
   resolved "https://registry.npmjs.org/aws4/-/aws4-1.8.0.tgz"
 
-axios@^0.21.0, axios@^0.21.1:
+axios@^0.21.0:
   version "0.21.1"
   resolved "https://registry.npmjs.org/axios/-/axios-0.21.1.tgz"
   dependencies:
     follow-redirects "^1.10.0"
+
+axios@^1.3.3:
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.3.3.tgz#e7011384ba839b885007c9c9fae1ff23dceb295b"
+  dependencies:
+    follow-redirects "^1.15.0"
+    form-data "^4.0.0"
+    proxy-from-env "^1.1.0"
 
 babel-runtime@^6.26.0:
   version "6.26.0"
@@ -2081,9 +2089,9 @@ fn.name@1.x.x:
   version "1.1.0"
   resolved "https://registry.npmjs.org/fn.name/-/fn.name-1.1.0.tgz"
 
-follow-redirects@^1.10.0:
-  version "1.13.1"
-  resolved "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.13.1.tgz"
+follow-redirects@^1.10.0, follow-redirects@^1.15.0:
+  version "1.15.2"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.2.tgz#b460864144ba63f2681096f274c4e57026da2c13"
 
 foreground-child@^2.0.0:
   version "2.0.0"
@@ -2099,6 +2107,14 @@ forever-agent@~0.6.1:
 form-data@^3.0.0:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/form-data/-/form-data-3.0.1.tgz#ebd53791b78356a99af9a300d4282c4d5eb9755f"
+  dependencies:
+    asynckit "^0.4.0"
+    combined-stream "^1.0.8"
+    mime-types "^2.1.12"
+
+form-data@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/form-data/-/form-data-4.0.0.tgz#93919daeaf361ee529584b9b31664dc12c9fa452"
   dependencies:
     asynckit "^0.4.0"
     combined-stream "^1.0.8"
@@ -4162,9 +4178,9 @@ proxy-agent@~4.0.1:
     proxy-from-env "^1.0.0"
     socks-proxy-agent "^5.0.0"
 
-proxy-from-env@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/proxy-from-env/-/proxy-from-env-1.0.0.tgz"
+proxy-from-env@^1.0.0, proxy-from-env@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/proxy-from-env/-/proxy-from-env-1.1.0.tgz#e102f16ca355424865755d2c9e8ea4f24d58c3e2"
 
 psl@^1.1.28:
   version "1.8.0"
