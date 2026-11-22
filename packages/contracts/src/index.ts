@@ -20,6 +20,21 @@ export {
   type HealthReadyResponse,
 } from './health.ts';
 export {
+  createOrderItemInputSchema,
+  createOrderSchema,
+  listOrdersResponseSchema,
+  orderItemSchema,
+  orderSchema,
+  orderStatusSchema,
+  updateOrderStatusSchema,
+  type CreateOrderInput,
+  type ListOrdersResponse,
+  type Order,
+  type OrderItem,
+  type OrderStatus,
+  type UpdateOrderStatusInput,
+} from './orders.ts';
+export {
   createStoreSchema,
   errorResponseSchema,
   storeListResponseSchema,

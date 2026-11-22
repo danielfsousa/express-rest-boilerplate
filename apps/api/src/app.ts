@@ -7,6 +7,7 @@ import { cors } from 'hono/cors';
 import type { AuthInstance } from './features/auth/auth.service.ts';
 import { createBooksRouter } from './features/books/books.handlers.ts';
 import { createHealthRouter } from './features/health/health.handlers.ts';
+import { createOrdersRouter } from './features/orders/orders.handlers.ts';
 import { createStoresRouter } from './features/stores/stores.handlers.ts';
 
 export interface CreateAppOptions {
@@ -66,6 +67,7 @@ export function createApp({
   if (drizzleDb && auth) {
     app.route('/', createStoresRouter({ drizzleDb, auth, multiTenancyEnabled }));
     app.route('/', createBooksRouter({ drizzleDb, auth, multiTenancyEnabled, storage }));
+    app.route('/', createOrdersRouter({ drizzleDb, auth, multiTenancyEnabled }));
   }
 
   app.doc31('/openapi.json', {

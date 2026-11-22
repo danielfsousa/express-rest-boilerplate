@@ -3,6 +3,8 @@ import {
   deleteBookResponseSchema,
   errorResponseSchema,
   listBooksResponseSchema,
+  listOrdersResponseSchema,
+  orderSchema,
   storeListResponseSchema,
   storeSchema,
   uploadCoverResponseSchema,
@@ -10,12 +12,16 @@ import {
 import type {
   Book,
   CreateBookInput,
+  CreateOrderInput,
   CreateStoreInput,
   ListBooksQuery,
   ListBooksResponse,
+  ListOrdersResponse,
+  Order,
   Store,
   StoreListResponse,
   UpdateBookInput,
+  UpdateOrderStatusInput,
   UpdateStoreInput,
   UploadCoverResponse,
 } from '@starter/contracts';
@@ -140,6 +146,38 @@ export const apiClient = {
       `/api/v1/stores/${encodeURIComponent(storeSlug)}/books/${encodeURIComponent(bookId)}/cover`,
       { method: 'POST', body: formData },
       (data) => uploadCoverResponseSchema.parse(data),
+    );
+  },
+  createOrder(storeSlug: string, input: CreateOrderInput): Promise<Order> {
+    return requestJson(
+      `/api/v1/stores/${encodeURIComponent(storeSlug)}/orders`,
+      { method: 'POST', body: JSON.stringify(input) },
+      (data) => orderSchema.parse(data),
+    );
+  },
+  listOrders(storeSlug: string): Promise<ListOrdersResponse> {
+    return requestJson(
+      `/api/v1/stores/${encodeURIComponent(storeSlug)}/orders`,
+      { method: 'GET' },
+      (data) => listOrdersResponseSchema.parse(data),
+    );
+  },
+  getOrder(storeSlug: string, orderId: string): Promise<Order> {
+    return requestJson(
+      `/api/v1/stores/${encodeURIComponent(storeSlug)}/orders/${encodeURIComponent(orderId)}`,
+      { method: 'GET' },
+      (data) => orderSchema.parse(data),
+    );
+  },
+  updateOrderStatus(
+    storeSlug: string,
+    orderId: string,
+    input: UpdateOrderStatusInput,
+  ): Promise<Order> {
+    return requestJson(
+      `/api/v1/stores/${encodeURIComponent(storeSlug)}/orders/${encodeURIComponent(orderId)}/status`,
+      { method: 'PATCH', body: JSON.stringify(input) },
+      (data) => orderSchema.parse(data),
     );
   },
 };

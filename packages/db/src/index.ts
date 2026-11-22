@@ -1,4 +1,4 @@
-export { and, eq, ilike, or, sql } from 'drizzle-orm';
+export { and, desc, eq, gte, ilike, or, sql } from 'drizzle-orm';
 export { createDb, migrateDb, type Database, type DatabaseTransaction } from './client.ts';
 export { withStoreContext } from './context.ts';
 export { relations } from './relations.ts';

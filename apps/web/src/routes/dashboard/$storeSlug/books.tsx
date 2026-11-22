@@ -21,6 +21,9 @@ function MerchantBooksPage() {
         <Link to="/dashboard/$storeSlug" params={{ storeSlug }}>
           <Button label="Store Settings" variant="ghost" size="sm" />
         </Link>
+        <Link to="/dashboard/$storeSlug/orders" params={{ storeSlug }}>
+          <Button label="Manage Orders" variant="ghost" size="sm" />
+        </Link>
         <Link to="/s/$storeSlug" params={{ storeSlug }}>
           <Button label="View Storefront" variant="secondary" size="sm" />
         </Link>

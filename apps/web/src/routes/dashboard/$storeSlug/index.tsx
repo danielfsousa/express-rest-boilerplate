@@ -23,8 +23,11 @@ function MerchantDashboardPage() {
         <Link to="/dashboard/$storeSlug/books" params={{ storeSlug }}>
           <Button label="Manage Books" variant="primary" size="sm" />
         </Link>
+        <Link to="/dashboard/$storeSlug/orders" params={{ storeSlug }}>
+          <Button label="Manage Orders" variant="secondary" size="sm" />
+        </Link>
         <Link to="/s/$storeSlug" params={{ storeSlug }}>
-          <Button label="View Storefront" variant="secondary" size="sm" />
+          <Button label="View Storefront" variant="ghost" size="sm" />
         </Link>
       </HStack>
       {isLoading ? <Spinner /> : null}
