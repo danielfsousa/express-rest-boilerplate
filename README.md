@@ -160,6 +160,7 @@ Open Grafana at `http://127.0.0.1:3005` (`admin` and `admin`) to query Loki logs
 | `STRIPE_API_PROTOCOL`           | `http`                                             | Protocol for the Stripe API host (`http` or `https`)                                     |
 | `STRIPE_PRO_PRICE_ID`           | `price_pro_monthly`                                | Stripe recurring Price ID for the Pro store subscription plan                            |
 | `FEATURE_MULTI_TENANCY_ENABLED` | `true`                                             | Enable multi-store creation and store switching                                          |
+| `FEATURE_ADMIN_ENABLED`         | `true`                                             | Enable the SaaS platform admin API, store plan overrides, and user impersonation         |
 | `FEATURE_BILLING_ENABLED`       | `true`                                             | Enable Stripe checkout sessions, subscriptions, and webhooks                             |
 | `FEATURE_JOBS_ENABLED`          | `true`                                             | Enable `pg-boss` queues and `/api/stores/:storeId/exports` endpoints                     |
 | `FEATURE_REALTIME_ENABLED`      | `true`                                             | Enable `/ws` WebSocket push notifications for stock and order state                      |

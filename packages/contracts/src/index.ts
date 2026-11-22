@@ -1,4 +1,18 @@
 export {
+  adminOverviewResponseSchema,
+  adminStoreSummarySchema,
+  adminUpdateStorePlanSchema,
+  adminUpdateUserSchema,
+  adminUserSummarySchema,
+  userRoleSchema,
+  type AdminOverviewResponse,
+  type AdminStoreSummary,
+  type AdminUpdateStorePlanInput,
+  type AdminUpdateUserInput,
+  type AdminUserSummary,
+  type UserRole,
+} from './admin.ts';
+export {
   storeBillingSummarySchema,
   storePlanSchema,
   upgradeStoreResponseSchema,

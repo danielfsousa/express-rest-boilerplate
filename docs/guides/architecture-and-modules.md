@@ -126,3 +126,22 @@ VITE_FEATURE_MULTI_TENANCY_ENABLED=false
 ```
 
 In single-store mode, the API automatically resolves the default seeded store, blocks `POST /api/stores` from creating additional tenants, and hides the store switcher in the dashboard header.
+
+### 6. SaaS platform admin and user impersonation (`FEATURE_ADMIN_ENABLED`)
+
+To disable the platform admin dashboard (`/admin`), cross-tenant store billing overrides, and `better-auth` user impersonation, set:
+
+```bash
+FEATURE_ADMIN_ENABLED=false
+VITE_FEATURE_ADMIN_ENABLED=false
+```
+
+To delete the SaaS admin module completely:
+
+1. Delete `apps/api/src/features/admin/`, `apps/web/src/features/admin/`, and `apps/web/src/routes/admin/`.
+2. Remove `createAdminRouter` from `apps/api/src/app.ts`, remove `adminPlugin` from `apps/api/src/features/auth/auth.service.ts`, and remove `adminClient` from `apps/web/src/lib/auth-client.ts`.
+3. Regenerate the web route tree and verify:
+
+```bash
+pnpm --filter @starter/web build && pnpm run check && pnpm run test
+```

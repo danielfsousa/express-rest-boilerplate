@@ -1,6 +1,7 @@
 interface ViteImportMetaEnv {
   readonly VITE_API_URL?: string;
   readonly VITE_FEATURE_MULTI_TENANCY_ENABLED?: string;
+  readonly VITE_FEATURE_ADMIN_ENABLED?: string;
   readonly VITE_FEATURE_I18N_ENABLED?: string;
   readonly VITE_FEATURE_BILLING_ENABLED?: string;
   readonly VITE_FEATURE_REALTIME_ENABLED?: string;

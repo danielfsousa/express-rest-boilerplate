@@ -42,6 +42,7 @@ export const envSchema = z.object({
   STRIPE_API_PROTOCOL: z.enum(['http', 'https']).optional(),
   STRIPE_PRO_PRICE_ID: z.string().min(1).default('price_pro_monthly'),
   FEATURE_MULTI_TENANCY_ENABLED: booleanFlagSchema,
+  FEATURE_ADMIN_ENABLED: booleanFlagSchema,
   FEATURE_BILLING_ENABLED: booleanFlagSchema,
   FEATURE_JOBS_ENABLED: booleanFlagSchema,
   FEATURE_REALTIME_ENABLED: booleanFlagSchema,

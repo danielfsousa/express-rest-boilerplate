@@ -1,4 +1,7 @@
 import {
+  adminOverviewResponseSchema,
+  adminStoreSummarySchema,
+  adminUserSummarySchema,
   bookSchema,
   deleteBookResponseSchema,
   errorResponseSchema,
@@ -14,6 +17,11 @@ import {
   uploadCoverResponseSchema,
 } from '@starter/contracts';
 import type {
+  AdminOverviewResponse,
+  AdminStoreSummary,
+  AdminUpdateStorePlanInput,
+  AdminUpdateUserInput,
+  AdminUserSummary,
   Book,
   CreateBookInput,
   CreateOrderInput,
@@ -221,6 +229,28 @@ export const apiClient = {
       `/api/v1/stores/${encodeURIComponent(storeSlug)}/exports/${encodeURIComponent(exportId)}`,
       { method: 'GET' },
       (data) => storeExportSchema.parse(data),
+    );
+  },
+  getAdminOverview(): Promise<AdminOverviewResponse> {
+    return requestJson('/api/v1/admin/overview', { method: 'GET' }, (data) =>
+      adminOverviewResponseSchema.parse(data),
+    );
+  },
+  updateAdminStorePlan(
+    storeSlug: string,
+    input: AdminUpdateStorePlanInput,
+  ): Promise<AdminStoreSummary> {
+    return requestJson(
+      `/api/v1/admin/stores/${encodeURIComponent(storeSlug)}/plan`,
+      { method: 'PATCH', body: JSON.stringify(input) },
+      (data) => adminStoreSummarySchema.parse(data),
+    );
+  },
+  updateAdminUser(userId: string, input: AdminUpdateUserInput): Promise<AdminUserSummary> {
+    return requestJson(
+      `/api/v1/admin/users/${encodeURIComponent(userId)}`,
+      { method: 'PATCH', body: JSON.stringify(input) },
+      (data) => adminUserSummarySchema.parse(data),
     );
   },
 };

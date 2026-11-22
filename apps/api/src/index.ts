@@ -61,6 +61,7 @@ async function main(): Promise<void> {
     trustedOrigins,
     mailer,
     i18nEnabled: env.FEATURE_I18N_ENABLED,
+    adminEnabled: env.FEATURE_ADMIN_ENABLED,
     billingEnabled: env.FEATURE_BILLING_ENABLED,
     stripeClient,
     stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
@@ -118,6 +119,7 @@ async function main(): Promise<void> {
       webSocketAdapter = adapter;
     },
     multiTenancyEnabled: env.FEATURE_MULTI_TENANCY_ENABLED,
+    adminEnabled: env.FEATURE_ADMIN_ENABLED,
     billingEnabled: env.FEATURE_BILLING_ENABLED,
     stripeClient,
     stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,

@@ -8,6 +8,7 @@ import type { ObjectStorage } from '@starter/runtime/storage';
 import type { DbClient, RuntimeLogger, WebSocketAdapter } from '@starter/runtime/types';
 import { cors } from 'hono/cors';
 import type Stripe from 'stripe';
+import { createAdminRouter } from './features/admin/admin.handlers.ts';
 import type { AuthInstance } from './features/auth/auth.service.ts';
 import { createBillingRouter } from './features/billing/billing.handlers.ts';
 import { createBooksRouter } from './features/books/books.handlers.ts';
@@ -28,6 +29,7 @@ export interface CreateAppOptions {
   realtimeBroker?: RealtimeBroker | undefined;
   onWebSocketAdapter?: ((adapter: WebSocketAdapter) => void) | undefined;
   multiTenancyEnabled?: boolean;
+  adminEnabled?: boolean;
   billingEnabled?: boolean;
   stripeClient?: Stripe | undefined;
   stripeWebhookSecret?: string;
@@ -47,6 +49,7 @@ export function createApp({
   realtimeBroker,
   onWebSocketAdapter,
   multiTenancyEnabled = true,
+  adminEnabled = true,
   billingEnabled = false,
   stripeClient,
   stripeWebhookSecret = '',
@@ -90,6 +93,9 @@ export function createApp({
   }
 
   if (drizzleDb && auth) {
+    if (adminEnabled) {
+      app.route('/', createAdminRouter({ drizzleDb, auth }));
+    }
     app.route('/', createStoresRouter({ drizzleDb, auth, multiTenancyEnabled }));
     app.route(
       '/',
