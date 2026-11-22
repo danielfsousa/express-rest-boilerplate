@@ -1,0 +1,23 @@
+{
+  "name": "@starter/worker",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file=../../.env --watch src/index.ts",
+    "start": "node src/index.ts"
+  },
+  "dependencies": {
+    "@starter/db": "workspace:*",
+    "@starter/email": "workspace:*",
+    "@starter/jobs": "workspace:*",
+    "@starter/runtime": "workspace:*",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@starter/api": "workspace:*",
+    "@starter/contracts": "workspace:*",
+    "@testcontainers/postgresql": "^12.2.2",
+    "testcontainers": "^12.2.2"
+  }
+}

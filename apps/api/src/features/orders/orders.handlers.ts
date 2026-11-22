@@ -1,5 +1,6 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import type { Database } from '@starter/db';
+import type { JobQueue } from '@starter/jobs';
 import { getSessionUser } from '../auth/auth.service.ts';
 import type { AuthInstance } from '../auth/auth.service.ts';
 import { resolveStoreContext } from '../books/books.service.ts';
@@ -22,6 +23,7 @@ export interface CreateOrdersRouterOptions {
   auth: AuthInstance;
   multiTenancyEnabled: boolean;
   billing?: OrderBillingContext | undefined;
+  jobQueue?: JobQueue | undefined;
 }
 
 export function createOrdersRouter({
@@ -29,6 +31,7 @@ export function createOrdersRouter({
   auth,
   multiTenancyEnabled,
   billing,
+  jobQueue,
 }: CreateOrdersRouterOptions): OpenAPIHono {
   const router = new OpenAPIHono();
 
@@ -40,7 +43,13 @@ export function createOrdersRouter({
     }
 
     const body = c.req.valid('json');
-    const result = await createOrderForStore(drizzleDb, store, body, billing);
+    const result = await createOrderForStore({
+      db: drizzleDb,
+      store,
+      input: body,
+      billing,
+      jobQueue,
+    });
     if (!result.ok) {
       return c.json({ error: result.error }, result.status);
     }

@@ -4,8 +4,10 @@ import {
   errorResponseSchema,
   listBooksResponseSchema,
   listOrdersResponseSchema,
+  listStoreExportsResponseSchema,
   orderSchema,
   storeBillingSummarySchema,
+  storeExportSchema,
   storeListResponseSchema,
   storeSchema,
   upgradeStoreResponseSchema,
@@ -19,9 +21,11 @@ import type {
   ListBooksQuery,
   ListBooksResponse,
   ListOrdersResponse,
+  ListStoreExportsResponse,
   Order,
   Store,
   StoreBillingSummary,
+  StoreExport,
   StoreListResponse,
   UpdateBookInput,
   UpdateOrderStatusInput,
@@ -196,6 +200,27 @@ export const apiClient = {
       `/api/v1/stores/${encodeURIComponent(storeSlug)}/billing/upgrade`,
       { method: 'POST' },
       (data) => upgradeStoreResponseSchema.parse(data),
+    );
+  },
+  listExports(storeSlug: string): Promise<ListStoreExportsResponse> {
+    return requestJson(
+      `/api/v1/stores/${encodeURIComponent(storeSlug)}/exports`,
+      { method: 'GET' },
+      (data) => listStoreExportsResponseSchema.parse(data),
+    );
+  },
+  createBooksExport(storeSlug: string): Promise<StoreExport> {
+    return requestJson(
+      `/api/v1/stores/${encodeURIComponent(storeSlug)}/exports/books`,
+      { method: 'POST' },
+      (data) => storeExportSchema.parse(data),
+    );
+  },
+  getExport(storeSlug: string, exportId: string): Promise<StoreExport> {
+    return requestJson(
+      `/api/v1/stores/${encodeURIComponent(storeSlug)}/exports/${encodeURIComponent(exportId)}`,
+      { method: 'GET' },
+      (data) => storeExportSchema.parse(data),
     );
   },
 };

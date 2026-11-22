@@ -1,6 +1,20 @@
 import type { Order, StoreBillingSummary, UpgradeStoreResponse } from '@starter/contracts';
-import { and, books, eq, orders, sql, subscription, withStoreContext } from '@starter/db';
+import {
+  and,
+  books,
+  customers,
+  eq,
+  orderItems,
+  orders,
+  organization,
+  sql,
+  subscription,
+  withStoreContext,
+} from '@starter/db';
 import type { Database } from '@starter/db';
+import type { Locale } from '@starter/i18n';
+import { JOB_NAMES } from '@starter/jobs';
+import type { JobQueue } from '@starter/jobs';
 import Stripe from 'stripe';
 
 export const FREE_PLAN_PUBLISHED_BOOK_LIMIT = 25;
@@ -182,6 +196,7 @@ export async function verifyAndProcessStripeWebhook(params: {
   rawBody: string;
   signature: string | undefined;
   db: Database;
+  jobQueue?: JobQueue | undefined;
 }): Promise<WebhookResult> {
   if (!params.signature) {
     return { ok: false, status: 400, error: 'Missing stripe-signature header' };
@@ -210,6 +225,64 @@ export async function verifyAndProcessStripeWebhook(params: {
           .set({ status: 'paid', updatedAt: new Date() })
           .where(and(eq(orders.id, orderId), eq(orders.storeId, storeId))),
       );
+
+      if (params.jobQueue) {
+        const [storeRow] = await params.db
+          .select({ name: organization.name })
+          .from(organization)
+          .where(eq(organization.id, storeId))
+          .limit(1);
+
+        const orderDetails = await withStoreContext(params.db, storeId, async (tx) => {
+          const [orderRow] = await tx
+            .select({
+              id: orders.id,
+              totalCents: orders.totalCents,
+              currency: orders.currency,
+              customerEmail: customers.email,
+              customerName: customers.name,
+              customerLocale: customers.locale,
+            })
+            .from(orders)
+            .innerJoin(customers, eq(orders.customerId, customers.id))
+            .where(and(eq(orders.id, orderId), eq(orders.storeId, storeId)))
+            .limit(1);
+
+          if (!orderRow) {
+            return null;
+          }
+
+          const items = await tx
+            .select({
+              title: books.title,
+              quantity: orderItems.quantity,
+              unitPriceCents: orderItems.unitPriceCents,
+            })
+            .from(orderItems)
+            .innerJoin(books, eq(orderItems.bookId, books.id))
+            .where(and(eq(orderItems.orderId, orderId), eq(orderItems.storeId, storeId)));
+
+          return { orderRow, items };
+        });
+
+        if (orderDetails) {
+          const locale: Locale = orderDetails.orderRow.customerLocale === 'pt-BR' ? 'pt-BR' : 'en';
+          await params.jobQueue.enqueue({
+            name: JOB_NAMES.ORDER_RECEIPT,
+            payload: {
+              storeId,
+              storeName: storeRow?.name ?? storeId,
+              orderId: orderDetails.orderRow.id,
+              customerEmail: orderDetails.orderRow.customerEmail,
+              customerName: orderDetails.orderRow.customerName,
+              locale,
+              totalCents: orderDetails.orderRow.totalCents,
+              currency: orderDetails.orderRow.currency,
+              items: orderDetails.items,
+            },
+          });
+        }
+      }
     }
   }
 

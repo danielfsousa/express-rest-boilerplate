@@ -15,6 +15,7 @@
     "@starter/db": "workspace:*",
     "@starter/email": "workspace:*",
     "@starter/i18n": "workspace:*",
+    "@starter/jobs": "workspace:*",
     "@starter/runtime": "workspace:*",
     "better-auth": "^1.7.27",
     "hono": "^4.13.20",

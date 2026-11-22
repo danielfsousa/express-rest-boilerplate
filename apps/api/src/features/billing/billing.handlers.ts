@@ -1,5 +1,6 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import type { Database } from '@starter/db';
+import type { JobQueue } from '@starter/jobs';
 import type Stripe from 'stripe';
 import { getSessionUser } from '../auth/auth.service.ts';
 import type { AuthInstance } from '../auth/auth.service.ts';
@@ -19,6 +20,7 @@ export interface CreateBillingRouterOptions {
   proPriceId: string;
   webOrigin: string;
   multiTenancyEnabled: boolean;
+  jobQueue?: JobQueue | undefined;
 }
 
 export function createBillingRouter({
@@ -29,6 +31,7 @@ export function createBillingRouter({
   proPriceId,
   webOrigin,
   multiTenancyEnabled,
+  jobQueue,
 }: CreateBillingRouterOptions): OpenAPIHono {
   const router = new OpenAPIHono();
 
@@ -97,6 +100,7 @@ export function createBillingRouter({
       rawBody,
       signature,
       db: drizzleDb,
+      jobQueue,
     });
     if (!result.ok) {
       return c.json({ error: result.error }, result.status);

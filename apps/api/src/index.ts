@@ -1,5 +1,10 @@
 import { createDb, ensureDefaultStore } from '@starter/db';
 import { createBirdMailer } from '@starter/email';
+import {
+  createInlineJobQueue,
+  createPgBossJobQueue,
+  registerDefaultJobHandlers,
+} from '@starter/jobs';
 import { createDbClient, createLogger, createServer, onShutdown, readEnv } from '@starter/runtime';
 import { createS3Storage } from '@starter/runtime/storage';
 import { createApp } from './app.ts';
@@ -54,12 +59,33 @@ async function main(): Promise<void> {
     bucket: env.S3_BUCKET,
   });
 
+  const jobQueue = env.FEATURE_JOBS_ENABLED
+    ? createPgBossJobQueue({
+        connectionString: env.DATABASE_DIRECT_URL ?? env.DATABASE_URL,
+        schema: 'pgboss',
+        retryLimit: 3,
+        retryDelay: 30,
+        retryBackoff: true,
+      })
+    : createInlineJobQueue();
+
+  await jobQueue.start();
+  if (!env.FEATURE_JOBS_ENABLED || env.WORKER_INLINE) {
+    await registerDefaultJobHandlers(jobQueue, {
+      drizzleDb: drizzleHandle.db,
+      mailer,
+      storage,
+      logger,
+    });
+  }
+
   const app = createApp({
     db,
     logger,
     drizzleDb: drizzleHandle.db,
     auth,
     storage,
+    jobQueue,
     multiTenancyEnabled: env.FEATURE_MULTI_TENANCY_ENABLED,
     billingEnabled: env.FEATURE_BILLING_ENABLED,
     stripeClient,
@@ -83,6 +109,7 @@ async function main(): Promise<void> {
   onShutdown(
     async () => {
       await server.close();
+      await jobQueue.stop();
       await drizzleHandle.close();
       await db.close();
       logger.info('API server stopped');

@@ -1,0 +1,67 @@
+import { createDb } from '@starter/db';
+import { createBirdMailer } from '@starter/email';
+import { createPgBossJobQueue, registerDefaultJobHandlers } from '@starter/jobs';
+import { createLogger, onShutdown, readEnv } from '@starter/runtime';
+import { createS3Storage } from '@starter/runtime/storage';
+import { z } from 'zod';
+
+const workerEnvSchema = z.object({
+  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+  DATABASE_URL: z.string().min(1),
+  DATABASE_DIRECT_URL: z.string().optional(),
+  S3_ENDPOINT: z.string().default('http://127.0.0.1:4566'),
+  S3_REGION: z.string().default('us-east-1'),
+  S3_ACCESS_KEY_ID: z.string().default('test'),
+  S3_SECRET_ACCESS_KEY: z.string().default('test'),
+  S3_BUCKET: z.string().default('bookstore-media'),
+  BIRD_API_BASE_URL: z.string().default('http://127.0.0.1:4025'),
+  BIRD_API_KEY: z.string().default('bird_local_dev_key'),
+  BIRD_FROM_EMAIL: z.string().email().default('noreply@bookstore.local'),
+});
+
+async function main(): Promise<void> {
+  const env = workerEnvSchema.parse(readEnv());
+  const logger = createLogger({ level: env.LOG_LEVEL });
+  const drizzleHandle = createDb(env.DATABASE_URL);
+  const mailer = createBirdMailer({
+    apiBaseUrl: env.BIRD_API_BASE_URL,
+    apiKey: env.BIRD_API_KEY,
+    fromEmail: env.BIRD_FROM_EMAIL,
+  });
+  const storage = createS3Storage({
+    endpoint: env.S3_ENDPOINT,
+    region: env.S3_REGION,
+    accessKeyId: env.S3_ACCESS_KEY_ID,
+    secretAccessKey: env.S3_SECRET_ACCESS_KEY,
+    bucket: env.S3_BUCKET,
+  });
+
+  const queue = createPgBossJobQueue({
+    connectionString: env.DATABASE_DIRECT_URL ?? env.DATABASE_URL,
+    schema: 'pgboss',
+    retryLimit: 3,
+    retryDelay: 30,
+    retryBackoff: true,
+  });
+
+  await queue.start();
+  await registerDefaultJobHandlers(queue, {
+    drizzleDb: drizzleHandle.db,
+    mailer,
+    storage,
+    logger,
+  });
+
+  logger.info('Worker started and listening for pg-boss jobs');
+
+  onShutdown(
+    async () => {
+      await queue.stop();
+      await drizzleHandle.close();
+      logger.info('Worker stopped');
+    },
+    { drainTimeoutMs: 10_000, logger },
+  );
+}
+
+await main();

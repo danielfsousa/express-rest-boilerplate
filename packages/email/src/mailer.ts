@@ -17,37 +17,41 @@ export interface CreateBirdMailerOptions {
   apiBaseUrl: string;
   apiKey: string;
   fromEmail: string;
+  fetchImpl?: (request: Request) => Promise<Response>;
 }
 
 export function createBirdMailer({
   apiBaseUrl,
   apiKey,
   fromEmail,
+  fetchImpl = (request) => fetch(request),
 }: CreateBirdMailerOptions): Mailer {
   const endpoint = `${apiBaseUrl.replace(/\/+$/, '')}/v1/email/messages`;
 
   return {
     async send(message) {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          authorization: `AccessKey ${apiKey}`,
-        },
-        body: JSON.stringify({
-          recipients: [{ address: { email: message.to } }],
-          content: {
-            subject: message.subject,
-            html: message.html,
-            text: message.text,
+      const response = await fetchImpl(
+        new Request(endpoint, {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            authorization: `AccessKey ${apiKey}`,
           },
-          sender: {
-            address: {
-              email: fromEmail,
+          body: JSON.stringify({
+            recipients: [{ address: { email: message.to } }],
+            content: {
+              subject: message.subject,
+              html: message.html,
+              text: message.text,
             },
-          },
+            sender: {
+              address: {
+                email: fromEmail,
+              },
+            },
+          }),
         }),
-      });
+      );
 
       if (!response.ok) {
         const body = await response.text();

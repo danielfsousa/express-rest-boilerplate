@@ -32,6 +32,9 @@ function MerchantDashboardPage() {
             <Button label="Billing" variant="secondary" size="sm" />
           </Link>
         ) : null}
+        <Link to="/dashboard/$storeSlug/exports" params={{ storeSlug }}>
+          <Button label="Exports" variant="secondary" size="sm" />
+        </Link>
         <Link to="/s/$storeSlug" params={{ storeSlug }}>
           <Button label="View Storefront" variant="ghost" size="sm" />
         </Link>

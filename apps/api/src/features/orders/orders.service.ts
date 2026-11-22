@@ -1,5 +1,5 @@
 import type { CreateOrderInput, Order, OrderItem, OrderStatus } from '@starter/contracts';
-import { orderStatusSchema } from '@starter/contracts';
+import { orderStatusSchema, storeMetadataSchema } from '@starter/contracts';
 import {
   and,
   books,
@@ -7,12 +7,18 @@ import {
   desc,
   eq,
   gte,
+  member,
   orderItems,
   orders,
+  organization,
   sql,
+  user,
   withStoreContext,
 } from '@starter/db';
 import type { Database } from '@starter/db';
+import type { Locale } from '@starter/i18n';
+import { JOB_NAMES } from '@starter/jobs';
+import type { JobQueue } from '@starter/jobs';
 import type Stripe from 'stripe';
 import { createOrderCheckoutSession } from '../billing/billing.service.ts';
 import type { ResolvedStoreContext } from '../books/books.service.ts';
@@ -87,19 +93,42 @@ export interface OrderBillingContext {
   webOrigin: string;
 }
 
-export async function createOrderForStore(
-  db: Database,
-  store: ResolvedStoreContext,
-  input: CreateOrderInput,
-  billing?: OrderBillingContext,
-): Promise<CreateOrderResult> {
+export interface CreateOrderParams {
+  db: Database;
+  store: ResolvedStoreContext;
+  input: CreateOrderInput;
+  billing?: OrderBillingContext | undefined;
+  jobQueue?: JobQueue | undefined;
+}
+
+export async function createOrderForStore({
+  db,
+  store,
+  input,
+  billing,
+  jobQueue,
+}: CreateOrderParams): Promise<CreateOrderResult> {
   const aggregated = new Map<string, number>();
   for (const item of input.items) {
     aggregated.set(item.bookId, (aggregated.get(item.bookId) ?? 0) + item.quantity);
   }
   const sortedItems = [...aggregated.entries()].toSorted(([a], [b]) => a.localeCompare(b));
 
-  let result: CreateOrderResult;
+  let result:
+    | {
+        ok: true;
+        order: Order;
+        resolvedLines: Array<{
+          bookId: string;
+          title: string;
+          sku: string;
+          currency: string;
+          quantity: number;
+          unitPriceCents: number;
+          newStock: number;
+        }>;
+      }
+    | { ok: false; status: 404 | 409; error: string };
   try {
     result = await withStoreContext(db, store.id, async (tx) => {
       const resolvedLines: Array<{
@@ -109,6 +138,7 @@ export async function createOrderForStore(
         currency: string;
         quantity: number;
         unitPriceCents: number;
+        newStock: number;
       }> = [];
 
       for (const [bookId, quantity] of sortedItems) {
@@ -148,6 +178,7 @@ export async function createOrderForStore(
           currency: decremented.currency,
           quantity,
           unitPriceCents: decremented.priceCents,
+          newStock: decremented.stock,
         });
       }
 
@@ -220,6 +251,7 @@ export async function createOrderForStore(
       return {
         ok: true as const,
         order: toOrder(orderRow, customerRow, insertedItems),
+        resolvedLines,
       };
     });
   } catch (error: unknown) {
@@ -244,6 +276,79 @@ export async function createOrderForStore(
     );
     result.order.stripeCheckoutSessionId = session.sessionId;
     result.order.checkoutUrl = session.url;
+  }
+
+  if (result.ok && jobQueue) {
+    const [storeInfo] = await db
+      .select({ name: organization.name, metadata: organization.metadata })
+      .from(organization)
+      .where(eq(organization.id, store.id))
+      .limit(1);
+
+    let parsedThreshold = 5;
+    if (storeInfo?.metadata) {
+      try {
+        const parsedMeta = storeMetadataSchema.safeParse(JSON.parse(storeInfo.metadata));
+        if (parsedMeta.success && typeof parsedMeta.data.lowStockThreshold === 'number') {
+          parsedThreshold = parsedMeta.data.lowStockThreshold;
+        }
+      } catch {
+        parsedThreshold = 5;
+      }
+    }
+
+    const storeName = storeInfo?.name ?? store.slug;
+    const threshold = parsedThreshold;
+    const locale: Locale = input.customerLocale === 'pt-BR' ? 'pt-BR' : 'en';
+
+    if (!billing?.enabled) {
+      await jobQueue.enqueue({
+        name: JOB_NAMES.ORDER_RECEIPT,
+        payload: {
+          storeId: store.id,
+          storeName,
+          orderId: result.order.id,
+          customerEmail: result.order.customerEmail,
+          customerName: result.order.customerName,
+          locale,
+          totalCents: result.order.totalCents,
+          currency: result.order.currency,
+          items: result.order.items.map((item) => ({
+            title: item.title,
+            quantity: item.quantity,
+            unitPriceCents: item.unitPriceCents,
+          })),
+        },
+      });
+    }
+
+    const lowStockLines = result.resolvedLines.filter((line) => line.newStock <= threshold);
+    if (lowStockLines.length > 0) {
+      const owners = await db
+        .select({ email: user.email })
+        .from(member)
+        .innerJoin(user, eq(member.userId, user.id))
+        .where(and(eq(member.organizationId, store.id), eq(member.role, 'owner')));
+
+      for (const line of lowStockLines) {
+        for (const owner of owners) {
+          await jobQueue.enqueue({
+            name: JOB_NAMES.LOW_STOCK_ALERT,
+            payload: {
+              storeId: store.id,
+              storeName,
+              ownerEmail: owner.email,
+              bookId: line.bookId,
+              bookTitle: line.title,
+              sku: line.sku,
+              stock: line.newStock,
+              threshold,
+              locale,
+            },
+          });
+        }
+      }
+    }
   }
 
   return result;

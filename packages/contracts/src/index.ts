@@ -22,6 +22,14 @@ export {
   type UploadCoverResponse,
 } from './books.ts';
 export {
+  listStoreExportsResponseSchema,
+  storeExportSchema,
+  storeExportStatusSchema,
+  type ListStoreExportsResponse,
+  type StoreExport,
+  type StoreExportStatus,
+} from './exports.ts';
+export {
   healthLiveResponseSchema,
   healthReadyResponseSchema,
   type HealthLiveResponse,

@@ -1,6 +1,7 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { Scalar } from '@scalar/hono-api-reference';
 import type { Database } from '@starter/db';
+import type { JobQueue } from '@starter/jobs';
 import type { ObjectStorage } from '@starter/runtime/storage';
 import type { DbClient, RuntimeLogger } from '@starter/runtime/types';
 import { cors } from 'hono/cors';
@@ -8,6 +9,7 @@ import type Stripe from 'stripe';
 import type { AuthInstance } from './features/auth/auth.service.ts';
 import { createBillingRouter } from './features/billing/billing.handlers.ts';
 import { createBooksRouter } from './features/books/books.handlers.ts';
+import { createExportsRouter } from './features/exports/exports.handlers.ts';
 import { createHealthRouter } from './features/health/health.handlers.ts';
 import { createOrdersRouter } from './features/orders/orders.handlers.ts';
 import { createStoresRouter } from './features/stores/stores.handlers.ts';
@@ -18,6 +20,7 @@ export interface CreateAppOptions {
   drizzleDb?: Database;
   auth?: AuthInstance;
   storage?: ObjectStorage;
+  jobQueue?: JobQueue | undefined;
   multiTenancyEnabled?: boolean;
   billingEnabled?: boolean;
   stripeClient?: Stripe | undefined;
@@ -33,6 +36,7 @@ export function createApp({
   drizzleDb,
   auth,
   storage,
+  jobQueue,
   multiTenancyEnabled = true,
   billingEnabled = false,
   stripeClient,
@@ -101,6 +105,18 @@ export function createApp({
         auth,
         multiTenancyEnabled,
         billing: billingContext,
+        jobQueue,
+      }),
+    );
+
+    app.route(
+      '/',
+      createExportsRouter({
+        drizzleDb,
+        auth,
+        multiTenancyEnabled,
+        storage,
+        jobQueue,
       }),
     );
 
@@ -115,6 +131,7 @@ export function createApp({
           proPriceId: stripeProPriceId,
           webOrigin,
           multiTenancyEnabled,
+          jobQueue,
         }),
       );
     }
