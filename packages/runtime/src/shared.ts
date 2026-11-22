@@ -1,6 +1,7 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import pino from 'pino';
 import postgres from 'postgres';
+import { getActiveTraceContext } from './telemetry.ts';
 import type {
   CreateLoggerOptions,
   DbClient,
@@ -41,12 +42,23 @@ function wrapPino(instance: pino.Logger): RuntimeLogger {
 }
 
 export function createLogger(options?: CreateLoggerOptions): RuntimeLogger {
-  const instance = pino({
+  const usePretty = options?.format === 'pretty' && !options.otelEnabled;
+  const baseOptions = {
     level: options?.level ?? 'info',
+    mixin: () => getActiveTraceContext(),
     formatters: {
-      level: (label) => ({ status: label }),
+      level: (label: string) => ({ status: label }),
     },
-  });
+  };
+  const instance = usePretty
+    ? pino({
+        ...baseOptions,
+        transport: {
+          target: 'pino-pretty',
+          options: { colorize: true },
+        },
+      })
+    : pino(baseOptions);
   return wrapPino(instance);
 }
 

@@ -3,10 +3,19 @@ import { createBirdMailer } from '@starter/email';
 import { createPgBossJobQueue, registerDefaultJobHandlers } from '@starter/jobs';
 import { createLogger, onShutdown, readEnv } from '@starter/runtime';
 import { createS3Storage } from '@starter/runtime/storage';
+import { initTelemetry } from '@starter/runtime/telemetry';
 import { z } from 'zod';
 
 const workerEnvSchema = z.object({
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
+  LOG_FORMAT: z.enum(['json', 'pretty']).default('json'),
+  OTEL_ENABLED: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((value) => value === 'true'),
+  OTEL_SERVICE_NAME: z.string().min(1).default('bookstore-worker'),
+  OTEL_EXPORTER_OTLP_ENDPOINT: z.string().url().default('http://127.0.0.1:4318'),
+  OTEL_EXPORTER_OTLP_HEADERS: z.string().optional(),
   DATABASE_URL: z.string().min(1),
   DATABASE_DIRECT_URL: z.string().optional(),
   S3_ENDPOINT: z.string().default('http://127.0.0.1:4566'),
@@ -21,7 +30,17 @@ const workerEnvSchema = z.object({
 
 async function main(): Promise<void> {
   const env = workerEnvSchema.parse(readEnv());
-  const logger = createLogger({ level: env.LOG_LEVEL });
+  const telemetry = initTelemetry({
+    serviceName: env.OTEL_SERVICE_NAME,
+    enabled: env.OTEL_ENABLED,
+    endpoint: env.OTEL_EXPORTER_OTLP_ENDPOINT,
+    headers: env.OTEL_EXPORTER_OTLP_HEADERS,
+  });
+  const logger = createLogger({
+    level: env.LOG_LEVEL,
+    format: env.LOG_FORMAT,
+    otelEnabled: env.OTEL_ENABLED,
+  });
   const drizzleHandle = createDb(env.DATABASE_URL);
   const mailer = createBirdMailer({
     apiBaseUrl: env.BIRD_API_BASE_URL,
@@ -58,6 +77,7 @@ async function main(): Promise<void> {
     async () => {
       await queue.stop();
       await drizzleHandle.close();
+      await telemetry.shutdown();
       logger.info('Worker stopped');
     },
     { drainTimeoutMs: 10_000, logger },

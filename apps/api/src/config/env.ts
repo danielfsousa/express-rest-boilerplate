@@ -10,6 +10,14 @@ export const envSchema = z.object({
   HOST: z.string().min(1).default('127.0.0.1'),
   PORT: z.coerce.number().int().min(0).max(65_535).default(3001),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
+  LOG_FORMAT: z.enum(['json', 'pretty']).default('json'),
+  OTEL_ENABLED: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((value) => value === 'true'),
+  OTEL_SERVICE_NAME: z.string().min(1).default('bookstore-api'),
+  OTEL_EXPORTER_OTLP_ENDPOINT: z.string().url().default('http://127.0.0.1:4318'),
+  OTEL_EXPORTER_OTLP_HEADERS: z.string().optional(),
   DATABASE_URL: z.string().min(1),
   DATABASE_DIRECT_URL: z.string().min(1).optional(),
   WORKER_INLINE: z

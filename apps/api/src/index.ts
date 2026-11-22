@@ -12,6 +12,7 @@ import {
   createPostgresRealtimeBroker,
 } from '@starter/runtime/realtime';
 import { createS3Storage } from '@starter/runtime/storage';
+import { initTelemetry } from '@starter/runtime/telemetry';
 import type { WebSocketAdapter } from '@starter/runtime/types';
 import { createApp } from './app.ts';
 import { parseEnv } from './config/env.ts';
@@ -20,7 +21,17 @@ import { createStripeClient } from './features/billing/billing.service.ts';
 
 async function main(): Promise<void> {
   const env = parseEnv(readEnv());
-  const logger = createLogger({ level: env.LOG_LEVEL });
+  const telemetry = initTelemetry({
+    serviceName: env.OTEL_SERVICE_NAME,
+    enabled: env.OTEL_ENABLED,
+    endpoint: env.OTEL_EXPORTER_OTLP_ENDPOINT,
+    headers: env.OTEL_EXPORTER_OTLP_HEADERS,
+  });
+  const logger = createLogger({
+    level: env.LOG_LEVEL,
+    format: env.LOG_FORMAT,
+    otelEnabled: env.OTEL_ENABLED,
+  });
   const drizzleHandle = createDb(env.DATABASE_URL);
 
   if (!env.FEATURE_MULTI_TENANCY_ENABLED) {
@@ -133,6 +144,7 @@ async function main(): Promise<void> {
       await realtimeBroker.close();
       await jobQueue.stop();
       await drizzleHandle.close();
+      await telemetry.shutdown();
       logger.info('API server stopped');
     },
     { drainTimeoutMs: 10_000, logger },

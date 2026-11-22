@@ -16,6 +16,8 @@ export interface RuntimeLogger {
 
 export interface CreateLoggerOptions {
   level?: string;
+  format?: 'json' | 'pretty' | undefined;
+  otelEnabled?: boolean | undefined;
 }
 
 export type FetchHandler = (request: Request) => Response | Promise<Response>;

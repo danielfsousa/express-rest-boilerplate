@@ -33,5 +33,13 @@ services:
         until curl -sf http://floci:4566/ >/dev/null 2>&1; do sleep 1; done
         curl -sf -X PUT http://floci:4566/bookstore-media >/dev/null 2>&1 || true
 
+  grafana:
+    image: grafana/otel-lgtm:latest
+    profiles:
+      - o11y
+    ports:
+      - '127.0.0.1:${GRAFANA_HOST_PORT:-0}:3000'
+      - '127.0.0.1:${OTLP_HTTP_HOST_PORT:-0}:4318'
+
 volumes:
   postgres_data:
