@@ -37,3 +37,15 @@ docs authoring build an integration package, and every field it holds
 upgrade --from <old version> --apply run after a dependency bump
 To remove this block, run `astryx init --remove-agents`, which removes it from the agent files at the project root and in the folder you run it in; from any other file it leaves, delete everything from ASTRYX:START to ASTRYX:END.
 <!-- ASTRYX:END -->
+
+## Application State, Forms, and Testing
+
+See [../../docs/guides/style-guide.md](../../docs/guides/style-guide.md) for the full frontend style guide.
+
+- **Server state:** TanStack Query (`useQuery`, `useMutation`) via `ApiClientProvider`.
+- **URL state:** TanStack Router `validateSearch` with Zod for filters, search queries, and pagination.
+- **Forms:** `@tanstack/react-form` (`useForm`) instead of per-field `useState`.
+- **Shared client state:** `@tanstack/react-store` (`Store` and `useStore`) for client preferences such as locale.
+- **Local UI state:** Use `useReducer` when coordinating multiple fields in one feature.
+- **Route tree generation:** Run `pnpm --filter @starter/web build` after adding or renaming routes under `src/routes/` so `src/routeTree.gen.ts` updates before `vp check` or `tsrs`.
+- **Component tests:** Use the shared `renderWithAppProviders` harness backed by real TanStack Router `createMemoryHistory()` and an injectable `ApiClient`. Do not mock `@tanstack/react-router` with `vi.mock`. Always call `cleanup()` in `afterEach`.
