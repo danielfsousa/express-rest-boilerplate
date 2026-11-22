@@ -1,0 +1,20 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "app_title": "Bookstore Platform",
+  "nav_sign_in": "Sign in",
+  "nav_get_started": "Get started",
+  "locale_label": "Language",
+  "email_welcome_subject": "Welcome to Bookstore Platform",
+  "email_welcome_heading": "Welcome, {name}!",
+  "email_welcome_body": "Your merchant account is ready. Create your first store and start publishing books.",
+  "email_reset_subject": "Reset your password",
+  "email_reset_heading": "Password reset requested",
+  "email_reset_body": "Hi {name}, click the link below to choose a new password.",
+  "email_reset_cta": "Reset password",
+  "email_receipt_subject": "Order confirmation from {storeName}",
+  "email_receipt_heading": "Thank you for your order, {customerName}",
+  "email_receipt_body": "Order {orderId} is confirmed. Total paid: {totalFormatted}.",
+  "email_low_stock_subject": "Low stock alert for {bookTitle}",
+  "email_low_stock_heading": "Low stock alert in {storeName}",
+  "email_low_stock_body": "{bookTitle} ({sku}) has {stock} units remaining (threshold: {threshold})."
+}

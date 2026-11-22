@@ -4,6 +4,7 @@ import { HStack } from '@astryxdesign/core/HStack';
 import { VStack } from '@astryxdesign/core/VStack';
 import { Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
+import { LocaleSwitcher } from '../features/i18n/index.ts';
 
 export interface AppLayoutProps {
   title?: string;
@@ -26,6 +27,7 @@ export function AppLayout({
         </HStack>
         <HStack align="center" gap="sm">
           {headerActions}
+          <LocaleSwitcher />
           <Link to="/auth/sign-in">
             <Button label="Sign in" variant="ghost" size="sm" />
           </Link>

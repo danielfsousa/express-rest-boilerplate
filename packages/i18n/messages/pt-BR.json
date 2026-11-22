@@ -1,0 +1,20 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "app_title": "Plataforma de Livraria",
+  "nav_sign_in": "Entrar",
+  "nav_get_started": "Começar",
+  "locale_label": "Idioma",
+  "email_welcome_subject": "Boas-vindas à Plataforma de Livraria",
+  "email_welcome_heading": "Olá, {name}!",
+  "email_welcome_body": "Sua conta de lojista está pronta. Crie sua primeira loja e comece a publicar livros.",
+  "email_reset_subject": "Redefinir sua senha",
+  "email_reset_heading": "Solicitação de redefinição de senha",
+  "email_reset_body": "Olá {name}, clique no link abaixo para escolher uma nova senha.",
+  "email_reset_cta": "Redefinir senha",
+  "email_receipt_subject": "Confirmação do pedido em {storeName}",
+  "email_receipt_heading": "Obrigado pelo pedido, {customerName}",
+  "email_receipt_body": "O pedido {orderId} foi confirmado. Total pago: {totalFormatted}.",
+  "email_low_stock_subject": "Alerta de estoque baixo para {bookTitle}",
+  "email_low_stock_heading": "Estoque baixo em {storeName}",
+  "email_low_stock_body": "{bookTitle} ({sku}) está com {stock} unidades restantes (limite: {threshold})."
+}

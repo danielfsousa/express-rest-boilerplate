@@ -10,6 +10,7 @@ export default defineConfig({
     '**/.tanstack/**',
     '**/.output/**',
     '**/routeTree.gen.ts',
+    'packages/i18n/src/paraglide/**',
   ],
   overrides: [
     ...(cloudflare.overrides ?? []),

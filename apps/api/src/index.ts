@@ -1,4 +1,5 @@
 import { createDb, ensureDefaultStore } from '@starter/db';
+import { createBirdMailer } from '@starter/email';
 import { createDbClient, createLogger, createServer, onShutdown, readEnv } from '@starter/runtime';
 import { createS3Storage } from '@starter/runtime/storage';
 import { createApp } from './app.ts';
@@ -15,12 +16,20 @@ async function main(): Promise<void> {
     await ensureDefaultStore(drizzleHandle.db);
   }
 
+  const mailer = createBirdMailer({
+    apiBaseUrl: env.BIRD_API_BASE_URL,
+    apiKey: env.BIRD_API_KEY,
+    fromEmail: env.BIRD_FROM_EMAIL,
+  });
+
   const trustedOrigins = [env.WEB_ORIGIN, env.BETTER_AUTH_URL];
   const auth = createAuth({
     db: drizzleHandle.db,
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL,
     trustedOrigins,
+    mailer,
+    i18nEnabled: env.FEATURE_I18N_ENABLED,
   });
 
   const storage = createS3Storage({

@@ -3,6 +3,7 @@ import { neutralTheme } from '@astryxdesign/theme-neutral';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
+import { LocaleProvider } from '../features/i18n/index.ts';
 
 export function AppProviders({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -19,7 +20,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Theme theme={neutralTheme}>{children}</Theme>
+      <Theme theme={neutralTheme}>
+        <LocaleProvider>{children}</LocaleProvider>
+      </Theme>
     </QueryClientProvider>
   );
 }

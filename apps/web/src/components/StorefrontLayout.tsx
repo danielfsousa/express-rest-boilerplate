@@ -5,6 +5,7 @@ import { Text } from '@astryxdesign/core/Text';
 import { VStack } from '@astryxdesign/core/VStack';
 import { Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
+import { LocaleSwitcher } from '../features/i18n/index.ts';
 
 export interface StorefrontLayoutProps {
   storeName: string;
@@ -21,6 +22,7 @@ export function StorefrontLayout({ storeName, storeSlug, children }: StorefrontL
           <Text color="secondary">Storefront /{storeSlug}</Text>
         </VStack>
         <HStack gap="sm">
+          <LocaleSwitcher />
           <Link to="/dashboard/$storeSlug" params={{ storeSlug }}>
             <Button label="Merchant Console" variant="secondary" size="sm" />
           </Link>
