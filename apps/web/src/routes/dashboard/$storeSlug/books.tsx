@@ -1,9 +1,9 @@
 import { Button } from '@astryxdesign/core/Button';
 import { HStack } from '@astryxdesign/core/HStack';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { AppLayout } from '../../../components/AppLayout.tsx';
-import { BookForm, MerchantBooksTable } from '../../../features/books/index.ts';
-import { StoreSwitcher } from '../../../features/stores/index.ts';
+import { AppLayout } from '#/components/AppLayout.tsx';
+import { BookForm, MerchantBooksTable } from '#/features/books/index.ts';
+import { StoreSwitcher } from '#/features/stores/index.ts';
 
 export const Route = createFileRoute('/dashboard/$storeSlug/books')({
   component: MerchantBooksPage,

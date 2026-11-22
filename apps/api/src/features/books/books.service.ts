@@ -8,7 +8,7 @@ import type {
 import { and, books, eq, ilike, or, sql, withStoreContext } from '@starter/db';
 import type { Database } from '@starter/db';
 import type { ObjectStorage } from '@starter/runtime/storage';
-import type { ResolvedStoreContext } from '../../middleware/store-context.ts';
+import type { ResolvedStoreContext } from '#/middleware/store-context.ts';
 import { assertCanPublishBook } from '../billing/billing.service.ts';
 
 const ALLOWED_COVER_TYPES = new Map<string, string>([

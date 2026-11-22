@@ -1,9 +1,9 @@
 import { Banner } from '@astryxdesign/core/Banner';
 import { Spinner } from '@astryxdesign/core/Spinner';
 import { createFileRoute } from '@tanstack/react-router';
-import { StorefrontLayout } from '../../../components/StorefrontLayout.tsx';
-import { BookCatalog } from '../../../features/books/index.ts';
-import { useStore } from '../../../features/stores/index.ts';
+import { StorefrontLayout } from '#/components/StorefrontLayout.tsx';
+import { BookCatalog } from '#/features/books/index.ts';
+import { useStore } from '#/features/stores/index.ts';
 
 interface CatalogSearchParams {
   q?: string | undefined;

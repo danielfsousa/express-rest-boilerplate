@@ -9,8 +9,8 @@ import { TextInput } from '@astryxdesign/core/TextInput';
 import { VStack } from '@astryxdesign/core/VStack';
 import { Link } from '@tanstack/react-router';
 import { useReducer } from 'react';
-import { getApiBaseUrl } from '../../../lib/env.ts';
-import { formatCurrency } from '../../../lib/format.ts';
+import { getApiBaseUrl } from '#/lib/env.ts';
+import { formatCurrency } from '#/lib/format.ts';
 import { useBooks } from '../hooks/useBooks.ts';
 
 interface CatalogLocalState {

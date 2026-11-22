@@ -2,7 +2,7 @@ import { OpenAPIHono } from '@hono/zod-openapi';
 import type { Database } from '@starter/db';
 import type { JobQueue } from '@starter/jobs';
 import type { ObjectStorage } from '@starter/runtime/storage';
-import { resolveMerchantStore } from '../../middleware/store-context.ts';
+import { resolveMerchantStore } from '#/middleware/store-context.ts';
 import type { AuthInstance } from '../auth/auth.service.ts';
 import { createBooksExportRoute, getExportRoute, listExportsRoute } from './exports.routes.ts';
 import {

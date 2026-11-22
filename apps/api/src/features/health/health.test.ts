@@ -1,7 +1,7 @@
 import type { DbClient, RuntimeLogger } from '@starter/runtime/types';
 import { describe, expect, test, vi } from 'vite-plus/test';
 import { z } from 'zod';
-import { createApp } from '../../app.ts';
+import { createApp } from '#/app.ts';
 
 const openApiDocSchema = z.object({
   openapi: z.string(),

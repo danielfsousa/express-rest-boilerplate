@@ -1,6 +1,6 @@
 import type { CreateStoreInput, UpdateStoreInput } from '@starter/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '../../../lib/api-client.ts';
+import { apiClient } from '#/lib/api-client.ts';
 
 export function useStores(enabled = true) {
   return useQuery({

@@ -1,6 +1,6 @@
 import type { StoreBillingSummary, UpgradeStoreResponse } from '@starter/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '../../../lib/api-client.ts';
+import { apiClient } from '#/lib/api-client.ts';
 
 export function useStoreBilling(storeSlug: string) {
   return useQuery<StoreBillingSummary>({

@@ -7,7 +7,7 @@ import { VStack } from '@astryxdesign/core/VStack';
 import { useForm } from '@tanstack/react-form';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { authClient } from '../../../lib/auth-client.ts';
+import { authClient } from '#/lib/auth-client.ts';
 
 export function SignInForm() {
   const navigate = useNavigate();

@@ -7,7 +7,7 @@ import { HStack } from '@astryxdesign/core/HStack';
 import { Spinner } from '@astryxdesign/core/Spinner';
 import { Text } from '@astryxdesign/core/Text';
 import { VStack } from '@astryxdesign/core/VStack';
-import { getApiBaseUrl } from '../../../lib/env.ts';
+import { getApiBaseUrl } from '#/lib/env.ts';
 import { useCreateBooksExport, useStoreExports } from '../hooks/useExports.ts';
 
 function statusBadgeVariant(status: string): 'neutral' | 'success' | 'error' {

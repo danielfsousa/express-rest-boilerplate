@@ -2,7 +2,7 @@ import { Button } from '@astryxdesign/core/Button';
 import { HStack } from '@astryxdesign/core/HStack';
 import { Text } from '@astryxdesign/core/Text';
 import { Link } from '@tanstack/react-router';
-import { isMultiTenancyEnabled } from '../../../lib/env.ts';
+import { isMultiTenancyEnabled } from '#/lib/env.ts';
 import { useStores } from '../hooks/useStores.ts';
 
 export function StoreSwitcher({ activeSlug }: { activeSlug?: string }) {

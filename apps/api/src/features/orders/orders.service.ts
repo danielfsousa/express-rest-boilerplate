@@ -22,7 +22,7 @@ import { JOB_NAMES } from '@starter/jobs';
 import type { JobQueue } from '@starter/jobs';
 import type { RealtimeBroker } from '@starter/runtime/realtime';
 import type Stripe from 'stripe';
-import type { ResolvedStoreContext } from '../../middleware/store-context.ts';
+import type { ResolvedStoreContext } from '#/middleware/store-context.ts';
 import { createOrderCheckoutSession } from '../billing/billing.service.ts';
 import {
   publishOrderCreatedEvent,

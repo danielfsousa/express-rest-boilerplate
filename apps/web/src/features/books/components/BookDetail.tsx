@@ -7,7 +7,7 @@ import { Spinner } from '@astryxdesign/core/Spinner';
 import { Text } from '@astryxdesign/core/Text';
 import { VStack } from '@astryxdesign/core/VStack';
 import { Link } from '@tanstack/react-router';
-import { getApiBaseUrl } from '../../../lib/env.ts';
+import { getApiBaseUrl } from '#/lib/env.ts';
 import { useBook } from '../hooks/useBooks.ts';
 
 function formatPrice(priceCents: number, currency: string): string {

@@ -2,7 +2,7 @@ import { realtimeEventSchema } from '@starter/contracts';
 import type { Order } from '@starter/contracts';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { getApiBaseUrl, isRealtimeEnabled } from '../../../lib/env.ts';
+import { getApiBaseUrl, isRealtimeEnabled } from '#/lib/env.ts';
 import { setRealtimeStatus } from '../realtime-store.ts';
 
 function toWebSocketUrl(httpBaseUrl: string, path: string): string {

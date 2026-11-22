@@ -22,6 +22,10 @@
       "types": "./src/telemetry.ts",
       "default": "./src/telemetry.ts"
     },
+    "./cloudflare": {
+      "types": "./src/cloudflare.ts",
+      "default": "./src/cloudflare.ts"
+    },
     "./types": {
       "types": "./src/types.ts",
       "default": "./src/types.ts"

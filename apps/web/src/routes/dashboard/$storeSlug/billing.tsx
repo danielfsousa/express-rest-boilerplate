@@ -1,10 +1,10 @@
 import { Banner } from '@astryxdesign/core/Banner';
 import { Button } from '@astryxdesign/core/Button';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { AppLayout } from '../../../components/AppLayout.tsx';
-import { BillingPanel } from '../../../features/billing/index.ts';
-import { StoreSwitcher } from '../../../features/stores/index.ts';
-import { isBillingEnabled } from '../../../lib/env.ts';
+import { AppLayout } from '#/components/AppLayout.tsx';
+import { BillingPanel } from '#/features/billing/index.ts';
+import { StoreSwitcher } from '#/features/stores/index.ts';
+import { isBillingEnabled } from '#/lib/env.ts';
 
 export const Route = createFileRoute('/dashboard/$storeSlug/billing')({
   component: BillingDashboardPage,

@@ -3,7 +3,7 @@ import type { Database } from '@starter/db';
 import type { JobQueue } from '@starter/jobs';
 import type { RealtimeBroker } from '@starter/runtime/realtime';
 import type Stripe from 'stripe';
-import { resolveMerchantStore } from '../../middleware/store-context.ts';
+import { resolveMerchantStore } from '#/middleware/store-context.ts';
 import type { AuthInstance } from '../auth/auth.service.ts';
 import { getStoreBillingRoute, upgradeStoreBillingRoute } from './billing.routes.ts';
 import {

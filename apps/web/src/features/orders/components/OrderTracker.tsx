@@ -7,8 +7,8 @@ import { Spinner } from '@astryxdesign/core/Spinner';
 import { Text } from '@astryxdesign/core/Text';
 import { VStack } from '@astryxdesign/core/VStack';
 import { Link } from '@tanstack/react-router';
-import { formatCurrency } from '../../../lib/format.ts';
-import { useOrderRealtime } from '../../realtime/index.ts';
+import { formatCurrency } from '#/lib/format.ts';
+import { useOrderRealtime } from '#/features/realtime/index.ts';
 import { useOrder } from '../hooks/useOrders.ts';
 
 function formatPrice(cents: number, currency: string): string {

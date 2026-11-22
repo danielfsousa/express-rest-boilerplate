@@ -3,7 +3,7 @@ import type { Locale } from '@starter/i18n';
 import { Store, useStore } from '@tanstack/react-store';
 import { createContext, use } from 'react';
 import type { ReactNode } from 'react';
-import { isI18nEnabled } from '../../lib/env.ts';
+import { isI18nEnabled } from '#/lib/env.ts';
 
 export const localeStore = new Store<{ locale: Locale }>({
   locale: 'en',

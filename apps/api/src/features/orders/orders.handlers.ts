@@ -2,7 +2,7 @@ import { OpenAPIHono } from '@hono/zod-openapi';
 import type { Database } from '@starter/db';
 import type { JobQueue } from '@starter/jobs';
 import type { RealtimeBroker } from '@starter/runtime/realtime';
-import { resolveMerchantStore, resolvePublicStore } from '../../middleware/store-context.ts';
+import { resolveMerchantStore, resolvePublicStore } from '#/middleware/store-context.ts';
 import type { AuthInstance } from '../auth/auth.service.ts';
 import {
   createOrderRoute,

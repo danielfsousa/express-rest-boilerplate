@@ -7,7 +7,7 @@ import { VStack } from '@astryxdesign/core/VStack';
 import { useForm } from '@tanstack/react-form';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { useLocale } from '../../i18n/index.ts';
+import { useLocale } from '#/features/i18n/index.ts';
 import { useCreateOrder } from '../hooks/useOrders.ts';
 
 export function CheckoutForm({ storeSlug, bookId }: { storeSlug: string; bookId: string }) {

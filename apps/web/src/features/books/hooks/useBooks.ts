@@ -1,6 +1,6 @@
 import type { CreateBookInput, ListBooksQuery, UpdateBookInput } from '@starter/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '../../../lib/api-client.ts';
+import { apiClient } from '#/lib/api-client.ts';
 
 export function useBooks(storeSlug: string, query?: Partial<ListBooksQuery>) {
   return useQuery({

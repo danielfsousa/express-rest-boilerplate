@@ -3,7 +3,7 @@ import type { Order, OrderStatus, RealtimeEvent } from '@starter/contracts';
 import type { Database } from '@starter/db';
 import type { RealtimeBroker } from '@starter/runtime/realtime';
 import type { WebSocketAdapter } from '@starter/runtime/types';
-import { resolveMerchantStore, resolvePublicStore } from '../../middleware/store-context.ts';
+import { resolveMerchantStore, resolvePublicStore } from '#/middleware/store-context.ts';
 import type { AuthInstance } from '../auth/auth.service.ts';
 import { getOrderForStore } from '../orders/orders.service.ts';
 

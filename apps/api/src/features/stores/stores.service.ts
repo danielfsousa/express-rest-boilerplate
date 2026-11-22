@@ -1,7 +1,7 @@
 import type { CreateStoreInput, Store, UpdateStoreInput } from '@starter/contracts';
 import { and, DEFAULT_STORE_ID, ensureDefaultStore, eq, member, organization } from '@starter/db';
 import type { Database } from '@starter/db';
-import { parseStoreMetadata } from '../../middleware/store-context.ts';
+import { parseStoreMetadata } from '#/middleware/store-context.ts';
 
 function normalizeRole(role: string): 'owner' | 'staff' {
   return role === 'owner' ? 'owner' : 'staff';

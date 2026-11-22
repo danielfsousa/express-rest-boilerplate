@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { StorefrontLayout } from '../../../../components/StorefrontLayout.tsx';
-import { BookDetail } from '../../../../features/books/index.ts';
-import { CheckoutForm } from '../../../../features/orders/index.ts';
-import { useStore } from '../../../../features/stores/index.ts';
+import { StorefrontLayout } from '#/components/StorefrontLayout.tsx';
+import { BookDetail } from '#/features/books/index.ts';
+import { CheckoutForm } from '#/features/orders/index.ts';
+import { useStore } from '#/features/stores/index.ts';
 
 export const Route = createFileRoute('/s/$storeSlug/books/$bookId')({
   component: StorefrontBookDetailPage,

@@ -3,7 +3,7 @@ import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vite-plus/test';
-import { renderWithAppProviders } from '../../../test/render.tsx';
+import { renderWithAppProviders } from '#/test/render.tsx';
 import { BookCatalog } from './BookCatalog.tsx';
 
 const sampleBooks = [

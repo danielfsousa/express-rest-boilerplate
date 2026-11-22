@@ -1,7 +1,7 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import type { Database } from '@starter/db';
 import type { ObjectStorage } from '@starter/runtime/storage';
-import { resolveMerchantStore, resolvePublicStore } from '../../middleware/store-context.ts';
+import { resolveMerchantStore, resolvePublicStore } from '#/middleware/store-context.ts';
 import type { AuthInstance } from '../auth/auth.service.ts';
 import {
   createBookRoute,

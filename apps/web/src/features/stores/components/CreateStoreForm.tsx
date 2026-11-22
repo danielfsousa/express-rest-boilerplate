@@ -6,7 +6,7 @@ import { TextInput } from '@astryxdesign/core/TextInput';
 import { VStack } from '@astryxdesign/core/VStack';
 import { useForm } from '@tanstack/react-form';
 import { useNavigate } from '@tanstack/react-router';
-import { isMultiTenancyEnabled } from '../../../lib/env.ts';
+import { isMultiTenancyEnabled } from '#/lib/env.ts';
 import { useCreateStore } from '../hooks/useStores.ts';
 
 export function CreateStoreForm() {

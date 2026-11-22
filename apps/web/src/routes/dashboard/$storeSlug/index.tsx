@@ -3,9 +3,9 @@ import { Button } from '@astryxdesign/core/Button';
 import { HStack } from '@astryxdesign/core/HStack';
 import { Spinner } from '@astryxdesign/core/Spinner';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { AppLayout } from '../../../components/AppLayout.tsx';
-import { StoreSettingsForm, StoreSwitcher, useStore } from '../../../features/stores/index.ts';
-import { isBillingEnabled } from '../../../lib/env.ts';
+import { AppLayout } from '#/components/AppLayout.tsx';
+import { StoreSettingsForm, StoreSwitcher, useStore } from '#/features/stores/index.ts';
+import { isBillingEnabled } from '#/lib/env.ts';
 
 export const Route = createFileRoute('/dashboard/$storeSlug/')({
   component: MerchantDashboardPage,

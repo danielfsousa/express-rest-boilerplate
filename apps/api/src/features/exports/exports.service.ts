@@ -4,7 +4,7 @@ import { and, desc, eq, storeExports, withStoreContext } from '@starter/db';
 import type { Database } from '@starter/db';
 import { JOB_NAMES } from '@starter/jobs';
 import type { JobQueue } from '@starter/jobs';
-import type { ResolvedStoreContext } from '../../middleware/store-context.ts';
+import type { ResolvedStoreContext } from '#/middleware/store-context.ts';
 
 function toStoreExport(row: typeof storeExports.$inferSelect, storeSlug: string): StoreExport {
   const status = storeExportStatusSchema.parse(row.status);
