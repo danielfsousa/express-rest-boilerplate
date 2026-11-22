@@ -1,18 +1,10 @@
 // @vitest-environment jsdom
-import { Theme } from '@astryxdesign/core/theme';
-import { neutralTheme } from '@astryxdesign/theme-neutral';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
-import { afterAll, afterEach, beforeAll, describe, expect, test, vi } from 'vite-plus/test';
+import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vite-plus/test';
+import { renderWithAppProviders } from '../../../test/render.tsx';
 import { CheckoutForm } from './CheckoutForm.tsx';
-
-const navigateSpy = vi.fn();
-
-vi.mock('@tanstack/react-router', () => ({
-  useNavigate: () => navigateSpy,
-}));
 
 const server = setupServer();
 
@@ -23,28 +15,14 @@ beforeAll(() => {
 afterEach(() => {
   cleanup();
   server.resetHandlers();
-  navigateSpy.mockReset();
 });
 
 afterAll(() => {
   server.close();
 });
 
-function renderCheckout() {
-  const queryClient = new QueryClient({
-    defaultOptions: { mutations: { retry: false } },
-  });
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <Theme theme={neutralTheme}>
-        <CheckoutForm storeSlug="acme" bookId="00000000-0000-7000-8000-000000000001" />
-      </Theme>
-    </QueryClientProvider>,
-  );
-}
-
 describe('CheckoutForm component', () => {
-  test('submits order and navigates to order tracker', async () => {
+  test('submits order and navigates to order tracker via real memory router', async () => {
     server.use(
       http.post('http://127.0.0.1:3001/api/v1/stores/acme/orders', () =>
         HttpResponse.json(
@@ -60,9 +38,9 @@ describe('CheckoutForm component', () => {
             stripeCheckoutSessionId: null,
             items: [
               {
-                id: 'item-1',
+                id: '00000000-0000-7000-8000-000000000010',
                 bookId: '00000000-0000-7000-8000-000000000001',
-                title: 'Data Systems',
+                title: 'DDIA',
                 sku: 'BK-1',
                 quantity: 1,
                 unitPriceCents: 4500,
@@ -76,44 +54,44 @@ describe('CheckoutForm component', () => {
       ),
     );
 
-    renderCheckout();
+    const { router } = await renderWithAppProviders(
+      <CheckoutForm storeSlug="acme" bookId="00000000-0000-7000-8000-000000000001" />,
+    );
 
-    fireEvent.change(screen.getByRole('textbox', { name: /your name/i }), {
+    fireEvent.change(screen.getByLabelText(/Your name/i), {
       target: { value: 'Ada Lovelace' },
     });
-    fireEvent.change(screen.getByRole('textbox', { name: /email address/i }), {
+    fireEvent.change(screen.getByLabelText(/Email address/i), {
       target: { value: 'ada@example.com' },
     });
-    fireEvent.click(screen.getByRole('button', { name: /place order/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Place order' }));
 
-    await vi.waitFor(() => {
-      expect(navigateSpy).toHaveBeenCalledWith({
-        to: '/s/$storeSlug/orders/$orderId',
-        params: {
-          storeSlug: 'acme',
-          orderId: '00000000-0000-7000-8000-000000000099',
-        },
-      });
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe(
+        '/s/acme/orders/00000000-0000-7000-8000-000000000099',
+      );
     });
   });
 
-  test('displays error banner when API rejects oversell with 409', async () => {
+  test('displays error banner when store rejects order due to insufficient stock', async () => {
     server.use(
       http.post('http://127.0.0.1:3001/api/v1/stores/acme/orders', () =>
-        HttpResponse.json({ error: 'Insufficient stock for "Data Systems"' }, { status: 409 }),
+        HttpResponse.json({ error: 'Insufficient stock for "DDIA"' }, { status: 409 }),
       ),
     );
 
-    renderCheckout();
+    await renderWithAppProviders(
+      <CheckoutForm storeSlug="acme" bookId="00000000-0000-7000-8000-000000000001" />,
+    );
 
-    fireEvent.change(screen.getByRole('textbox', { name: /your name/i }), {
-      target: { value: 'Ada' },
+    fireEvent.change(screen.getByLabelText(/Your name/i), {
+      target: { value: 'Ada Lovelace' },
     });
-    fireEvent.change(screen.getByRole('textbox', { name: /email address/i }), {
+    fireEvent.change(screen.getByLabelText(/Email address/i), {
       target: { value: 'ada@example.com' },
     });
-    fireEvent.click(screen.getByRole('button', { name: /place order/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Place order' }));
 
-    expect(await screen.findByText('Insufficient stock for "Data Systems"')).toBeTruthy();
+    expect(await screen.findByText('Insufficient stock for "DDIA"')).toBeTruthy();
   });
 });

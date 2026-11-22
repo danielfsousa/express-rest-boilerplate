@@ -4,42 +4,45 @@ import { Card } from '@astryxdesign/core/Card';
 import { Heading } from '@astryxdesign/core/Heading';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { VStack } from '@astryxdesign/core/VStack';
+import { useForm } from '@tanstack/react-form';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import type { FormEvent } from 'react';
 import { authClient } from '../../../lib/auth-client.ts';
 
 export function SignInForm() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setErrorMessage(null);
-    setIsSubmitting(true);
-
-    try {
-      const result = await authClient.signIn.email({ email, password });
-      if (result.error) {
-        setErrorMessage(result.error.message ?? 'Sign in failed');
-        return;
+  const form = useForm({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+    onSubmit: async ({ value }) => {
+      setErrorMessage(null);
+      try {
+        const result = await authClient.signIn.email({
+          email: value.email,
+          password: value.password,
+        });
+        if (result.error) {
+          setErrorMessage(result.error.message ?? 'Sign in failed');
+          return;
+        }
+        await navigate({ to: '/' });
+      } catch {
+        setErrorMessage('Unable to reach authentication server');
       }
-      await navigate({ to: '/' });
-    } catch {
-      setErrorMessage('Unable to reach authentication server');
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
+    },
+  });
 
   return (
     <Card>
       <form
         onSubmit={(event) => {
-          void handleSubmit(event);
+          event.preventDefault();
+          event.stopPropagation();
+          void form.handleSubmit();
         }}
       >
         <VStack gap="md">
@@ -47,23 +50,37 @@ export function SignInForm() {
           {errorMessage ? (
             <Banner status="error" title="Sign in failed" description={errorMessage} />
           ) : null}
-          <TextInput
-            type="email"
-            label="Email"
-            value={email}
-            onChange={setEmail}
-            isRequired
-            autoComplete="email"
-          />
-          <TextInput
-            type="password"
-            label="Password"
-            value={password}
-            onChange={setPassword}
-            isRequired
-            autoComplete="current-password"
-          />
-          <Button type="submit" label="Sign in" variant="primary" isLoading={isSubmitting} />
+
+          <form.Field name="email">
+            {(field) => (
+              <TextInput
+                type="email"
+                label="Email"
+                value={field.state.value}
+                onChange={field.handleChange}
+                isRequired
+                autoComplete="email"
+              />
+            )}
+          </form.Field>
+          <form.Field name="password">
+            {(field) => (
+              <TextInput
+                type="password"
+                label="Password"
+                value={field.state.value}
+                onChange={field.handleChange}
+                isRequired
+                autoComplete="current-password"
+              />
+            )}
+          </form.Field>
+
+          <form.Subscribe selector={(state) => state.isSubmitting}>
+            {(isSubmitting: boolean) => (
+              <Button type="submit" label="Sign in" variant="primary" isLoading={isSubmitting} />
+            )}
+          </form.Subscribe>
         </VStack>
       </form>
     </Card>

@@ -4,8 +4,7 @@ import { Card } from '@astryxdesign/core/Card';
 import { Heading } from '@astryxdesign/core/Heading';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { VStack } from '@astryxdesign/core/VStack';
-import { useState } from 'react';
-import type { FormEvent } from 'react';
+import { useForm } from '@tanstack/react-form';
 import { useUpdateStore } from '../hooks/useStores.ts';
 
 export function StoreSettingsForm({
@@ -18,23 +17,32 @@ export function StoreSettingsForm({
   initialThreshold: number;
 }) {
   const updateStore = useUpdateStore(storeSlug);
-  const [name, setName] = useState(initialName);
-  const [threshold, setThreshold] = useState(String(initialThreshold));
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const parsedThreshold = Number.parseInt(threshold, 10);
-    await updateStore.mutateAsync({
-      name,
-      lowStockThreshold: Number.isNaN(parsedThreshold) ? 5 : parsedThreshold,
-    });
-  }
+  const form = useForm({
+    defaultValues: {
+      name: initialName,
+      threshold: String(initialThreshold),
+    },
+    onSubmit: async ({ value }) => {
+      const parsedThreshold = Number.parseInt(value.threshold, 10);
+      try {
+        await updateStore.mutateAsync({
+          name: value.name,
+          lowStockThreshold: Number.isNaN(parsedThreshold) ? 5 : parsedThreshold,
+        });
+      } catch {
+        // Error banner renders from updateStore.error.
+      }
+    },
+  });
 
   return (
     <Card>
       <form
         onSubmit={(event) => {
-          void handleSubmit(event);
+          event.preventDefault();
+          event.stopPropagation();
+          void form.handleSubmit();
         }}
       >
         <VStack gap="md">
@@ -43,14 +51,29 @@ export function StoreSettingsForm({
           {updateStore.error ? (
             <Banner status="error" title="Update failed" description={updateStore.error.message} />
           ) : null}
-          <TextInput label="Store name" value={name} onChange={setName} isRequired />
-          <TextInput
-            label="Low stock threshold"
-            value={threshold}
-            onChange={setThreshold}
-            inputMode="numeric"
-            isRequired
-          />
+
+          <form.Field name="name">
+            {(field) => (
+              <TextInput
+                label="Store name"
+                value={field.state.value}
+                onChange={field.handleChange}
+                isRequired
+              />
+            )}
+          </form.Field>
+          <form.Field name="threshold">
+            {(field) => (
+              <TextInput
+                label="Low stock threshold"
+                value={field.state.value}
+                onChange={field.handleChange}
+                inputMode="numeric"
+                isRequired
+              />
+            )}
+          </form.Field>
+
           <Button
             type="submit"
             label="Save settings"

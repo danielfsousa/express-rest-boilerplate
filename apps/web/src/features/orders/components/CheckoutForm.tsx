@@ -4,52 +4,59 @@ import { Card } from '@astryxdesign/core/Card';
 import { Heading } from '@astryxdesign/core/Heading';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { VStack } from '@astryxdesign/core/VStack';
+import { useForm } from '@tanstack/react-form';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import type { FormEvent } from 'react';
+import { useLocale } from '../../i18n/index.ts';
 import { useCreateOrder } from '../hooks/useOrders.ts';
 
 export function CheckoutForm({ storeSlug, bookId }: { storeSlug: string; bookId: string }) {
   const navigate = useNavigate();
+  const { locale } = useLocale();
   const createOrder = useCreateOrder(storeSlug);
-  const [customerName, setCustomerName] = useState('');
-  const [customerEmail, setCustomerEmail] = useState('');
-  const [quantity, setQuantity] = useState('1');
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const parsedQuantity = Number.parseInt(quantity, 10);
-    try {
-      const order = await createOrder.mutateAsync({
-        customerName: customerName.trim(),
-        customerEmail: customerEmail.trim(),
-        customerLocale: 'en',
-        items: [
-          {
-            bookId,
-            quantity: Number.isNaN(parsedQuantity) || parsedQuantity < 1 ? 1 : parsedQuantity,
-          },
-        ],
-      });
-      if (order.checkoutUrl) {
-        setCheckoutUrl(order.checkoutUrl);
-        return;
+  const form = useForm({
+    defaultValues: {
+      customerName: '',
+      customerEmail: '',
+      quantity: '1',
+    },
+    onSubmit: async ({ value }) => {
+      const parsedQuantity = Number.parseInt(value.quantity, 10);
+      try {
+        const order = await createOrder.mutateAsync({
+          customerName: value.customerName.trim(),
+          customerEmail: value.customerEmail.trim(),
+          customerLocale: locale,
+          items: [
+            {
+              bookId,
+              quantity: Number.isNaN(parsedQuantity) || parsedQuantity < 1 ? 1 : parsedQuantity,
+            },
+          ],
+        });
+        if (order.checkoutUrl) {
+          setCheckoutUrl(order.checkoutUrl);
+          return;
+        }
+        await navigate({
+          to: '/s/$storeSlug/orders/$orderId',
+          params: { storeSlug, orderId: order.id },
+        });
+      } catch {
+        // Error banner renders from createOrder.error.
       }
-      await navigate({
-        to: '/s/$storeSlug/orders/$orderId',
-        params: { storeSlug, orderId: order.id },
-      });
-    } catch {
-      // Error banner renders from createOrder.error.
-    }
-  }
+    },
+  });
 
   return (
     <Card>
       <form
         onSubmit={(event) => {
-          void handleSubmit(event);
+          event.preventDefault();
+          event.stopPropagation();
+          void form.handleSubmit();
         }}
       >
         <VStack gap="md">
@@ -68,21 +75,40 @@ export function CheckoutForm({ storeSlug, bookId }: { storeSlug: string; bookId:
               description={createOrder.error.message}
             />
           ) : null}
-          <TextInput label="Your name" value={customerName} onChange={setCustomerName} isRequired />
-          <TextInput
-            type="email"
-            label="Email address"
-            value={customerEmail}
-            onChange={setCustomerEmail}
-            isRequired
-          />
-          <TextInput
-            label="Quantity"
-            value={quantity}
-            onChange={setQuantity}
-            inputMode="numeric"
-            isRequired
-          />
+
+          <form.Field name="customerName">
+            {(field) => (
+              <TextInput
+                label="Your name"
+                value={field.state.value}
+                onChange={field.handleChange}
+                isRequired
+              />
+            )}
+          </form.Field>
+          <form.Field name="customerEmail">
+            {(field) => (
+              <TextInput
+                type="email"
+                label="Email address"
+                value={field.state.value}
+                onChange={field.handleChange}
+                isRequired
+              />
+            )}
+          </form.Field>
+          <form.Field name="quantity">
+            {(field) => (
+              <TextInput
+                label="Quantity"
+                value={field.state.value}
+                onChange={field.handleChange}
+                inputMode="numeric"
+                isRequired
+              />
+            )}
+          </form.Field>
+
           <Button
             type="submit"
             label="Place order"

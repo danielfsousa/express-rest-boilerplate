@@ -5,47 +5,51 @@ import { Heading } from '@astryxdesign/core/Heading';
 import { Switch } from '@astryxdesign/core/Switch';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { VStack } from '@astryxdesign/core/VStack';
-import { useState } from 'react';
-import type { FormEvent } from 'react';
+import { useForm } from '@tanstack/react-form';
 import { useCreateBook } from '../hooks/useBooks.ts';
 
 export function BookForm({ storeSlug }: { storeSlug: string }) {
   const createBook = useCreateBook(storeSlug);
-  const [sku, setSku] = useState('');
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-  const [description, setDescription] = useState('');
-  const [priceDollars, setPriceDollars] = useState('19.99');
-  const [stock, setStock] = useState('10');
-  const [published, setPublished] = useState(true);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const parsedPrice = Math.round(Number.parseFloat(priceDollars) * 100);
-    const parsedStock = Number.parseInt(stock, 10);
+  const form = useForm({
+    defaultValues: {
+      sku: '',
+      title: '',
+      author: '',
+      description: '',
+      priceDollars: '19.99',
+      stock: '10',
+      published: true,
+    },
+    onSubmit: async ({ value }) => {
+      const parsedPrice = Math.round(Number.parseFloat(value.priceDollars) * 100);
+      const parsedStock = Number.parseInt(value.stock, 10);
 
-    await createBook.mutateAsync({
-      sku: sku.trim(),
-      title: title.trim(),
-      author: author.trim(),
-      description: description.trim(),
-      priceCents: Number.isNaN(parsedPrice) ? 0 : Math.max(0, parsedPrice),
-      currency: 'USD',
-      stock: Number.isNaN(parsedStock) ? 0 : Math.max(0, parsedStock),
-      published,
-    });
-
-    setSku('');
-    setTitle('');
-    setAuthor('');
-    setDescription('');
-  }
+      try {
+        await createBook.mutateAsync({
+          sku: value.sku.trim(),
+          title: value.title.trim(),
+          author: value.author.trim(),
+          description: value.description.trim(),
+          priceCents: Number.isNaN(parsedPrice) ? 0 : Math.max(0, parsedPrice),
+          currency: 'USD',
+          stock: Number.isNaN(parsedStock) ? 0 : Math.max(0, parsedStock),
+          published: value.published,
+        });
+        form.reset();
+      } catch {
+        // Error banner renders from createBook.error.
+      }
+    },
+  });
 
   return (
     <Card>
       <form
         onSubmit={(event) => {
-          void handleSubmit(event);
+          event.preventDefault();
+          event.stopPropagation();
+          void form.handleSubmit();
         }}
       >
         <VStack gap="md">
@@ -57,25 +61,78 @@ export function BookForm({ storeSlug }: { storeSlug: string }) {
               description={createBook.error.message}
             />
           ) : null}
-          <TextInput label="SKU" value={sku} onChange={setSku} isRequired />
-          <TextInput label="Title" value={title} onChange={setTitle} isRequired />
-          <TextInput label="Author" value={author} onChange={setAuthor} isRequired />
-          <TextInput label="Description" value={description} onChange={setDescription} />
-          <TextInput
-            label="Price (USD)"
-            value={priceDollars}
-            onChange={setPriceDollars}
-            inputMode="decimal"
-            isRequired
-          />
-          <TextInput
-            label="Stock"
-            value={stock}
-            onChange={setStock}
-            inputMode="numeric"
-            isRequired
-          />
-          <Switch label="Publish immediately" value={published} onChange={setPublished} />
+
+          <form.Field name="sku">
+            {(field) => (
+              <TextInput
+                label="SKU"
+                value={field.state.value}
+                onChange={field.handleChange}
+                isRequired
+              />
+            )}
+          </form.Field>
+          <form.Field name="title">
+            {(field) => (
+              <TextInput
+                label="Title"
+                value={field.state.value}
+                onChange={field.handleChange}
+                isRequired
+              />
+            )}
+          </form.Field>
+          <form.Field name="author">
+            {(field) => (
+              <TextInput
+                label="Author"
+                value={field.state.value}
+                onChange={field.handleChange}
+                isRequired
+              />
+            )}
+          </form.Field>
+          <form.Field name="description">
+            {(field) => (
+              <TextInput
+                label="Description"
+                value={field.state.value}
+                onChange={field.handleChange}
+              />
+            )}
+          </form.Field>
+          <form.Field name="priceDollars">
+            {(field) => (
+              <TextInput
+                label="Price (USD)"
+                value={field.state.value}
+                onChange={field.handleChange}
+                inputMode="decimal"
+                isRequired
+              />
+            )}
+          </form.Field>
+          <form.Field name="stock">
+            {(field) => (
+              <TextInput
+                label="Stock"
+                value={field.state.value}
+                onChange={field.handleChange}
+                inputMode="numeric"
+                isRequired
+              />
+            )}
+          </form.Field>
+          <form.Field name="published">
+            {(field) => (
+              <Switch
+                label="Publish immediately"
+                value={field.state.value}
+                onChange={field.handleChange}
+              />
+            )}
+          </form.Field>
+
           <Button
             type="submit"
             label="Add book"

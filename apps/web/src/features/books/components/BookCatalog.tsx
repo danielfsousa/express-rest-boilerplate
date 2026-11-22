@@ -8,20 +8,45 @@ import { Text } from '@astryxdesign/core/Text';
 import { TextInput } from '@astryxdesign/core/TextInput';
 import { VStack } from '@astryxdesign/core/VStack';
 import { Link } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useReducer } from 'react';
 import { getApiBaseUrl } from '../../../lib/env.ts';
+import { formatCurrency } from '../../../lib/format.ts';
 import { useBooks } from '../hooks/useBooks.ts';
 
-function formatPrice(priceCents: number, currency: string): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-  }).format(priceCents / 100);
+interface CatalogLocalState {
+  search: string;
+  offset: number;
 }
 
-export function BookCatalog({ storeSlug }: { storeSlug: string }) {
-  const [search, setSearch] = useState('');
-  const [offset, setOffset] = useState(0);
+type CatalogAction = { type: 'setSearch'; value: string } | { type: 'setOffset'; value: number };
+
+function catalogReducer(state: CatalogLocalState, action: CatalogAction): CatalogLocalState {
+  switch (action.type) {
+    case 'setSearch':
+      return { search: action.value, offset: 0 };
+    case 'setOffset':
+      return { ...state, offset: Math.max(0, action.value) };
+  }
+}
+
+export interface BookCatalogProps {
+  storeSlug: string;
+  search?: string;
+  offset?: number;
+  onSearchChange?: (nextSearch: string) => void;
+  onOffsetChange?: (nextOffset: number) => void;
+}
+
+export function BookCatalog({
+  storeSlug,
+  search: controlledSearch,
+  offset: controlledOffset,
+  onSearchChange,
+  onOffsetChange,
+}: BookCatalogProps) {
+  const [localState, dispatch] = useReducer(catalogReducer, { search: '', offset: 0 });
+  const search = controlledSearch ?? localState.search;
+  const offset = controlledOffset ?? localState.offset;
   const limit = 20;
 
   const { data, isLoading, error } = useBooks(storeSlug, {
@@ -32,8 +57,20 @@ export function BookCatalog({ storeSlug }: { storeSlug: string }) {
   });
 
   function handleSearchChange(value: string) {
-    setSearch(value);
-    setOffset(0);
+    if (onSearchChange) {
+      onSearchChange(value);
+      return;
+    }
+    dispatch({ type: 'setSearch', value });
+  }
+
+  function handleOffsetChange(nextOffset: number) {
+    const safeOffset = Math.max(0, nextOffset);
+    if (onOffsetChange) {
+      onOffsetChange(safeOffset);
+      return;
+    }
+    dispatch({ type: 'setOffset', value: safeOffset });
   }
 
   return (
@@ -74,7 +111,7 @@ export function BookCatalog({ storeSlug }: { storeSlug: string }) {
                 <Heading level={3}>{book.title}</Heading>
                 <Text color="secondary">{book.author}</Text>
                 <Text>
-                  {formatPrice(book.priceCents, book.currency)} ·{' '}
+                  {formatCurrency(book.priceCents, book.currency)} ·{' '}
                   {book.stock > 0 ? `${String(book.stock)} in stock` : 'Out of stock'}
                 </Text>
               </VStack>
@@ -94,11 +131,11 @@ export function BookCatalog({ storeSlug }: { storeSlug: string }) {
             size="sm"
             isDisabled={offset === 0}
             onClick={() => {
-              setOffset(Math.max(0, offset - limit));
+              handleOffsetChange(offset - limit);
             }}
           />
           <Text color="secondary">
-            Showing {String(offset + 1)}–{String(Math.min(offset + limit, data.total))} of{' '}
+            Showing {String(offset + 1)}-{String(Math.min(offset + limit, data.total))} of{' '}
             {String(data.total)}
           </Text>
           <Button
@@ -107,7 +144,7 @@ export function BookCatalog({ storeSlug }: { storeSlug: string }) {
             size="sm"
             isDisabled={offset + limit >= data.total}
             onClick={() => {
-              setOffset(offset + limit);
+              handleOffsetChange(offset + limit);
             }}
           />
         </HStack>

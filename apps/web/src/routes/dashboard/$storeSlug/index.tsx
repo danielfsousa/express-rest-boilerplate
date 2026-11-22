@@ -44,6 +44,7 @@ function MerchantDashboardPage() {
         <Banner status="error" title="Store not found" />
       ) : (
         <StoreSettingsForm
+          key={store.slug}
           storeSlug={store.slug}
           initialName={store.name}
           initialThreshold={store.lowStockThreshold}

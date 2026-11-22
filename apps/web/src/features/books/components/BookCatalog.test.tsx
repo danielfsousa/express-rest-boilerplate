@@ -1,17 +1,10 @@
 // @vitest-environment jsdom
-import { Theme } from '@astryxdesign/core/theme';
-import { neutralTheme } from '@astryxdesign/theme-neutral';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
-import type { ReactNode } from 'react';
-import { afterAll, afterEach, beforeAll, describe, expect, test, vi } from 'vite-plus/test';
+import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vite-plus/test';
+import { renderWithAppProviders } from '../../../test/render.tsx';
 import { BookCatalog } from './BookCatalog.tsx';
-
-vi.mock('@tanstack/react-router', () => ({
-  Link: ({ children }: { children: ReactNode }) => <span>{children}</span>,
-}));
 
 const sampleBooks = [
   {
@@ -69,6 +62,7 @@ beforeAll(() => {
 });
 
 afterEach(() => {
+  cleanup();
   server.resetHandlers();
 });
 
@@ -76,34 +70,19 @@ afterAll(() => {
   server.close();
 });
 
-function renderCatalog() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <Theme theme={neutralTheme}>
-        <BookCatalog storeSlug="acme" />
-      </Theme>
-    </QueryClientProvider>,
-  );
-}
-
 describe('BookCatalog component', () => {
-  test('renders published books and filters by search input', async () => {
-    renderCatalog();
+  test('renders published books and filters by search query with real router links', async () => {
+    await renderWithAppProviders(<BookCatalog storeSlug="acme" />);
 
     expect(await screen.findByText('Designing Data-Intensive Applications')).toBeTruthy();
-    expect(await screen.findByText('Domain-Driven Design')).toBeTruthy();
+    expect(screen.getByText('Domain-Driven Design')).toBeTruthy();
 
-    const searchInput = screen.getByRole('searchbox', {
-      name: /search books/i,
-    });
+    const searchInput = screen.getByLabelText('Search books');
     fireEvent.change(searchInput, { target: { value: 'Domain' } });
 
     await waitFor(() => {
       expect(screen.queryByText('Designing Data-Intensive Applications')).toBeNull();
+      expect(screen.queryByText('Domain-Driven Design')).toBeTruthy();
     });
-    expect(await screen.findByText('Domain-Driven Design')).toBeTruthy();
   });
 });
