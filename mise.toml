@@ -1,0 +1,4 @@
+[tools]
+node = "26"
+pnpm = "latest"
+terraform = "latest"

@@ -1,0 +1,10 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+allowBuilds:
+  cpu-features: false
+  lefthook: true
+  protobufjs: false
+  ssh2: false
+minimumReleaseAgeExclude:
+  - hono@4.13.20

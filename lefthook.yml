@@ -1,0 +1,9 @@
+pre-commit:
+  commands:
+    check:
+      run: pnpm exec vp check --no-error-on-unmatched-pattern {staged_files}
+
+pre-push:
+  commands:
+    typecheck:
+      run: pnpm run typecheck

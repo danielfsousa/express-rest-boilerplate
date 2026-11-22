@@ -1,0 +1,23 @@
+{
+  "name": "@starter/runtime",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "bun": "./src/bun.ts",
+      "node": "./src/node.ts",
+      "types": "./src/types.ts",
+      "default": "./src/node.ts"
+    },
+    "./types": {
+      "types": "./src/types.ts",
+      "default": "./src/types.ts"
+    }
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.1.11",
+    "pino": "^10.4.0",
+    "postgres": "^4.1.1"
+  }
+}

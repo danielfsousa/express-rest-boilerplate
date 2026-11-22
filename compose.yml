@@ -1,0 +1,37 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: bookstore
+    ports:
+      - '127.0.0.1:${POSTGRES_HOST_PORT:-0}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/docker/postgres/init-app-user.sql:/docker-entrypoint-initdb.d/01-init-app-user.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d bookstore']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  floci:
+    image: floci/floci:latest
+    ports:
+      - '4566:4566'
+
+  floci-init:
+    image: curlimages/curl:latest
+    depends_on:
+      - floci
+    restart: 'no'
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        until curl -sf http://floci:4566/ >/dev/null 2>&1; do sleep 1; done
+        curl -sf -X PUT http://floci:4566/bookstore-media >/dev/null 2>&1 || true
+
+volumes:
+  postgres_data:

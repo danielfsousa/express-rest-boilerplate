@@ -1,5 +1,10 @@
 name: CI
-on: [push]
+
+on:
+  push:
+    branches: [main, v2]
+  pull_request:
+
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -7,28 +12,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Use Node.js 20.15
-        uses: actions/setup-node@v3
-        with:
-          node-version: "20.15"
+      - name: Setup mise
+        uses: jdx/mise-action@v2
 
-      - name: Cache npm
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: ${{ runner.os }}-node-
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - name: Install packages
-        run: npm ci
+      - name: Format and lint check
+        run: pnpm run check
 
-      - name: Check lint and format errors
-        run: npm run check:ci
+      - name: Type-aware lint
+        run: pnpm run lint
 
-      - name: Run tests
-        run: npm run test:cov
-        env:
-          CI: "true"
+      - name: Typecheck
+        run: pnpm run typecheck
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+      - name: Test
+        run: pnpm run test

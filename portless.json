@@ -1,0 +1,10 @@
+{
+  "$schema": "https://portless.sh/schema.json",
+  "turbo": false,
+  "apps": {
+    "apps/api": {
+      "name": "api",
+      "script": "dev"
+    }
+  }
+}

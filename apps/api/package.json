@@ -1,0 +1,22 @@
+{
+  "name": "@starter/api",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file=../../.env --watch src/index.ts",
+    "start": "node src/index.ts"
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "^1.6.3",
+    "@scalar/hono-api-reference": "^0.12.23",
+    "@starter/contracts": "workspace:*",
+    "@starter/runtime": "workspace:*",
+    "hono": "^4.13.20",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@testcontainers/postgresql": "^12.2.2",
+    "testcontainers": "^12.2.2"
+  }
+}
