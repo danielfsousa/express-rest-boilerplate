@@ -22,6 +22,7 @@ export interface CreateOrdersRouterOptions {
   drizzleDb: Database;
   auth: AuthInstance;
   multiTenancyEnabled: boolean;
+  i18nEnabled?: boolean | undefined;
   billing?: OrderBillingContext | undefined;
   jobQueue?: JobQueue | undefined;
   realtimeBroker?: RealtimeBroker | undefined;
@@ -31,6 +32,7 @@ export function createOrdersRouter({
   drizzleDb,
   auth,
   multiTenancyEnabled,
+  i18nEnabled = true,
   billing,
   jobQueue,
   realtimeBroker,
@@ -56,6 +58,7 @@ export function createOrdersRouter({
       billing,
       jobQueue,
       realtimeBroker,
+      i18nEnabled,
     });
     if (!result.ok) {
       return c.json({ error: result.error }, result.status);

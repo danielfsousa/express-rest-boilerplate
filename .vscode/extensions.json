@@ -1,3 +1,11 @@
 {
-  "recommendations": ["biomejs.biome", "42crunch.vscode-openapi", "mermade.openapi-lint"]
+  "recommendations": [
+    "oxc.oxc-vscode",
+    "vitest.explorer",
+    "ms-playwright.playwright",
+    "hashicorp.terraform",
+    "bradlc.vscode-tailwindcss",
+    "inlang.vs-code-extension"
+  ],
+  "unwantedRecommendations": ["biomejs.biome", "dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]
 }

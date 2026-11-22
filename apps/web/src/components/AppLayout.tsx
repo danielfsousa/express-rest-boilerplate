@@ -3,10 +3,11 @@ import { Button } from '@astryxdesign/core/Button';
 import { Heading } from '@astryxdesign/core/Heading';
 import { HStack } from '@astryxdesign/core/HStack';
 import { VStack } from '@astryxdesign/core/VStack';
+import { m } from '@starter/i18n';
 import { Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { useSession } from '#/features/auth/index.ts';
-import { LocaleSwitcher } from '#/features/i18n/index.ts';
+import { LocaleSwitcher, useLocale } from '#/features/i18n/index.ts';
 import { authClient } from '#/lib/auth-client.ts';
 import { isAdminEnabled } from '#/lib/env.ts';
 
@@ -21,11 +22,9 @@ async function handleStopImpersonating() {
   window.location.assign('/admin');
 }
 
-export function AppLayout({
-  title = 'Bookstore Platform',
-  headerActions,
-  children,
-}: AppLayoutProps) {
+export function AppLayout({ title, headerActions, children }: AppLayoutProps) {
+  const { locale } = useLocale();
+  const resolvedTitle = title ?? m.app_title({}, { locale });
   const sessionQuery = useSession();
   const sessionData = sessionQuery.data;
   const sessionRecord: { id: string; impersonatedBy?: unknown } | undefined = sessionData?.session;
@@ -55,7 +54,7 @@ export function AppLayout({
       <HStack justify="between" align="center" gap="md">
         <HStack align="center" gap="md">
           <Link to="/">
-            <Heading level={2}>{title}</Heading>
+            <Heading level={2}>{resolvedTitle}</Heading>
           </Link>
         </HStack>
         <HStack align="center" gap="sm">
@@ -67,10 +66,10 @@ export function AppLayout({
           ) : null}
           <LocaleSwitcher />
           <Link to="/auth/sign-in">
-            <Button label="Sign in" variant="ghost" size="sm" />
+            <Button label={m.nav_sign_in({}, { locale })} variant="ghost" size="sm" />
           </Link>
           <Link to="/auth/sign-up">
-            <Button label="Get started" variant="primary" size="sm" />
+            <Button label={m.nav_get_started({}, { locale })} variant="primary" size="sm" />
           </Link>
         </HStack>
       </HStack>

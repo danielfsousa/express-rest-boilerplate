@@ -190,14 +190,16 @@ export async function updateStoreForUser({
     return { ok: false, status: 404, error: 'Store not found' };
   }
 
-  const [membership] = await db
-    .select()
-    .from(member)
-    .where(and(eq(member.organizationId, target.id), eq(member.userId, userId)))
-    .limit(1);
+  if (multiTenancyEnabled) {
+    const [membership] = await db
+      .select()
+      .from(member)
+      .where(and(eq(member.organizationId, target.id), eq(member.userId, userId)))
+      .limit(1);
 
-  if (!membership || membership.role !== 'owner') {
-    return { ok: false, status: 403, error: 'Owner role required' };
+    if (!membership || membership.role !== 'owner') {
+      return { ok: false, status: 403, error: 'Owner role required' };
+    }
   }
 
   const currentMeta = parseStoreMetadata(target.metadata);
@@ -222,5 +224,5 @@ export async function updateStoreForUser({
     return { ok: false, status: 404, error: 'Store not found' };
   }
 
-  return { ok: true, store: toStore(updated, membership.role) };
+  return { ok: true, store: toStore(updated, 'owner') };
 }

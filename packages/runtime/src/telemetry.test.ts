@@ -1,9 +1,16 @@
 import { trace } from '@opentelemetry/api';
-import { describe, expect, test } from 'vite-plus/test';
+import { afterEach, describe, expect, test } from 'vite-plus/test';
 import { createServer } from './node.ts';
 import { getActiveTraceContext, initTelemetry, parseOtlpHeaders } from './telemetry.ts';
 
 describe('OpenTelemetry and log correlation (packages/runtime)', () => {
+  let activeCollector: Awaited<ReturnType<typeof createServer>> | undefined;
+
+  afterEach(async () => {
+    await activeCollector?.close();
+    activeCollector = undefined;
+  });
+
   test('parseOtlpHeaders parses Grafana Cloud comma-separated headers', () => {
     expect(parseOtlpHeaders('Authorization=Basic abc123, X-Scope-OrgID=tenant-1')).toEqual({
       Authorization: 'Basic abc123',
@@ -16,7 +23,7 @@ describe('OpenTelemetry and log correlation (packages/runtime)', () => {
     const receivedTracePaths: Array<string> = [];
     const receivedAuthHeaders: Array<string | null> = [];
 
-    const collector = await createServer({
+    activeCollector = await createServer({
       port: 0,
       hostname: '127.0.0.1',
       fetch: async (request) => {
@@ -30,32 +37,28 @@ describe('OpenTelemetry and log correlation (packages/runtime)', () => {
     const telemetry = initTelemetry({
       serviceName: 'bookstore-test-service',
       enabled: true,
-      endpoint: collector.url,
+      endpoint: activeCollector.url,
       headers: 'Authorization=Basic test-token',
       metricExportIntervalMs: 60_000,
     });
 
-    try {
-      const tracer = trace.getTracer('bookstore-test');
-      let capturedTraceId = '';
-      let capturedSpanId = '';
+    const tracer = trace.getTracer('bookstore-test');
+    let capturedTraceId = '';
+    let capturedSpanId = '';
 
-      tracer.startActiveSpan('test.order.process', (span) => {
-        const ctx = getActiveTraceContext();
-        capturedTraceId = ctx.trace_id ?? '';
-        capturedSpanId = ctx.span_id ?? '';
-        span.end();
-      });
+    tracer.startActiveSpan('test.order.process', (span) => {
+      const ctx = getActiveTraceContext();
+      capturedTraceId = ctx.trace_id ?? '';
+      capturedSpanId = ctx.span_id ?? '';
+      span.end();
+    });
 
-      expect(capturedTraceId.length).toBe(32);
-      expect(capturedSpanId.length).toBe(16);
+    expect(capturedTraceId.length).toBe(32);
+    expect(capturedSpanId.length).toBe(16);
 
-      await telemetry.shutdown();
-      expect(receivedTracePaths).toContain('/v1/traces');
-      expect(receivedAuthHeaders).toContain('Basic test-token');
-    } finally {
-      await collector.close();
-    }
+    await telemetry.shutdown();
+    expect(receivedTracePaths).toContain('/v1/traces');
+    expect(receivedAuthHeaders).toContain('Basic test-token');
   });
 
   test('OTEL_ENABLED=false returns a clean no-op handle', async () => {

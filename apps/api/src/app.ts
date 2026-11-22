@@ -11,6 +11,8 @@ import type Stripe from 'stripe';
 import { createAdminRouter } from './features/admin/admin.handlers.ts';
 import type { AuthInstance } from './features/auth/auth.service.ts';
 import { createBillingRouter } from './features/billing/billing.handlers.ts';
+import { createStripePaymentGateway } from './features/billing/billing.service.ts';
+import type { PaymentGateway } from './features/billing/billing.service.ts';
 import { createBooksRouter } from './features/books/books.handlers.ts';
 import { createExportsRouter } from './features/exports/exports.handlers.ts';
 import { createHealthRouter } from './features/health/health.handlers.ts';
@@ -30,8 +32,10 @@ export interface CreateAppOptions {
   onWebSocketAdapter?: ((adapter: WebSocketAdapter) => void) | undefined;
   multiTenancyEnabled?: boolean;
   adminEnabled?: boolean;
+  i18nEnabled?: boolean;
   billingEnabled?: boolean;
   stripeClient?: Stripe | undefined;
+  paymentGateway?: PaymentGateway | undefined;
   stripeWebhookSecret?: string;
   stripeProPriceId?: string;
   webOrigin?: string;
@@ -50,8 +54,10 @@ export function createApp({
   onWebSocketAdapter,
   multiTenancyEnabled = true,
   adminEnabled = true,
+  i18nEnabled = true,
   billingEnabled = false,
   stripeClient,
+  paymentGateway,
   stripeWebhookSecret = '',
   stripeProPriceId = 'price_pro_monthly',
   webOrigin = 'http://127.0.0.1:3000',
@@ -108,9 +114,11 @@ export function createApp({
       }),
     );
 
+    const resolvedGateway =
+      paymentGateway ?? (stripeClient ? createStripePaymentGateway(stripeClient) : undefined);
     const billingContext =
-      billingEnabled && stripeClient
-        ? { enabled: true, stripe: stripeClient, webOrigin }
+      billingEnabled && resolvedGateway
+        ? { enabled: true, paymentGateway: resolvedGateway, webOrigin }
         : undefined;
 
     app.route(
@@ -119,6 +127,7 @@ export function createApp({
         drizzleDb,
         auth,
         multiTenancyEnabled,
+        i18nEnabled,
         billing: billingContext,
         jobQueue,
         realtimeBroker,

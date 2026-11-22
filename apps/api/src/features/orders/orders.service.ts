@@ -21,9 +21,8 @@ import type { Locale } from '@starter/i18n';
 import { JOB_NAMES } from '@starter/jobs';
 import type { JobQueue } from '@starter/jobs';
 import type { RealtimeBroker } from '@starter/runtime/realtime';
-import type Stripe from 'stripe';
 import type { ResolvedStoreContext } from '#/middleware/store-context.ts';
-import { createOrderCheckoutSession } from '../billing/billing.service.ts';
+import type { PaymentGateway } from '../billing/billing.service.ts';
 import {
   publishOrderCreatedEvent,
   publishOrderStatusChangedEvent,
@@ -89,7 +88,10 @@ function toOrder(
   };
 }
 
-function normalizeLocale(value: string | undefined): Locale {
+function normalizeLocale(value: string | undefined, i18nEnabled = true): Locale {
+  if (!i18nEnabled) {
+    return 'en';
+  }
   return value === 'pt-BR' ? 'pt-BR' : 'en';
 }
 
@@ -99,7 +101,7 @@ export type CreateOrderResult =
 
 export interface OrderBillingContext {
   enabled: boolean;
-  stripe: Stripe;
+  paymentGateway: PaymentGateway;
   webOrigin: string;
 }
 
@@ -110,6 +112,7 @@ export interface CreateOrderParams {
   billing?: OrderBillingContext | undefined;
   jobQueue?: JobQueue | undefined;
   realtimeBroker?: RealtimeBroker | undefined;
+  i18nEnabled?: boolean | undefined;
 }
 
 interface ResolvedOrderLine {
@@ -129,6 +132,7 @@ export async function createOrderForStore({
   billing,
   jobQueue,
   realtimeBroker,
+  i18nEnabled = true,
 }: CreateOrderParams): Promise<CreateOrderResult> {
   const aggregated = new Map<string, number>();
   for (const item of input.items) {
@@ -206,6 +210,11 @@ export async function createOrderForStore({
         throw new OrderTxAbort(409, 'Unable to record customer');
       }
 
+      const distinctCurrencies = new Set(resolvedLines.map((line) => line.currency));
+      if (distinctCurrencies.size > 1) {
+        throw new OrderTxAbort(409, 'All items in an order must share the same currency');
+      }
+
       const totalCents = calculateOrderTotalCents(resolvedLines);
       const currency = resolvedLines[0]?.currency ?? 'USD';
 
@@ -258,8 +267,7 @@ export async function createOrderForStore({
   }
 
   if (result.ok && billing?.enabled) {
-    const session = await createOrderCheckoutSession({
-      stripe: billing.stripe,
+    const session = await billing.paymentGateway.createOrderCheckoutSession({
       storeSlug: store.slug,
       order: result.order,
       webOrigin: billing.webOrigin,
@@ -275,7 +283,7 @@ export async function createOrderForStore({
   }
 
   if (result.ok && jobQueue) {
-    const locale = normalizeLocale(input.customerLocale);
+    const locale = normalizeLocale(input.customerLocale, i18nEnabled);
     const jobsToEnqueue: Array<Promise<string | null>> = [];
 
     if (!billing?.enabled) {

@@ -22,11 +22,13 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 FROM deps AS deploy-api
 COPY apps/api apps/api
 COPY packages packages
+RUN pnpm --filter @starter/i18n build
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm --filter @starter/api --prod deploy --legacy /prod/api
 
 FROM deps AS deploy-worker
 COPY apps/worker apps/worker
 COPY packages packages
+RUN pnpm --filter @starter/i18n build
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm --filter @starter/worker --prod deploy --legacy /prod/worker
 
 FROM platformatic/node-caged:26-slim AS api

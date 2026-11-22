@@ -85,6 +85,10 @@ export const updateAdminUserRoute = createRoute({
       description: 'Updated user summary',
       content: { 'application/json': { schema: adminUserSummarySchema } },
     },
+    400: {
+      description: 'Invalid admin user mutation',
+      content: { 'application/json': { schema: errorResponseSchema } },
+    },
     401: {
       description: 'Authentication required',
       content: { 'application/json': { schema: errorResponseSchema } },

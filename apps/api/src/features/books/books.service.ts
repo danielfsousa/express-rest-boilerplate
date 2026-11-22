@@ -66,8 +66,10 @@ export async function listBooksForStore({
 }: ListBooksParams): Promise<ListBooksResponse> {
   return await withStoreContext(db, store.id, async (tx) => {
     const conditions = [eq(books.storeId, store.id)];
-    if (!store.isMember) {
+    if (!store.isMember || query.published === 'true') {
       conditions.push(eq(books.published, true));
+    } else if (query.published === 'false') {
+      conditions.push(eq(books.published, false));
     }
     if (query.q && query.q.trim().length > 0) {
       const pattern = `%${query.q.trim()}%`;

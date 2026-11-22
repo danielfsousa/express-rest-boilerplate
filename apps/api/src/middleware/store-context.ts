@@ -28,6 +28,39 @@ export function parseStoreMetadata(raw: string | null): StoreMetadata {
   }
 }
 
+export type ResolveAuthUserResult =
+  | { ok: true; user: SessionUser }
+  | { ok: false; status: 401; error: string };
+
+export async function resolveAuthenticatedUser(
+  auth: AuthInstance,
+  headers: Headers,
+): Promise<ResolveAuthUserResult> {
+  const user = await getSessionUser(auth, headers);
+  if (!user) {
+    return { ok: false, status: 401, error: 'Authentication required' };
+  }
+  return { ok: true, user };
+}
+
+export type ResolvePlatformAdminResult =
+  | { ok: true; user: SessionUser }
+  | { ok: false; status: 401 | 403; error: string };
+
+export async function resolvePlatformAdmin(
+  auth: AuthInstance,
+  headers: Headers,
+): Promise<ResolvePlatformAdminResult> {
+  const authResult = await resolveAuthenticatedUser(auth, headers);
+  if (!authResult.ok) {
+    return authResult;
+  }
+  if (authResult.user.role !== 'admin') {
+    return { ok: false, status: 403, error: 'Admin role required' };
+  }
+  return authResult;
+}
+
 export interface ResolveStoreContextParams {
   db: Database;
   storeSlug: string;
@@ -77,6 +110,17 @@ export async function resolveStoreContext({
     };
   }
 
+  if (!multiTenancyEnabled) {
+    return {
+      id: store.id,
+      slug: store.slug,
+      name: store.name,
+      lowStockThreshold: metadata.lowStockThreshold,
+      isMember: true,
+      memberRole: 'owner',
+    };
+  }
+
   const [membership] = await db
     .select({ id: member.id, role: member.role })
     .from(member)
@@ -112,10 +156,11 @@ export async function resolveMerchantStore({
   storeSlug,
   multiTenancyEnabled,
 }: ResolveMerchantStoreParams): Promise<ResolveMerchantStoreResult> {
-  const user = await getSessionUser(auth, headers);
-  if (!user) {
-    return { ok: false, status: 401, error: 'Authentication required' };
+  const authResult = await resolveAuthenticatedUser(auth, headers);
+  if (!authResult.ok) {
+    return authResult;
   }
+  const { user } = authResult;
 
   const store = await resolveStoreContext({
     db,
@@ -126,7 +171,7 @@ export async function resolveMerchantStore({
   if (!store) {
     return { ok: false, status: 404, error: 'Store not found' };
   }
-  if (!store.isMember) {
+  if (!store.isMember && user.role !== 'admin') {
     return { ok: false, status: 403, error: 'Store membership required' };
   }
 

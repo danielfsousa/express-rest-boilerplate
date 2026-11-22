@@ -18,7 +18,7 @@ test.describe('Multi-tenant bookstore platform E2E', () => {
 
     try {
       // 1. Merchant sign-up
-      await merchantPage.goto('/sign-up');
+      await merchantPage.goto('/auth/sign-up');
       await merchantPage.getByLabel('Full name').fill('Ada E2E');
       await merchantPage.getByLabel('Email').fill(merchantEmail);
       await merchantPage.getByLabel('Password').fill('Password123!');

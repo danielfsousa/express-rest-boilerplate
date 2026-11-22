@@ -11,10 +11,6 @@ import { formatCurrency } from '#/lib/format.ts';
 import { useOrderRealtime } from '#/features/realtime/index.ts';
 import { useOrder } from '../hooks/useOrders.ts';
 
-function formatPrice(cents: number, currency: string): string {
-  return formatCurrency(cents, currency);
-}
-
 export function OrderTracker({ storeSlug, orderId }: { storeSlug: string; orderId: string }) {
   useOrderRealtime({ storeSlug, orderId });
   const { data: order, isLoading, error } = useOrder(storeSlug, orderId);
@@ -41,11 +37,11 @@ export function OrderTracker({ storeSlug, orderId }: { storeSlug: string; orderI
               <Text>
                 {item.title} × {String(item.quantity)}
               </Text>
-              <Text>{formatPrice(item.unitPriceCents * item.quantity, order.currency)}</Text>
+              <Text>{formatCurrency(item.unitPriceCents * item.quantity, order.currency)}</Text>
             </HStack>
           ))}
         </VStack>
-        <Heading level={3}>Total: {formatPrice(order.totalCents, order.currency)}</Heading>
+        <Heading level={3}>Total: {formatCurrency(order.totalCents, order.currency)}</Heading>
         <Link to="/s/$storeSlug" params={{ storeSlug }}>
           <Button label="Continue shopping" variant="secondary" size="sm" />
         </Link>

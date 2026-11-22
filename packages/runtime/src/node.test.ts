@@ -1,9 +1,17 @@
-import { describe, expect, test, vi } from 'vite-plus/test';
+import { setTimeout as delay } from 'node:timers/promises';
+import { afterEach, describe, expect, test, vi } from 'vite-plus/test';
 import { createLogger, createServer, onShutdown } from './node.ts';
 
 describe('packages/runtime (node)', () => {
+  let activeServer: Awaited<ReturnType<typeof createServer>> | undefined;
+
+  afterEach(async () => {
+    await activeServer?.close();
+    activeServer = undefined;
+  });
+
   test('createServer binds an ephemeral port, serves HTTP responses, and closes cleanly', async () => {
-    const handle = await createServer({
+    activeServer = await createServer({
       port: 0,
       hostname: '127.0.0.1',
       fetch: (request) =>
@@ -13,17 +21,13 @@ describe('packages/runtime (node)', () => {
         }),
     });
 
-    try {
-      expect(handle.port).toBeGreaterThan(0);
-      expect(handle.url).toBe(`http://127.0.0.1:${String(handle.port)}`);
+    expect(activeServer.port).toBeGreaterThan(0);
+    expect(activeServer.url).toBe(`http://127.0.0.1:${String(activeServer.port)}`);
 
-      const response = await fetch(`${handle.url}/ping`);
-      expect(response.status).toBe(200);
-      const body = await response.json();
-      expect(body).toEqual({ path: '/ping' });
-    } finally {
-      await handle.close();
-    }
+    const response = await fetch(`${activeServer.url}/ping`);
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body).toEqual({ path: '/ping' });
   });
 
   test('onShutdown runs handler once on signal and resolves within drainTimeoutMs when handler hangs', async () => {
@@ -48,9 +52,7 @@ describe('packages/runtime (node)', () => {
       expect(callCount).toBe(1);
     });
 
-    await new Promise((resolve) => {
-      setTimeout(resolve, 80);
-    });
+    await delay(80);
 
     const elapsed = Date.now() - start;
     expect(elapsed).toBeGreaterThanOrEqual(45);

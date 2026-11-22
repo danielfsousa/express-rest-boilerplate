@@ -1,12 +1,10 @@
 // @vitest-environment jsdom
-import { Theme } from '@astryxdesign/core/theme';
-import { neutralTheme } from '@astryxdesign/theme-neutral';
 import { adminUpdateStorePlanSchema, adminUpdateUserSchema } from '@starter/contracts';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vite-plus/test';
+import { renderWithAppProviders } from '#/test/render.tsx';
 import { AdminDashboard } from './AdminDashboard.tsx';
 
 const server = setupServer();
@@ -23,22 +21,6 @@ afterEach(() => {
 afterAll(() => {
   server.close();
 });
-
-function renderAdminDashboard(onImpersonated?: (userId: string) => void) {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <Theme theme={neutralTheme}>
-        <AdminDashboard onImpersonated={onImpersonated} />
-      </Theme>
-    </QueryClientProvider>,
-  );
-}
 
 describe('AdminDashboard component', () => {
   test('renders tenant stores, overrides store billing plan, bans users, and impersonates a merchant', async () => {
@@ -150,9 +132,13 @@ describe('AdminDashboard component', () => {
       ),
     );
 
-    renderAdminDashboard((uid) => {
-      impersonatedId = uid;
-    });
+    await renderWithAppProviders(
+      <AdminDashboard
+        onImpersonated={(uid) => {
+          impersonatedId = uid;
+        }}
+      />,
+    );
 
     expect(await screen.findByText('Acme Books')).toBeTruthy();
     expect(screen.getByText('$54.00')).toBeTruthy();

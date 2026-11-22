@@ -12,13 +12,12 @@ Workspace instructions for AI agents and contributors working in `nodejs-fullsta
 ## Toolchain and Commands
 
 - **Runtime and package manager:** Node.js 26 and pnpm 12 (pinned in `mise.toml`).
-- **Docker and Testcontainers on macOS (OrbStack):** Always prefix container commands with `PATH="$HOME/.orbstack/bin:$PATH"`.
 - **Format, lint, and typecheck:**
   - `pnpm run check:fix` (formats and checks via Vite+ `vp check --fix`)
   - `pnpm run check` (`vp check`)
   - `pnpm run lint` (`TSRS_FAST=1 oxlint --type-aware --type-check`)
   - `pnpm run typecheck` (`tsrs --noEmit --fast`)
-- **Tests:** `PATH="$HOME/.orbstack/bin:$PATH" pnpm run test`
+- **Tests:** `pnpm run test`
 - **Web build (regenerates `apps/web/src/routeTree.gen.ts`):** Run `pnpm --filter @starter/web build` BEFORE `vp check` or `tsrs` whenever adding or renaming files under `apps/web/src/routes/`.
 
 ## Critical Guardrails Observed in This Repository

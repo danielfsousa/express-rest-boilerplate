@@ -19,7 +19,7 @@
     "dev:web": "pnpm --filter @starter/web dev",
     "dev:worker": "pnpm --filter @starter/worker dev",
     "dev:emulators": "node scripts/dev-emulators.ts",
-    "build": "vp run build",
+    "build": "pnpm --filter @starter/i18n build && pnpm --filter @starter/web build",
     "check": "vp check",
     "check:fix": "vp check --fix",
     "lint": "TSRS_FAST=1 oxlint --type-aware --type-check",

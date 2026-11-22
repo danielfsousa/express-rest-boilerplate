@@ -4,9 +4,10 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug",
-      "runtimeArgs": ["-r", "./src/lib/tracing.cjs", "--inspect"],
-      "program": "${workspaceRoot}/bin/www.js",
+      "name": "Debug API (apps/api)",
+      "cwd": "${workspaceFolder}/apps/api",
+      "runtimeArgs": ["--inspect", "--watch", "--env-file-if-exists=../../.env"],
+      "program": "${workspaceFolder}/apps/api/src/index.ts",
       "restart": true,
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
@@ -14,9 +15,10 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug and watch for changes",
-      "runtimeArgs": ["-r", "./src/lib/tracing.cjs", "--inspect", "--watch"],
-      "program": "${workspaceRoot}/bin/www.js",
+      "name": "Debug Worker (apps/worker)",
+      "cwd": "${workspaceFolder}/apps/worker",
+      "runtimeArgs": ["--inspect", "--watch", "--env-file-if-exists=../../.env"],
+      "program": "${workspaceFolder}/apps/worker/src/index.ts",
       "restart": true,
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
@@ -24,11 +26,12 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug current test file",
+      "name": "Debug current Vitest file",
+      "cwd": "${workspaceFolder}",
       "autoAttachChildProcesses": true,
       "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
-      "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",
-      "args": ["run", "${relativeFile}"],
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["exec", "vp", "test", "run", "${relativeFile}"],
       "smartStep": true,
       "console": "integratedTerminal"
     }

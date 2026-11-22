@@ -12,11 +12,11 @@ Climb the verification ladder for `nodejs-fullstack-starter` and record every ru
 Run the web route generator build, Vite+ format and lint check, type-aware Oxlint, TypeScript native preview (`tsrs`), and the Vitest unit, component, and Testcontainers PostgreSQL RLS integration suite with the 80% V8 coverage gate.
 
 ```bash
-PATH="$HOME/.orbstack/bin:$PATH" pnpm --filter @starter/web build \
+pnpm run build \
   && pnpm run check \
   && pnpm run lint \
   && pnpm run typecheck \
-  && PATH="$HOME/.orbstack/bin:$PATH" pnpm run test:cov
+  && pnpm run test:cov
 ```
 
 Completion criterion: zero warnings, zero errors, all test files pass, and line coverage is at or above 80%.
@@ -29,8 +29,8 @@ Build all workspace packages, validate the HCP Terraform configuration, and buil
 pnpm run build \
   && terraform fmt -check -recursive infra/terraform \
   && (cd infra/terraform && terraform init -backend=false -reconfigure && terraform validate) \
-  && PATH="$HOME/.orbstack/bin:$PATH" docker build --target api -t bookstore-api:verify . \
-  && PATH="$HOME/.orbstack/bin:$PATH" docker build --target worker -t bookstore-worker:verify .
+  && docker build --target api -t bookstore-api:verify . \
+  && docker build --target worker -t bookstore-worker:verify .
 ```
 
 Completion criterion: `apps/web/dist`, `bookstore-api:verify`, and `bookstore-worker:verify` build cleanly and `terraform validate` reports `Success! The configuration is valid.`

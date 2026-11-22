@@ -1,6 +1,6 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import type { Database } from '@starter/db';
-import { getSessionUser } from '../auth/auth.service.ts';
+import { resolveAuthenticatedUser } from '#/middleware/store-context.ts';
 import type { AuthInstance } from '../auth/auth.service.ts';
 import {
   createStoreRoute,
@@ -29,29 +29,29 @@ export function createStoresRouter({
   const router = new OpenAPIHono();
 
   router.openapi(listStoresRoute, async (c) => {
-    const sessionUser = await getSessionUser(auth, c.req.raw.headers);
-    if (!sessionUser) {
-      return c.json({ error: 'Authentication required' }, 401);
+    const authResult = await resolveAuthenticatedUser(auth, c.req.raw.headers);
+    if (!authResult.ok) {
+      return c.json({ error: authResult.error }, authResult.status);
     }
 
     const stores = await listStoresForUser({
       db: drizzleDb,
-      userId: sessionUser.id,
+      userId: authResult.user.id,
       multiTenancyEnabled,
     });
     return c.json({ stores }, 200);
   });
 
   router.openapi(createStoreRoute, async (c) => {
-    const sessionUser = await getSessionUser(auth, c.req.raw.headers);
-    if (!sessionUser) {
-      return c.json({ error: 'Authentication required' }, 401);
+    const authResult = await resolveAuthenticatedUser(auth, c.req.raw.headers);
+    if (!authResult.ok) {
+      return c.json({ error: authResult.error }, authResult.status);
     }
 
     const body = c.req.valid('json');
     const result = await createStoreForUser({
       db: drizzleDb,
-      userId: sessionUser.id,
+      userId: authResult.user.id,
       input: body,
       multiTenancyEnabled,
     });
@@ -77,16 +77,16 @@ export function createStoresRouter({
   });
 
   router.openapi(updateStoreRoute, async (c) => {
-    const sessionUser = await getSessionUser(auth, c.req.raw.headers);
-    if (!sessionUser) {
-      return c.json({ error: 'Authentication required' }, 401);
+    const authResult = await resolveAuthenticatedUser(auth, c.req.raw.headers);
+    if (!authResult.ok) {
+      return c.json({ error: authResult.error }, authResult.status);
     }
 
     const { storeSlug } = c.req.valid('param');
     const body = c.req.valid('json');
     const result = await updateStoreForUser({
       db: drizzleDb,
-      userId: sessionUser.id,
+      userId: authResult.user.id,
       slug: storeSlug,
       input: body,
       multiTenancyEnabled,

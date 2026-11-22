@@ -1,0 +1,50 @@
+[
+  {
+    "label": "check (vp check)",
+    "command": "pnpm run check",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "check:fix (vp check --fix)",
+    "command": "pnpm run check:fix",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "test current file (vp test)",
+    "command": "pnpm exec vp test run $ZED_RELATIVE_FILE",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "test:cov (all tests + 80% coverage)",
+    "command": "pnpm run test:cov",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "dev:api (apps/api)",
+    "command": "pnpm run dev:api",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "dev:web (apps/web)",
+    "command": "pnpm run dev:web",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "dev:worker (apps/worker)",
+    "command": "pnpm run dev:worker",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "dev:emulators (Stripe + Bird)",
+    "command": "pnpm run dev:emulators",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false
+  }
+]

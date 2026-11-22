@@ -1,13 +1,13 @@
 import { render } from '@react-email/render';
 import type { ReactElement } from 'react';
-import { LowStockAlertEmail } from './templates/LowStockAlertEmail.tsx';
-import type { LowStockAlertEmailProps } from './templates/LowStockAlertEmail.tsx';
-import { OrderReceiptEmail } from './templates/OrderReceiptEmail.tsx';
-import type { OrderReceiptEmailProps } from './templates/OrderReceiptEmail.tsx';
-import { PasswordResetEmail } from './templates/PasswordResetEmail.tsx';
-import type { PasswordResetEmailProps } from './templates/PasswordResetEmail.tsx';
-import { WelcomeEmail } from './templates/WelcomeEmail.tsx';
-import type { WelcomeEmailProps } from './templates/WelcomeEmail.tsx';
+import { LowStockAlertEmail } from './templates/LowStockAlertEmail.ts';
+import type { LowStockAlertEmailProps } from './templates/LowStockAlertEmail.ts';
+import { OrderReceiptEmail } from './templates/OrderReceiptEmail.ts';
+import type { OrderReceiptEmailProps } from './templates/OrderReceiptEmail.ts';
+import { PasswordResetEmail } from './templates/PasswordResetEmail.ts';
+import type { PasswordResetEmailProps } from './templates/PasswordResetEmail.ts';
+import { WelcomeEmail } from './templates/WelcomeEmail.ts';
+import type { WelcomeEmailProps } from './templates/WelcomeEmail.ts';
 
 export interface RenderedEmail {
   html: string;

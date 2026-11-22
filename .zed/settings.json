@@ -1,0 +1,64 @@
+{
+  "format_on_save": "on",
+  "formatter": {
+    "external": {
+      "command": "pnpm",
+      "arguments": ["exec", "oxfmt", "--stdin-filepath", "{buffer_path}"]
+    }
+  },
+  "languages": {
+    "TypeScript": {
+      "language_servers": ["oxlint", "vtsls", "..."],
+      "code_actions_on_format": {
+        "source.fixAll.oxc": true
+      }
+    },
+    "TSX": {
+      "language_servers": ["oxlint", "vtsls", "tailwindcss-language-server", "..."],
+      "code_actions_on_format": {
+        "source.fixAll.oxc": true
+      }
+    },
+    "JavaScript": {
+      "language_servers": ["oxlint", "vtsls", "..."]
+    },
+    "JSON": {
+      "formatter": {
+        "external": {
+          "command": "pnpm",
+          "arguments": ["exec", "oxfmt", "--stdin-filepath", "{buffer_path}"]
+        }
+      }
+    },
+    "JSONC": {
+      "formatter": {
+        "external": {
+          "command": "pnpm",
+          "arguments": ["exec", "oxfmt", "--stdin-filepath", "{buffer_path}"]
+        }
+      }
+    }
+  },
+  "lsp": {
+    "oxlint": {
+      "initialization_options": {
+        "settings": {
+          "typeAware": true,
+          "run": "onType"
+        }
+      }
+    }
+  },
+  "file_scan_exclusions": [
+    "**/.git",
+    "**/node_modules",
+    "**/dist",
+    "**/coverage",
+    "**/.tanstack",
+    "**/.vite",
+    "**/.output",
+    "**/playwright-report",
+    "**/test-results",
+    "**/.terraform"
+  ]
+}

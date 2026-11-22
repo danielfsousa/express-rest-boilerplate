@@ -7,6 +7,10 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./test-harness": {
+      "types": "./test/harness.ts",
+      "default": "./test/harness.ts"
     }
   },
   "scripts": {

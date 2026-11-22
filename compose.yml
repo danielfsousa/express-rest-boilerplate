@@ -19,7 +19,7 @@ services:
   floci:
     image: floci/floci:latest
     ports:
-      - '4566:4566'
+      - '127.0.0.1:${FLOCI_HOST_PORT:-4566}:4566'
 
   floci-init:
     image: curlimages/curl:latest

@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
+import { Text } from '@astryxdesign/core/Text';
 import { Theme } from '@astryxdesign/core/theme';
 import { neutralTheme } from '@astryxdesign/theme-neutral';
 import { m } from '@starter/i18n';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, test } from 'vite-plus/test';
-import { LocaleSwitcher } from './LocaleSwitcher.tsx';
 import { LocaleProvider, useLocale } from '../LocaleProvider.tsx';
+import { LocaleSwitcher } from './LocaleSwitcher.tsx';
 
 afterEach(() => {
   cleanup();
@@ -13,7 +14,7 @@ afterEach(() => {
 
 function Probe() {
   const { locale } = useLocale();
-  return <span>{m.app_title({}, { locale })}</span>;
+  return <Text>{m.app_title({}, { locale })}</Text>;
 }
 
 describe('LocaleSwitcher', () => {

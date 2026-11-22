@@ -25,37 +25,34 @@ async function buildAdminStoreSummary(
   db: Database,
   storeRow: typeof organization.$inferSelect,
 ): Promise<AdminStoreSummary> {
-  const [subRow] = await db
-    .select()
-    .from(subscription)
-    .where(eq(subscription.referenceId, storeRow.id))
-    .limit(1);
-
-  const [memberCountRow] = await db
-    .select({ count: sql<number>`count(*)::int` })
-    .from(member)
-    .where(eq(member.organizationId, storeRow.id));
-
-  const tenantMetrics = await withStoreContext(db, storeRow.id, async (tx) => {
-    const [bookRow] = await tx
+  const [[subRow], [memberCountRow], tenantMetrics] = await Promise.all([
+    db.select().from(subscription).where(eq(subscription.referenceId, storeRow.id)).limit(1),
+    db
       .select({ count: sql<number>`count(*)::int` })
-      .from(books)
-      .where(and(eq(books.storeId, storeRow.id), eq(books.published, true)));
+      .from(member)
+      .where(eq(member.organizationId, storeRow.id)),
+    withStoreContext(db, storeRow.id, async (tx) => {
+      const [[bookRow], [orderRow]] = await Promise.all([
+        tx
+          .select({ count: sql<number>`count(*)::int` })
+          .from(books)
+          .where(and(eq(books.storeId, storeRow.id), eq(books.published, true))),
+        tx
+          .select({
+            count: sql<number>`count(*)::int`,
+            revenueCents: sql<number>`coalesce(sum(case when ${orders.status} in ('paid', 'fulfilled') then ${orders.totalCents} else 0 end), 0)::int`,
+          })
+          .from(orders)
+          .where(eq(orders.storeId, storeRow.id)),
+      ]);
 
-    const [orderRow] = await tx
-      .select({
-        count: sql<number>`count(*)::int`,
-        revenueCents: sql<number>`coalesce(sum(case when ${orders.status} in ('paid', 'fulfilled') then ${orders.totalCents} else 0 end), 0)::int`,
-      })
-      .from(orders)
-      .where(eq(orders.storeId, storeRow.id));
-
-    return {
-      publishedBookCount: bookRow?.count ?? 0,
-      orderCount: orderRow?.count ?? 0,
-      revenueCents: orderRow?.revenueCents ?? 0,
-    };
-  });
+      return {
+        publishedBookCount: bookRow?.count ?? 0,
+        orderCount: orderRow?.count ?? 0,
+        revenueCents: orderRow?.revenueCents ?? 0,
+      };
+    }),
+  ]);
 
   const isProActive =
     subRow && subRow.plan === 'pro' && (subRow.status === 'active' || subRow.status === 'trialing');
@@ -96,18 +93,15 @@ async function buildAdminUserSummary(
 }
 
 export async function getAdminOverview(db: Database): Promise<AdminOverviewResponse> {
-  const storeRows = await db.select().from(organization).orderBy(desc(organization.createdAt));
-  const userRows = await db.select().from(user).orderBy(desc(user.createdAt));
+  const [storeRows, userRows] = await Promise.all([
+    db.select().from(organization).orderBy(desc(organization.createdAt)),
+    db.select().from(user).orderBy(desc(user.createdAt)),
+  ]);
 
-  const stores: Array<AdminStoreSummary> = [];
-  for (const storeRow of storeRows) {
-    stores.push(await buildAdminStoreSummary(db, storeRow));
-  }
-
-  const users: Array<AdminUserSummary> = [];
-  for (const userRow of userRows) {
-    users.push(await buildAdminUserSummary(db, userRow));
-  }
+  const [stores, users] = await Promise.all([
+    Promise.all(storeRows.map((storeRow) => buildAdminStoreSummary(db, storeRow))),
+    Promise.all(userRows.map((userRow) => buildAdminUserSummary(db, userRow))),
+  ]);
 
   const activeProStores = stores.filter((s) => s.plan === 'pro').length;
   const totalOrders = stores.reduce((acc, s) => acc + s.orderCount, 0);
@@ -171,20 +165,34 @@ export async function updateAdminStorePlan({
   return await buildAdminStoreSummary(db, storeRow);
 }
 
+export type UpdateAdminUserResult =
+  | { ok: true; user: AdminUserSummary }
+  | { ok: false; status: 400 | 404; error: string };
+
 export interface UpdateAdminUserParams {
   db: Database;
+  actorUserId: string;
   userId: string;
   input: AdminUpdateUserInput;
 }
 
 export async function updateAdminUser({
   db,
+  actorUserId,
   userId,
   input,
-}: UpdateAdminUserParams): Promise<AdminUserSummary | null> {
+}: UpdateAdminUserParams): Promise<UpdateAdminUserResult> {
+  if (actorUserId === userId && (input.banned === true || input.role === 'user')) {
+    return {
+      ok: false,
+      status: 400,
+      error: 'Cannot demote or ban your own admin account',
+    };
+  }
+
   const [existing] = await db.select().from(user).where(eq(user.id, userId)).limit(1);
   if (!existing) {
-    return null;
+    return { ok: false, status: 404, error: 'User not found' };
   }
 
   const patch: Partial<typeof user.$inferInsert> = {
@@ -206,12 +214,12 @@ export async function updateAdminUser({
 
   const [updated] = await db.update(user).set(patch).where(eq(user.id, userId)).returning();
   if (!updated) {
-    return null;
+    return { ok: false, status: 404, error: 'User not found' };
   }
 
   if (input.banned === true) {
     await db.delete(session).where(eq(session.userId, userId));
   }
 
-  return await buildAdminUserSummary(db, updated);
+  return { ok: true, user: await buildAdminUserSummary(db, updated) };
 }

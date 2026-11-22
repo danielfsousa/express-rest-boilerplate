@@ -9,6 +9,10 @@
     "apps/web": {
       "name": "web",
       "script": "dev"
+    },
+    "apps/worker": {
+      "name": "worker",
+      "script": "dev"
     }
   }
 }

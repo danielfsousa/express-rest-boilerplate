@@ -1,4 +1,3 @@
-import { Badge } from '@astryxdesign/core/Badge';
 import { Banner } from '@astryxdesign/core/Banner';
 import { Button } from '@astryxdesign/core/Button';
 import { Card } from '@astryxdesign/core/Card';
@@ -46,10 +45,7 @@ export function BillingPanel({ storeSlug }: { storeSlug: string }) {
       <VStack gap="md">
         <HStack gap="sm" align="center" justify="between">
           <Heading level={3}>Store subscription</Heading>
-          <Badge
-            variant={billing.plan === 'pro' ? 'success' : 'neutral'}
-            label={billing.plan === 'pro' ? 'Pro' : 'Free'}
-          />
+          <Text weight="semibold">{billing.plan === 'pro' ? 'Pro' : 'Free'}</Text>
         </HStack>
 
         <Text>Status: {billing.status}</Text>

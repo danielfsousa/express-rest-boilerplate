@@ -1,4 +1,3 @@
-import { Badge } from '@astryxdesign/core/Badge';
 import { Banner } from '@astryxdesign/core/Banner';
 import { Button } from '@astryxdesign/core/Button';
 import { Card } from '@astryxdesign/core/Card';
@@ -116,11 +115,8 @@ export function AdminDashboard({ onImpersonated }: AdminDashboardProps) {
               <VStack gap="xs">
                 <HStack gap="sm" align="center">
                   <Heading level={4}>{store.name}</Heading>
-                  <Text>({store.slug})</Text>
-                  <Badge
-                    variant={store.plan === 'pro' ? 'success' : 'neutral'}
-                    label={store.plan === 'pro' ? 'Pro' : 'Free'}
-                  />
+                  <Text color="secondary">({store.slug})</Text>
+                  <Text weight="semibold">{store.plan === 'pro' ? 'Pro' : 'Free'}</Text>
                 </HStack>
                 <Text>
                   {String(store.publishedBookCount)} published books, {String(store.orderCount)}{' '}
@@ -152,11 +148,8 @@ export function AdminDashboard({ onImpersonated }: AdminDashboardProps) {
                 <HStack gap="sm" align="center">
                   <Heading level={4}>{targetUser.name}</Heading>
                   <Text>{targetUser.email}</Text>
-                  <Badge
-                    variant={targetUser.role === 'admin' ? 'info' : 'neutral'}
-                    label={targetUser.role}
-                  />
-                  {targetUser.banned ? <Badge variant="error" label="Banned" /> : null}
+                  <Text color="secondary">({targetUser.role})</Text>
+                  {targetUser.banned ? <Text color="secondary">Banned</Text> : null}
                 </HStack>
                 <Text>{String(targetUser.storeCount)} store memberships</Text>
               </VStack>

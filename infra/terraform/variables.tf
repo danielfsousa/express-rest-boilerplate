@@ -85,3 +85,17 @@ variable "feature_billing_enabled" {
   type        = bool
   default     = false
 }
+
+variable "r2_access_key_id" {
+  description = "Cloudflare R2 S3 API access key ID."
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "r2_secret_access_key" {
+  description = "Cloudflare R2 S3 API secret access key."
+  type        = string
+  sensitive   = true
+  default     = ""
+}

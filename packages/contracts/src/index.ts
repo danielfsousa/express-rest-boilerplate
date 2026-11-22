@@ -22,13 +22,16 @@ export {
 } from './billing.ts';
 export {
   bookSchema,
+  catalogSearchSchema,
   createBookSchema,
   deleteBookResponseSchema,
   listBooksQuerySchema,
   listBooksResponseSchema,
+  parseCatalogSearch,
   updateBookSchema,
   uploadCoverResponseSchema,
   type Book,
+  type CatalogSearchParams,
   type CreateBookInput,
   type ListBooksQuery,
   type ListBooksResponse,

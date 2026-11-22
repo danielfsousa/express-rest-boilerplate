@@ -1,6 +1,6 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import type { Database } from '@starter/db';
-import { getSessionUser } from '../auth/auth.service.ts';
+import { resolvePlatformAdmin } from '#/middleware/store-context.ts';
 import type { AuthInstance } from '../auth/auth.service.ts';
 import {
   getAdminOverviewRoute,
@@ -18,12 +18,9 @@ export function createAdminRouter({ drizzleDb, auth }: CreateAdminRouterOptions)
   const router = new OpenAPIHono();
 
   router.openapi(getAdminOverviewRoute, async (c) => {
-    const sessionUser = await getSessionUser(auth, c.req.raw.headers);
-    if (!sessionUser) {
-      return c.json({ error: 'Authentication required' }, 401);
-    }
-    if (sessionUser.role !== 'admin') {
-      return c.json({ error: 'Admin role required' }, 403);
+    const adminResult = await resolvePlatformAdmin(auth, c.req.raw.headers);
+    if (!adminResult.ok) {
+      return c.json({ error: adminResult.error }, adminResult.status);
     }
 
     const overview = await getAdminOverview(drizzleDb);
@@ -31,12 +28,9 @@ export function createAdminRouter({ drizzleDb, auth }: CreateAdminRouterOptions)
   });
 
   router.openapi(updateAdminStorePlanRoute, async (c) => {
-    const sessionUser = await getSessionUser(auth, c.req.raw.headers);
-    if (!sessionUser) {
-      return c.json({ error: 'Authentication required' }, 401);
-    }
-    if (sessionUser.role !== 'admin') {
-      return c.json({ error: 'Admin role required' }, 403);
+    const adminResult = await resolvePlatformAdmin(auth, c.req.raw.headers);
+    if (!adminResult.ok) {
+      return c.json({ error: adminResult.error }, adminResult.status);
     }
 
     const { storeSlug } = c.req.valid('param');
@@ -54,26 +48,24 @@ export function createAdminRouter({ drizzleDb, auth }: CreateAdminRouterOptions)
   });
 
   router.openapi(updateAdminUserRoute, async (c) => {
-    const sessionUser = await getSessionUser(auth, c.req.raw.headers);
-    if (!sessionUser) {
-      return c.json({ error: 'Authentication required' }, 401);
-    }
-    if (sessionUser.role !== 'admin') {
-      return c.json({ error: 'Admin role required' }, 403);
+    const adminResult = await resolvePlatformAdmin(auth, c.req.raw.headers);
+    if (!adminResult.ok) {
+      return c.json({ error: adminResult.error }, adminResult.status);
     }
 
     const { userId } = c.req.valid('param');
     const body = c.req.valid('json');
-    const updated = await updateAdminUser({
+    const result = await updateAdminUser({
       db: drizzleDb,
+      actorUserId: adminResult.user.id,
       userId,
       input: body,
     });
-    if (!updated) {
-      return c.json({ error: 'User not found' }, 404);
+    if (!result.ok) {
+      return c.json({ error: result.error }, result.status);
     }
 
-    return c.json(updated, 200);
+    return c.json(result.user, 200);
   });
 
   return router;

@@ -64,11 +64,23 @@ locals {
     S3_ENDPOINT = {
       value = "https://${var.cloudflare_account_id}.r2.cloudflarestorage.com"
     }
+    S3_ACCESS_KEY_ID = {
+      value = var.r2_access_key_id
+    }
+    S3_SECRET_ACCESS_KEY = {
+      value = var.r2_secret_access_key
+    }
     BIRD_API_KEY = {
       value = var.bird_api_key
     }
     BIRD_FROM_EMAIL = {
       value = var.bird_from_email
+    }
+    STRIPE_SECRET_KEY = {
+      value = var.stripe_secret_key
+    }
+    STRIPE_WEBHOOK_SECRET = {
+      value = var.stripe_webhook_secret
     }
     FEATURE_BILLING_ENABLED = {
       value = var.feature_billing_enabled ? "true" : "false"

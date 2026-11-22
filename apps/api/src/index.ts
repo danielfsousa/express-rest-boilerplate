@@ -120,6 +120,7 @@ async function main(): Promise<void> {
     },
     multiTenancyEnabled: env.FEATURE_MULTI_TENANCY_ENABLED,
     adminEnabled: env.FEATURE_ADMIN_ENABLED,
+    i18nEnabled: env.FEATURE_I18N_ENABLED,
     billingEnabled: env.FEATURE_BILLING_ENABLED,
     stripeClient,
     stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,

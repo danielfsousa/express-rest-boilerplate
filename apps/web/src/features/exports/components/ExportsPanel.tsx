@@ -1,4 +1,3 @@
-import { Badge } from '@astryxdesign/core/Badge';
 import { Banner } from '@astryxdesign/core/Banner';
 import { Button } from '@astryxdesign/core/Button';
 import { Card } from '@astryxdesign/core/Card';
@@ -9,16 +8,6 @@ import { Text } from '@astryxdesign/core/Text';
 import { VStack } from '@astryxdesign/core/VStack';
 import { getApiBaseUrl } from '#/lib/env.ts';
 import { useCreateBooksExport, useStoreExports } from '../hooks/useExports.ts';
-
-function statusBadgeVariant(status: string): 'neutral' | 'success' | 'error' {
-  if (status === 'completed') {
-    return 'success';
-  }
-  if (status === 'failed') {
-    return 'error';
-  }
-  return 'neutral';
-}
 
 export function ExportsPanel({ storeSlug }: { storeSlug: string }) {
   const { data, isLoading, error } = useStoreExports(storeSlug);
@@ -66,7 +55,7 @@ export function ExportsPanel({ storeSlug }: { storeSlug: string }) {
               <Text>Created: {item.createdAt}</Text>
             </VStack>
             <HStack gap="sm" align="center">
-              <Badge variant={statusBadgeVariant(item.status)} label={item.status} />
+              <Text weight="semibold">{item.status}</Text>
               {item.downloadUrl ? (
                 <a href={`${getApiBaseUrl()}${item.downloadUrl}`} target="_blank" rel="noreferrer">
                   Download CSV

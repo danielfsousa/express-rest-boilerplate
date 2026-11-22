@@ -1,11 +1,9 @@
 // @vitest-environment jsdom
-import { Theme } from '@astryxdesign/core/theme';
-import { neutralTheme } from '@astryxdesign/theme-neutral';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vite-plus/test';
+import { renderWithAppProviders } from '#/test/render.tsx';
 import { BillingPanel } from './BillingPanel.tsx';
 
 const server = setupServer();
@@ -22,22 +20,6 @@ afterEach(() => {
 afterAll(() => {
   server.close();
 });
-
-function renderBillingPanel() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <Theme theme={neutralTheme}>
-        <BillingPanel storeSlug="acme" />
-      </Theme>
-    </QueryClientProvider>,
-  );
-}
 
 describe('BillingPanel component', () => {
   test('displays free plan usage and upgrades store to Pro', async () => {
@@ -64,7 +46,7 @@ describe('BillingPanel component', () => {
       }),
     );
 
-    renderBillingPanel();
+    await renderWithAppProviders(<BillingPanel storeSlug="acme" />);
 
     expect(await screen.findByText('Catalog usage: 25 / 25 published books')).toBeTruthy();
 

@@ -23,14 +23,14 @@ export {
 export {
   LowStockAlertEmail,
   type LowStockAlertEmailProps,
-} from './templates/LowStockAlertEmail.tsx';
+} from './templates/LowStockAlertEmail.ts';
 export {
   OrderReceiptEmail,
   type OrderReceiptEmailProps,
   type OrderReceiptItem,
-} from './templates/OrderReceiptEmail.tsx';
+} from './templates/OrderReceiptEmail.ts';
 export {
   PasswordResetEmail,
   type PasswordResetEmailProps,
-} from './templates/PasswordResetEmail.tsx';
-export { WelcomeEmail, type WelcomeEmailProps } from './templates/WelcomeEmail.tsx';
+} from './templates/PasswordResetEmail.ts';
+export { WelcomeEmail, type WelcomeEmailProps } from './templates/WelcomeEmail.ts';

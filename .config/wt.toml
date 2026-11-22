@@ -1,6 +1,9 @@
-[pre-start]
+[[pre-start]]
 install = "pnpm install --frozen-lockfile"
 env = "if [ ! -f .env ] && [ -f .env.example ]; then cp .env.example .env; fi"
+
+[[pre-start]]
+build = "pnpm run build"
 
 [pre-commit]
 check = "pnpm run check"

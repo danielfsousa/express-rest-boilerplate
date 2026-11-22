@@ -8,14 +8,8 @@ import { Text } from '@astryxdesign/core/Text';
 import { VStack } from '@astryxdesign/core/VStack';
 import { Link } from '@tanstack/react-router';
 import { getApiBaseUrl } from '#/lib/env.ts';
+import { formatCurrency } from '#/lib/format.ts';
 import { useBook } from '../hooks/useBooks.ts';
-
-function formatPrice(priceCents: number, currency: string): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-  }).format(priceCents / 100);
-}
 
 export function BookDetail({ storeSlug, bookId }: { storeSlug: string; bookId: string }) {
   const { data: book, isLoading, error } = useBook(storeSlug, bookId);
@@ -43,7 +37,7 @@ export function BookDetail({ storeSlug, bookId }: { storeSlug: string; bookId: s
           <VStack gap="sm">
             <Heading level={1}>{book.title}</Heading>
             <Text color="secondary">by {book.author}</Text>
-            <Heading level={3}>{formatPrice(book.priceCents, book.currency)}</Heading>
+            <Heading level={3}>{formatCurrency(book.priceCents, book.currency)}</Heading>
             <Text>{book.description || 'No description available.'}</Text>
             <Text color="secondary">
               {book.stock > 0 ? `${String(book.stock)} copies available` : 'Currently out of stock'}

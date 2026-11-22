@@ -81,3 +81,25 @@ export type UploadCoverResponse = z.infer<typeof uploadCoverResponseSchema>;
 export const deleteBookResponseSchema = z.object({
   deleted: z.literal(true),
 });
+
+export const catalogSearchSchema = z.object({
+  q: z.preprocess(
+    (val) => (typeof val === 'string' && val.length > 0 ? val : undefined),
+    z.string().optional(),
+  ),
+  offset: z.preprocess((val) => {
+    const num =
+      typeof val === 'number'
+        ? val
+        : typeof val === 'string'
+          ? Number.parseInt(val, 10)
+          : Number.NaN;
+    return Number.isInteger(num) && num > 0 ? num : undefined;
+  }, z.number().int().positive().optional()),
+});
+
+export type CatalogSearchParams = z.infer<typeof catalogSearchSchema>;
+
+export function parseCatalogSearch(search: { q?: unknown; offset?: unknown }): CatalogSearchParams {
+  return catalogSearchSchema.parse(search);
+}

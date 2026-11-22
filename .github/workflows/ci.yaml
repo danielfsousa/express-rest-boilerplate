@@ -18,8 +18,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build web app
-        run: pnpm --filter @starter/web build
+      - name: Build i18n and web app
+        run: pnpm run build
 
       - name: Format and lint check
         run: pnpm run check
@@ -63,6 +63,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Compile i18n messages
+        run: pnpm --filter @starter/i18n build
 
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium

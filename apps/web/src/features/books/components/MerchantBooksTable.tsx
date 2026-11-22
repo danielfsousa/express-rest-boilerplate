@@ -6,6 +6,7 @@ import { HStack } from '@astryxdesign/core/HStack';
 import { Spinner } from '@astryxdesign/core/Spinner';
 import { Text } from '@astryxdesign/core/Text';
 import { VStack } from '@astryxdesign/core/VStack';
+import { formatCurrency } from '#/lib/format.ts';
 import { useBooks, useDeleteBook, useUpdateBook } from '../hooks/useBooks.ts';
 import { CoverUpload } from './CoverUpload.tsx';
 
@@ -36,8 +37,8 @@ export function MerchantBooksTable({ storeSlug }: { storeSlug: string }) {
                 {book.title} ({book.sku})
               </Text>
               <Text color="secondary">
-                {book.author} · ${(book.priceCents / 100).toFixed(2)} · Stock: {String(book.stock)}{' '}
-                · {book.published ? 'Published' : 'Draft'}
+                {book.author} · {formatCurrency(book.priceCents, book.currency)} · Stock:{' '}
+                {String(book.stock)} · {book.published ? 'Published' : 'Draft'}
               </Text>
             </VStack>
             <HStack gap="sm" align="center">

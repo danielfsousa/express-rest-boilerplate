@@ -1,30 +1,13 @@
 import { Banner } from '@astryxdesign/core/Banner';
 import { Spinner } from '@astryxdesign/core/Spinner';
+import { parseCatalogSearch } from '@starter/contracts';
 import { createFileRoute } from '@tanstack/react-router';
 import { StorefrontLayout } from '#/components/StorefrontLayout.tsx';
 import { BookCatalog } from '#/features/books/index.ts';
 import { useStore } from '#/features/stores/index.ts';
 
-interface CatalogSearchParams {
-  q?: string | undefined;
-  offset?: number | undefined;
-}
-
-function validateCatalogSearch(search: { q?: unknown; offset?: unknown }): CatalogSearchParams {
-  const q = typeof search.q === 'string' && search.q.length > 0 ? search.q : undefined;
-  const rawOffset = search.offset;
-  const parsedOffset =
-    typeof rawOffset === 'number'
-      ? rawOffset
-      : typeof rawOffset === 'string'
-        ? Number.parseInt(rawOffset, 10)
-        : Number.NaN;
-  const offset = Number.isInteger(parsedOffset) && parsedOffset > 0 ? parsedOffset : undefined;
-  return { q, offset };
-}
-
 export const Route = createFileRoute('/s/$storeSlug/')({
-  validateSearch: validateCatalogSearch,
+  validateSearch: parseCatalogSearch,
   component: StorefrontPage,
 });
 
