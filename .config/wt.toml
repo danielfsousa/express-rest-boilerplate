@@ -1,7 +1,9 @@
-[hooks]
-post-create = """
-pnpm install --frozen-lockfile
-if [ ! -f .env ] && [ -f .env.example ]; then
-  cp .env.example .env
-fi
-"""
+[pre-start]
+install = "pnpm install --frozen-lockfile"
+env = "if [ ! -f .env ] && [ -f .env.example ]; then cp .env.example .env; fi"
+
+[pre-commit]
+check = "pnpm run check"
+
+[pre-merge]
+test = "pnpm run test"
