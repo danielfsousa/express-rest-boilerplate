@@ -1,9 +1,11 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { Scalar } from '@scalar/hono-api-reference';
 import type { Database } from '@starter/db';
+import type { ObjectStorage } from '@starter/runtime/storage';
 import type { DbClient, RuntimeLogger } from '@starter/runtime/types';
 import { cors } from 'hono/cors';
 import type { AuthInstance } from './features/auth/auth.service.ts';
+import { createBooksRouter } from './features/books/books.handlers.ts';
 import { createHealthRouter } from './features/health/health.handlers.ts';
 import { createStoresRouter } from './features/stores/stores.handlers.ts';
 
@@ -12,6 +14,7 @@ export interface CreateAppOptions {
   logger: RuntimeLogger;
   drizzleDb?: Database;
   auth?: AuthInstance;
+  storage?: ObjectStorage;
   multiTenancyEnabled?: boolean;
   trustedOrigins?: Array<string>;
 }
@@ -21,6 +24,7 @@ export function createApp({
   logger,
   drizzleDb,
   auth,
+  storage,
   multiTenancyEnabled = true,
   trustedOrigins = ['http://127.0.0.1:3000'],
 }: CreateAppOptions): OpenAPIHono {
@@ -61,6 +65,7 @@ export function createApp({
 
   if (drizzleDb && auth) {
     app.route('/', createStoresRouter({ drizzleDb, auth, multiTenancyEnabled }));
+    app.route('/', createBooksRouter({ drizzleDb, auth, multiTenancyEnabled, storage }));
   }
 
   app.doc31('/openapi.json', {

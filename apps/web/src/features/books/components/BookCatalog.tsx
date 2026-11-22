@@ -1,0 +1,117 @@
+import { Banner } from '@astryxdesign/core/Banner';
+import { Button } from '@astryxdesign/core/Button';
+import { Card } from '@astryxdesign/core/Card';
+import { Heading } from '@astryxdesign/core/Heading';
+import { HStack } from '@astryxdesign/core/HStack';
+import { Spinner } from '@astryxdesign/core/Spinner';
+import { Text } from '@astryxdesign/core/Text';
+import { TextInput } from '@astryxdesign/core/TextInput';
+import { VStack } from '@astryxdesign/core/VStack';
+import { Link } from '@tanstack/react-router';
+import { useState } from 'react';
+import { getApiBaseUrl } from '../../../lib/env.ts';
+import { useBooks } from '../hooks/useBooks.ts';
+
+function formatPrice(priceCents: number, currency: string): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+  }).format(priceCents / 100);
+}
+
+export function BookCatalog({ storeSlug }: { storeSlug: string }) {
+  const [search, setSearch] = useState('');
+  const [offset, setOffset] = useState(0);
+  const limit = 20;
+
+  const { data, isLoading, error } = useBooks(storeSlug, {
+    q: search.trim() || undefined,
+    published: 'true',
+    limit,
+    offset,
+  });
+
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    setOffset(0);
+  }
+
+  return (
+    <VStack gap="md">
+      <TextInput
+        type="search"
+        label="Search books"
+        placeholder="Search by title, author, or SKU"
+        value={search}
+        onChange={handleSearchChange}
+        hasClear
+      />
+
+      {isLoading ? <Spinner /> : null}
+      {error ? (
+        <Banner status="error" title="Could not load books" description={error.message} />
+      ) : null}
+
+      {data && data.books.length === 0 ? (
+        <Card>
+          <Text color="secondary">No published books found.</Text>
+        </Card>
+      ) : null}
+
+      {data?.books.map((book) => (
+        <Card key={book.id}>
+          <HStack justify="between" align="center" gap="md">
+            <HStack align="center" gap="md">
+              {book.coverUrl ? (
+                <img
+                  src={`${getApiBaseUrl()}${book.coverUrl}`}
+                  alt={`${book.title} cover`}
+                  width={56}
+                  height={76}
+                />
+              ) : null}
+              <VStack gap="xs">
+                <Heading level={3}>{book.title}</Heading>
+                <Text color="secondary">{book.author}</Text>
+                <Text>
+                  {formatPrice(book.priceCents, book.currency)} ·{' '}
+                  {book.stock > 0 ? `${String(book.stock)} in stock` : 'Out of stock'}
+                </Text>
+              </VStack>
+            </HStack>
+            <Link to="/s/$storeSlug/books/$bookId" params={{ storeSlug, bookId: book.id }}>
+              <Button label="View book" variant="primary" size="sm" />
+            </Link>
+          </HStack>
+        </Card>
+      ))}
+
+      {data && data.total > limit ? (
+        <HStack justify="between" align="center">
+          <Button
+            label="Previous"
+            variant="secondary"
+            size="sm"
+            isDisabled={offset === 0}
+            onClick={() => {
+              setOffset(Math.max(0, offset - limit));
+            }}
+          />
+          <Text color="secondary">
+            Showing {String(offset + 1)}–{String(Math.min(offset + limit, data.total))} of{' '}
+            {String(data.total)}
+          </Text>
+          <Button
+            label="Next"
+            variant="secondary"
+            size="sm"
+            isDisabled={offset + limit >= data.total}
+            onClick={() => {
+              setOffset(offset + limit);
+            }}
+          />
+        </HStack>
+      ) : null}
+    </VStack>
+  );
+}

@@ -1,14 +1,11 @@
 import { Banner } from '@astryxdesign/core/Banner';
-import { Card } from '@astryxdesign/core/Card';
-import { Heading } from '@astryxdesign/core/Heading';
 import { Spinner } from '@astryxdesign/core/Spinner';
-import { Text } from '@astryxdesign/core/Text';
-import { VStack } from '@astryxdesign/core/VStack';
 import { createFileRoute } from '@tanstack/react-router';
-import { StorefrontLayout } from '../../components/StorefrontLayout.tsx';
-import { useStore } from '../../features/stores/index.ts';
+import { StorefrontLayout } from '../../../components/StorefrontLayout.tsx';
+import { BookCatalog } from '../../../features/books/index.ts';
+import { useStore } from '../../../features/stores/index.ts';
 
-export const Route = createFileRoute('/s/$storeSlug')({
+export const Route = createFileRoute('/s/$storeSlug/')({
   component: StorefrontPage,
 });
 
@@ -34,12 +31,7 @@ function StorefrontPage() {
 
   return (
     <StorefrontLayout storeName={store.name} storeSlug={store.slug}>
-      <Card>
-        <VStack gap="sm">
-          <Heading level={2}>Welcome to {store.name}</Heading>
-          <Text color="secondary">Storefront catalog and checkout will appear here.</Text>
-        </VStack>
-      </Card>
+      <BookCatalog storeSlug={store.slug} />
     </StorefrontLayout>
   );
 }

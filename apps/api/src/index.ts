@@ -1,5 +1,6 @@
 import { createDb, ensureDefaultStore } from '@starter/db';
 import { createDbClient, createLogger, createServer, onShutdown, readEnv } from '@starter/runtime';
+import { createS3Storage } from '@starter/runtime/storage';
 import { createApp } from './app.ts';
 import { parseEnv } from './config/env.ts';
 import { createAuth } from './features/auth/auth.service.ts';
@@ -22,11 +23,20 @@ async function main(): Promise<void> {
     trustedOrigins,
   });
 
+  const storage = createS3Storage({
+    endpoint: env.S3_ENDPOINT,
+    region: env.S3_REGION,
+    accessKeyId: env.S3_ACCESS_KEY_ID,
+    secretAccessKey: env.S3_SECRET_ACCESS_KEY,
+    bucket: env.S3_BUCKET,
+  });
+
   const app = createApp({
     db,
     logger,
     drizzleDb: drizzleHandle.db,
     auth,
+    storage,
     multiTenancyEnabled: env.FEATURE_MULTI_TENANCY_ENABLED,
     trustedOrigins,
   });

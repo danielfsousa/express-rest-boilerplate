@@ -1,4 +1,19 @@
 export {
+  bookSchema,
+  createBookSchema,
+  deleteBookResponseSchema,
+  listBooksQuerySchema,
+  listBooksResponseSchema,
+  updateBookSchema,
+  uploadCoverResponseSchema,
+  type Book,
+  type CreateBookInput,
+  type ListBooksQuery,
+  type ListBooksResponse,
+  type UpdateBookInput,
+  type UploadCoverResponse,
+} from './books.ts';
+export {
   healthLiveResponseSchema,
   healthReadyResponseSchema,
   type HealthLiveResponse,
