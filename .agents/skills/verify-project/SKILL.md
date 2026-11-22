@@ -12,7 +12,8 @@ Climb the verification ladder for `nodejs-fullstack-starter` and record every ru
 Run the web route generator build, Vite+ format and lint check, type-aware Oxlint, TypeScript native preview (`tsrs`), and the Vitest unit, component, and Testcontainers PostgreSQL RLS integration suite with the 80% V8 coverage gate.
 
 ```bash
-pnpm run build \
+pnpm exec varlock load --agent \
+  && pnpm run build \
   && pnpm run check \
   && pnpm run lint \
   && pnpm run typecheck \

@@ -1,3 +1,4 @@
+import 'varlock/auto-load';
 import { createBirdEmulatorFetch } from '@starter/email';
 import { createLogger, createServer, onShutdown, readEnv } from '@starter/runtime';
 import { createEmulator } from 'emulate';

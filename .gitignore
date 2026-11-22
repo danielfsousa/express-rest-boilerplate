@@ -8,7 +8,9 @@ apps/web/src/routeTree.gen.ts
 *.tsbuildinfo
 .env
 .env.local
+.env.*.local
 .env.production
+!.env.schema
 logs/
 *.log
 playwright-report/

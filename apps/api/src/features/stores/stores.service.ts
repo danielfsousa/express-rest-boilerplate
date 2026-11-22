@@ -1,5 +1,5 @@
 import type { CreateStoreInput, Store, UpdateStoreInput } from '@starter/contracts';
-import { and, DEFAULT_STORE_ID, ensureDefaultStore, eq, member, organization } from '@starter/db';
+import { createStoresRepository } from '@starter/db';
 import type { Database } from '@starter/db';
 import { parseStoreMetadata } from '#/middleware/store-context.ts';
 
@@ -42,25 +42,13 @@ export async function listStoresForUser({
   userId,
   multiTenancyEnabled,
 }: ListStoresParams): Promise<Array<Store>> {
+  const storesRepo = createStoresRepository(db);
   if (!multiTenancyEnabled) {
-    await ensureDefaultStore(db);
-    const [row] = await db
-      .select()
-      .from(organization)
-      .where(eq(organization.id, DEFAULT_STORE_ID))
-      .limit(1);
+    const row = await storesRepo.findDefaultStore();
     return row ? [toStore(row, 'owner')] : [];
   }
 
-  const rows = await db
-    .select({
-      store: organization,
-      role: member.role,
-    })
-    .from(member)
-    .innerJoin(organization, eq(member.organizationId, organization.id))
-    .where(eq(member.userId, userId));
-
+  const rows = await storesRepo.listForUser(userId);
   return rows.map((item) => toStore(item.store, item.role));
 }
 
@@ -89,37 +77,19 @@ export async function createStoreForUser({
     };
   }
 
-  const [existing] = await db
-    .select({ id: organization.id })
-    .from(organization)
-    .where(eq(organization.slug, input.slug))
-    .limit(1);
-
+  const storesRepo = createStoresRepository(db);
+  const existing = await storesRepo.findBySlug(input.slug);
   if (existing) {
     return { ok: false, status: 409, error: 'Store slug already exists' };
   }
 
-  const storeId = crypto.randomUUID();
-  const memberId = crypto.randomUUID();
-  const created = await db.transaction(async (tx) => {
-    const [inserted] = await tx
-      .insert(organization)
-      .values({
-        id: storeId,
-        name: input.name,
-        slug: input.slug,
-        metadata: JSON.stringify({ lowStockThreshold: input.lowStockThreshold }),
-      })
-      .returning();
-
-    await tx.insert(member).values({
-      id: memberId,
-      organizationId: storeId,
-      userId,
-      role: 'owner',
-    });
-
-    return inserted;
+  const created = await storesRepo.createWithOwner({
+    storeId: crypto.randomUUID(),
+    memberId: crypto.randomUUID(),
+    userId,
+    name: input.name,
+    slug: input.slug,
+    metadata: JSON.stringify({ lowStockThreshold: input.lowStockThreshold }),
   });
 
   if (!created) {
@@ -140,17 +110,10 @@ export async function getStoreBySlug({
   slug,
   multiTenancyEnabled,
 }: GetStoreBySlugParams): Promise<Store | null> {
-  if (!multiTenancyEnabled) {
-    await ensureDefaultStore(db);
-    const [row] = await db
-      .select()
-      .from(organization)
-      .where(eq(organization.id, DEFAULT_STORE_ID))
-      .limit(1);
-    return row ? toStore(row) : null;
-  }
-
-  const [row] = await db.select().from(organization).where(eq(organization.slug, slug)).limit(1);
+  const storesRepo = createStoresRepository(db);
+  const row = multiTenancyEnabled
+    ? await storesRepo.findBySlug(slug)
+    : await storesRepo.findDefaultStore();
 
   return row ? toStore(row) : null;
 }
@@ -174,29 +137,17 @@ export async function updateStoreForUser({
   input,
   multiTenancyEnabled,
 }: UpdateStoreParams): Promise<UpdateStoreResult> {
-  if (!multiTenancyEnabled) {
-    await ensureDefaultStore(db);
-  }
-
-  const [target] = await db
-    .select()
-    .from(organization)
-    .where(
-      multiTenancyEnabled ? eq(organization.slug, slug) : eq(organization.id, DEFAULT_STORE_ID),
-    )
-    .limit(1);
+  const storesRepo = createStoresRepository(db);
+  const target = multiTenancyEnabled
+    ? await storesRepo.findBySlug(slug)
+    : await storesRepo.findDefaultStore();
 
   if (!target) {
     return { ok: false, status: 404, error: 'Store not found' };
   }
 
   if (multiTenancyEnabled) {
-    const [membership] = await db
-      .select()
-      .from(member)
-      .where(and(eq(member.organizationId, target.id), eq(member.userId, userId)))
-      .limit(1);
-
+    const membership = await storesRepo.findMembership(target.id, userId);
     if (!membership || membership.role !== 'owner') {
       return { ok: false, status: 403, error: 'Owner role required' };
     }
@@ -207,18 +158,12 @@ export async function updateStoreForUser({
     lowStockThreshold: input.lowStockThreshold ?? currentMeta.lowStockThreshold,
   };
 
-  const patch: Partial<typeof organization.$inferInsert> = {
-    metadata: JSON.stringify(nextMeta),
-  };
-  if (input.name !== undefined) {
-    patch.name = input.name;
-  }
-
-  const [updated] = await db
-    .update(organization)
-    .set(patch)
-    .where(eq(organization.id, target.id))
-    .returning();
+  const updated = await storesRepo.updateById(
+    target.id,
+    input.name !== undefined
+      ? { metadata: JSON.stringify(nextMeta), name: input.name }
+      : { metadata: JSON.stringify(nextMeta) },
+  );
 
   if (!updated) {
     return { ok: false, status: 404, error: 'Store not found' };

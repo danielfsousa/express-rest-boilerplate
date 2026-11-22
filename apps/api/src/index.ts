@@ -1,3 +1,4 @@
+import 'varlock/auto-load';
 import { createDb, ensureDefaultStore } from '@starter/db';
 import { createBirdMailer } from '@starter/email';
 import {

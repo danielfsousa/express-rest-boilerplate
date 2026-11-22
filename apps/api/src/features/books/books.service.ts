@@ -5,7 +5,16 @@ import type {
   ListBooksResponse,
   UpdateBookInput,
 } from '@starter/contracts';
-import { and, books, eq, ilike, or, sql, withStoreContext } from '@starter/db';
+import {
+  and,
+  books,
+  createBooksRepository,
+  eq,
+  ilike,
+  or,
+  sql,
+  withStoreContext,
+} from '@starter/db';
 import type { Database } from '@starter/db';
 import type { ObjectStorage } from '@starter/runtime/storage';
 import type { ResolvedStoreContext } from '#/middleware/store-context.ts';
@@ -129,22 +138,17 @@ export async function createBookForStore({
   }
 
   try {
-    const [created] = await withStoreContext(db, store.id, async (tx) =>
-      tx
-        .insert(books)
-        .values({
-          storeId: store.id,
-          sku: input.sku,
-          title: input.title,
-          author: input.author,
-          description: input.description,
-          priceCents: input.priceCents,
-          currency: input.currency,
-          stock: input.stock,
-          published: input.published,
-        })
-        .returning(),
-    );
+    const booksRepo = createBooksRepository(db, store.id);
+    const created = await booksRepo.create({
+      sku: input.sku,
+      title: input.title,
+      author: input.author,
+      description: input.description,
+      priceCents: input.priceCents,
+      currency: input.currency,
+      stock: input.stock,
+      published: input.published,
+    });
 
     if (!created) {
       return { ok: false, status: 409, error: 'Could not create book' };
@@ -169,13 +173,8 @@ export interface GetBookParams {
 }
 
 export async function getBookForStore({ db, store, bookId }: GetBookParams): Promise<Book | null> {
-  const [row] = await withStoreContext(db, store.id, async (tx) =>
-    tx
-      .select()
-      .from(books)
-      .where(and(eq(books.id, bookId), eq(books.storeId, store.id)))
-      .limit(1),
-  );
+  const booksRepo = createBooksRepository(db, store.id);
+  const row = await booksRepo.findById(bookId);
 
   if (!row || (!store.isMember && !row.published)) {
     return null;
@@ -242,13 +241,8 @@ export async function updateBookForStore({
   }
 
   try {
-    const [updated] = await withStoreContext(db, store.id, async (tx) =>
-      tx
-        .update(books)
-        .set(patch)
-        .where(and(eq(books.id, bookId), eq(books.storeId, store.id)))
-        .returning(),
-    );
+    const booksRepo = createBooksRepository(db, store.id);
+    const updated = await booksRepo.updateById(bookId, patch);
 
     if (!updated) {
       return { ok: false, status: 404, error: 'Book not found' };
@@ -279,12 +273,8 @@ export async function deleteBookForStore({
   bookId,
   storage,
 }: DeleteBookParams): Promise<boolean> {
-  const [deleted] = await withStoreContext(db, store.id, async (tx) =>
-    tx
-      .delete(books)
-      .where(and(eq(books.id, bookId), eq(books.storeId, store.id)))
-      .returning({ id: books.id, coverKey: books.coverKey }),
-  );
+  const booksRepo = createBooksRepository(db, store.id);
+  const deleted = await booksRepo.deleteById(bookId);
 
   if (!deleted) {
     return false;
@@ -351,12 +341,8 @@ export async function uploadBookCover({
     contentType: file.type,
   });
 
-  await withStoreContext(db, store.id, async (tx) =>
-    tx
-      .update(books)
-      .set({ coverKey, updatedAt: new Date() })
-      .where(and(eq(books.id, bookId), eq(books.storeId, store.id))),
-  );
+  const booksRepo = createBooksRepository(db, store.id);
+  await booksRepo.updateById(bookId, { coverKey, updatedAt: new Date() });
 
   if (existing.coverKey && existing.coverKey !== coverKey) {
     await storage.deleteObject(existing.coverKey);

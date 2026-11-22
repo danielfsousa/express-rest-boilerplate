@@ -1,6 +1,6 @@
 import { storeMetadataSchema } from '@starter/contracts';
 import type { StoreMetadata } from '@starter/contracts';
-import { and, DEFAULT_STORE_ID, ensureDefaultStore, eq, member, organization } from '@starter/db';
+import { createStoresRepository } from '@starter/db';
 import type { Database } from '@starter/db';
 import { getSessionUser } from '../features/auth/auth.service.ts';
 import type { AuthInstance } from '../features/auth/auth.service.ts';
@@ -74,24 +74,10 @@ export async function resolveStoreContext({
   userId,
   multiTenancyEnabled,
 }: ResolveStoreContextParams): Promise<ResolvedStoreContext | null> {
-  if (!multiTenancyEnabled) {
-    await ensureDefaultStore(db);
-  }
-
-  const [store] = await db
-    .select({
-      id: organization.id,
-      slug: organization.slug,
-      name: organization.name,
-      metadata: organization.metadata,
-    })
-    .from(organization)
-    .where(
-      multiTenancyEnabled
-        ? eq(organization.slug, storeSlug)
-        : eq(organization.id, DEFAULT_STORE_ID),
-    )
-    .limit(1);
+  const storesRepo = createStoresRepository(db);
+  const store = multiTenancyEnabled
+    ? await storesRepo.findBySlug(storeSlug)
+    : await storesRepo.findDefaultStore();
 
   if (!store) {
     return null;
@@ -121,18 +107,14 @@ export async function resolveStoreContext({
     };
   }
 
-  const [membership] = await db
-    .select({ id: member.id, role: member.role })
-    .from(member)
-    .where(and(eq(member.organizationId, store.id), eq(member.userId, userId)))
-    .limit(1);
+  const membership = await storesRepo.findMembership(store.id, userId);
 
   return {
     id: store.id,
     slug: store.slug,
     name: store.name,
     lowStockThreshold: metadata.lowStockThreshold,
-    isMember: membership !== undefined,
+    isMember: membership !== null,
     memberRole: membership?.role ?? null,
   };
 }

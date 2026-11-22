@@ -15,6 +15,7 @@ export default defineConfig({
     '**/.output/**',
     '**/routeTree.gen.ts',
     'packages/i18n/src/paraglide/**',
+    'env.d.ts',
   ],
   overrides: [
     ...(cloudflare.overrides ?? []),

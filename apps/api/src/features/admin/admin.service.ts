@@ -8,12 +8,14 @@ import type {
 import {
   and,
   books,
+  createStoresRepository,
+  createSubscriptionsRepository,
+  createUsersRepository,
   desc,
   eq,
   member,
   orders,
   organization,
-  session,
   sql,
   subscription,
   user,
@@ -129,38 +131,18 @@ export async function updateAdminStorePlan({
   storeSlug,
   input,
 }: UpdateAdminStorePlanParams): Promise<AdminStoreSummary | null> {
-  const [storeRow] = await db
-    .select()
-    .from(organization)
-    .where(eq(organization.slug, storeSlug))
-    .limit(1);
-
+  const storesRepo = createStoresRepository(db);
+  const storeRow = await storesRepo.findBySlug(storeSlug);
   if (!storeRow) {
     return null;
   }
 
-  const [existingSub] = await db
-    .select()
-    .from(subscription)
-    .where(eq(subscription.referenceId, storeRow.id))
-    .limit(1);
-
-  if (existingSub) {
-    await db
-      .update(subscription)
-      .set({
-        plan: input.plan,
-        status: input.status,
-      })
-      .where(eq(subscription.id, existingSub.id));
-  } else {
-    await db.insert(subscription).values({
-      id: crypto.randomUUID(),
-      plan: input.plan,
-      referenceId: storeRow.id,
-      status: input.status,
-    });
-  }
+  const subsRepo = createSubscriptionsRepository(db);
+  await subsRepo.upsertForStore({
+    storeId: storeRow.id,
+    plan: input.plan,
+    status: input.status,
+  });
 
   return await buildAdminStoreSummary(db, storeRow);
 }
@@ -190,7 +172,8 @@ export async function updateAdminUser({
     };
   }
 
-  const [existing] = await db.select().from(user).where(eq(user.id, userId)).limit(1);
+  const usersRepo = createUsersRepository(db);
+  const existing = await usersRepo.findById(userId);
   if (!existing) {
     return { ok: false, status: 404, error: 'User not found' };
   }
@@ -212,13 +195,13 @@ export async function updateAdminUser({
     patch.banReason = input.banReason;
   }
 
-  const [updated] = await db.update(user).set(patch).where(eq(user.id, userId)).returning();
+  const updated = await usersRepo.updateById(userId, patch);
   if (!updated) {
     return { ok: false, status: 404, error: 'User not found' };
   }
 
   if (input.banned === true) {
-    await db.delete(session).where(eq(session.userId, userId));
+    await usersRepo.deleteSessionsForUser(userId);
   }
 
   return { ok: true, user: await buildAdminUserSummary(db, updated) };

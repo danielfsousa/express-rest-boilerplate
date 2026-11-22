@@ -1,3 +1,4 @@
+import 'varlock/auto-load';
 import { createDb } from '@starter/db';
 import { createBirdMailer } from '@starter/email';
 import { createPgBossJobQueue, registerDefaultJobHandlers } from '@starter/jobs';

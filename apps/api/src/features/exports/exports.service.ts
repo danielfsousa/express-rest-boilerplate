@@ -1,12 +1,23 @@
 import type { StoreExport } from '@starter/contracts';
 import { storeExportStatusSchema } from '@starter/contracts';
-import { and, desc, eq, storeExports, withStoreContext } from '@starter/db';
+import { createExportsRepository } from '@starter/db';
 import type { Database } from '@starter/db';
 import { JOB_NAMES } from '@starter/jobs';
 import type { JobQueue } from '@starter/jobs';
 import type { ResolvedStoreContext } from '#/middleware/store-context.ts';
 
-function toStoreExport(row: typeof storeExports.$inferSelect, storeSlug: string): StoreExport {
+function toStoreExport(
+  row: {
+    id: string;
+    storeId: string;
+    requestedByUserId: string;
+    status: string;
+    fileKey: string | null;
+    createdAt: Date;
+    completedAt: Date | null;
+  },
+  storeSlug: string,
+): StoreExport {
   const status = storeExportStatusSchema.parse(row.status);
   return {
     id: row.id,
@@ -36,17 +47,8 @@ export async function createBooksExportForStore({
   userId,
   jobQueue,
 }: CreateBooksExportParams): Promise<StoreExport> {
-  const [inserted] = await withStoreContext(db, store.id, async (tx) =>
-    tx
-      .insert(storeExports)
-      .values({
-        storeId: store.id,
-        requestedByUserId: userId,
-        status: 'queued',
-      })
-      .returning(),
-  );
-
+  const exportsRepo = createExportsRepository(db, store.id);
+  const inserted = await exportsRepo.create(userId);
   if (!inserted) {
     throw new Error('Failed to create export record');
   }
@@ -61,14 +63,7 @@ export async function createBooksExportForStore({
     });
   }
 
-  const [latest] = await withStoreContext(db, store.id, async (tx) =>
-    tx
-      .select()
-      .from(storeExports)
-      .where(and(eq(storeExports.id, inserted.id), eq(storeExports.storeId, store.id)))
-      .limit(1),
-  );
-
+  const latest = await exportsRepo.findById(inserted.id);
   return toStoreExport(latest ?? inserted, store.slug);
 }
 
@@ -81,15 +76,8 @@ export async function listExportsForStore({
   db,
   store,
 }: ListExportsParams): Promise<Array<StoreExport>> {
-  const rows = await withStoreContext(db, store.id, async (tx) =>
-    tx
-      .select()
-      .from(storeExports)
-      .where(eq(storeExports.storeId, store.id))
-      .orderBy(desc(storeExports.createdAt))
-      .limit(25),
-  );
-
+  const exportsRepo = createExportsRepository(db, store.id);
+  const rows = await exportsRepo.list(25);
   return rows.map((row) => toStoreExport(row, store.slug));
 }
 
@@ -104,13 +92,7 @@ export async function getExportForStore({
   store,
   exportId,
 }: GetExportParams): Promise<StoreExport | null> {
-  const [row] = await withStoreContext(db, store.id, async (tx) =>
-    tx
-      .select()
-      .from(storeExports)
-      .where(and(eq(storeExports.id, exportId), eq(storeExports.storeId, store.id)))
-      .limit(1),
-  );
-
+  const exportsRepo = createExportsRepository(db, store.id);
+  const row = await exportsRepo.findById(exportId);
   return row ? toStoreExport(row, store.slug) : null;
 }

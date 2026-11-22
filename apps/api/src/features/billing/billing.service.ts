@@ -1,5 +1,5 @@
 import type { Order, StoreBillingSummary, UpgradeStoreResponse } from '@starter/contracts';
-import { and, books, eq, sql, subscription, withStoreContext } from '@starter/db';
+import { createBooksRepository, createSubscriptionsRepository } from '@starter/db';
 import type { Database } from '@starter/db';
 import type { JobQueue } from '@starter/jobs';
 import type { RealtimeBroker } from '@starter/runtime/realtime';
@@ -56,16 +56,7 @@ export function createStripeClient(options: CreateStripeClientOptions): Stripe {
   return new Stripe(options.secretKey);
 }
 
-async function findActiveSubscription(db: Database, storeId: string) {
-  const [sub] = await db
-    .select()
-    .from(subscription)
-    .where(eq(subscription.referenceId, storeId))
-    .limit(1);
-  return sub ?? null;
-}
-
-function resolvePlan(sub: typeof subscription.$inferSelect | null) {
+function resolvePlan(sub: { plan: string; status: string } | null) {
   if (sub && sub.plan === 'pro' && (sub.status === 'active' || sub.status === 'trialing')) {
     return { plan: 'pro' as const, status: sub.status };
   }
@@ -76,20 +67,18 @@ export async function getStoreBillingSummary(
   db: Database,
   storeId: string,
 ): Promise<StoreBillingSummary> {
-  const sub = await findActiveSubscription(db, storeId);
+  const subsRepo = createSubscriptionsRepository(db);
+  const booksRepo = createBooksRepository(db, storeId);
+  const [sub, publishedBookCount] = await Promise.all([
+    subsRepo.findByStoreId(storeId),
+    booksRepo.countPublished(),
+  ]);
   const { plan, status } = resolvePlan(sub);
-
-  const [countRow] = await withStoreContext(db, storeId, async (tx) =>
-    tx
-      .select({ count: sql<number>`count(*)::int` })
-      .from(books)
-      .where(and(eq(books.storeId, storeId), eq(books.published, true))),
-  );
 
   return {
     plan,
     status,
-    publishedBookCount: countRow?.count ?? 0,
+    publishedBookCount,
     bookLimit: plan === 'free' ? FREE_PLAN_PUBLISHED_BOOK_LIMIT : null,
     stripeCustomerId: sub?.stripeCustomerId ?? null,
     stripeSubscriptionId: sub?.stripeSubscriptionId ?? null,
@@ -130,33 +119,19 @@ export async function upgradeStoreSubscription(params: {
     metadata: { storeId: params.storeId },
   });
 
-  const existing = await findActiveSubscription(params.db, params.storeId);
-  const subId = existing?.id ?? crypto.randomUUID();
   const stripeSub = await params.stripe.subscriptions.create({
     customer: customer.id,
     items: [{ price: params.proPriceId }],
   });
 
-  if (existing) {
-    await params.db
-      .update(subscription)
-      .set({
-        plan: 'pro',
-        status: 'active',
-        stripeCustomerId: customer.id,
-        stripeSubscriptionId: stripeSub.id,
-      })
-      .where(eq(subscription.id, existing.id));
-  } else {
-    await params.db.insert(subscription).values({
-      id: subId,
-      plan: 'pro',
-      referenceId: params.storeId,
-      stripeCustomerId: customer.id,
-      stripeSubscriptionId: stripeSub.id,
-      status: 'active',
-    });
-  }
+  const subsRepo = createSubscriptionsRepository(params.db);
+  await subsRepo.upsertForStore({
+    storeId: params.storeId,
+    plan: 'pro',
+    status: 'active',
+    stripeCustomerId: customer.id,
+    stripeSubscriptionId: stripeSub.id,
+  });
 
   return {
     plan: 'pro',

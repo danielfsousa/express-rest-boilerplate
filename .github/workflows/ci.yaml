@@ -18,6 +18,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Validate Varlock environment schema
+        run: pnpm exec varlock load --agent
+
       - name: Build i18n and web app
         run: pnpm run build
 

@@ -23,6 +23,7 @@
     "better-auth": "^1.7.27",
     "hono": "^4.13.20",
     "stripe": "^23.2.0",
+    "varlock": "^1.25.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {

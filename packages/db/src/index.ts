@@ -2,6 +2,13 @@ export { and, desc, eq, gte, ilike, inArray, or, sql } from 'drizzle-orm';
 export { createDb, migrateDb, type Database, type DatabaseTransaction } from './client.ts';
 export { withStoreContext } from './context.ts';
 export { relations } from './relations.ts';
+export {
+  createBooksRepository,
+  createExportsRepository,
+  createStoresRepository,
+  createSubscriptionsRepository,
+  createUsersRepository,
+} from './repositories.ts';
 export * from './schema/index.ts';
 export {
   DEFAULT_STORE_ID,

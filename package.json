@@ -24,6 +24,8 @@
     "check:fix": "vp check --fix",
     "lint": "TSRS_FAST=1 oxlint --type-aware --type-check",
     "typecheck": "tsrs --noEmit --fast",
+    "env:check": "varlock load",
+    "env:scan": "varlock scan",
     "test": "vp test run",
     "test:cov": "vp test run --coverage",
     "test:e2e": "playwright test",
@@ -42,6 +44,7 @@
     "oxlint": "^1.94.0",
     "tsrs": "7.1.0-beta.tsrs4",
     "typescript": "^5.8.0",
+    "varlock": "^1.25.0",
     "vite-plus": "^1.7.0"
   },
   "engines": {
