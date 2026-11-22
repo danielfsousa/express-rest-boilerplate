@@ -1,204 +1,175 @@
-# express-rest-boilerplate
+# nodejs-fullstack-starter
 
-![CI](https://github.com/danielfsousa/express-rest-boilerplate/actions/workflows/ci.yaml/badge.svg?branch=main)
-[![codecov](https://codecov.io/gh/danielfsousa/express-rest-boilerplate/branch/main/graph/badge.svg?token=oSbnKr4vBP)](https://codecov.io/gh/danielfsousa/express-rest-boilerplate)
-[![swagger](https://img.shields.io/badge/docs-swagger-green)](https://express-rest-boilerplate.onrender.com/docs)
+![CI](https://github.com/danielfsousa/nodejs-fullstack-starter/actions/workflows/ci.yaml/badge.svg?branch=main)
+![Release](https://github.com/danielfsousa/nodejs-fullstack-starter/actions/workflows/release.yaml/badge.svg?branch=main)
 
-A Boilerplate/Generator/Starter template for building RESTful APIs and microservices using modern Javascript, Node.js, Express and MongoDB.
+`nodejs-fullstack-starter` is a full-stack TypeScript monorepo starter built around a multi-tenant bookstore domain (`Store`, `Merchant`, `Customer`, `Book`, `Order`, `Subscription`). Every subsystem outside the core catalog and checkout loop is gated behind an environment flag and lives in its own directory so you can disable or delete what your application does not use.
 
-This is a highly opinionated and fully featured starter template, if you don't need some feature or dependency, just delete it.
+## Stack overview
 
-Swagger: https://express-rest-boilerplate.onrender.com/docs
+- **Runtime and package manager.** Node.js 26 (native TypeScript execution) or Bun via `@starter/runtime` conditional exports, managed by `mise` and `pnpm` 12 workspaces.
+- **Toolchain.** Vite+ (`vp`), Oxlint (`--type-aware --type-check` with `@cloudflare/oxlint-config`), Oxfmt, TypeScript 7 native preview (`tsrs`), and Lefthook.
+- **API (`apps/api`).** Hono with `@hono/zod-openapi` and Scalar API Reference at `/docs`, `better-auth` (Organization plugin for multi-tenant stores and Stripe plugin for billing), Pino structured logging, and OpenTelemetry OTLP export.
+- **Web (`apps/web`).** React 19, TanStack Start, TanStack Router, TanStack Query, TanStack Form, TanStack Store, Tailwind CSS v4, Astryx editorial components, and Paraglide JS (`en` and `pt`).
+- **Worker (`apps/worker`).** Standalone `pg-boss` background job consumer for transactional emails, Stripe webhook processing, and S3 or R2 CSV exports.
+- **Database (`packages/db`).** PostgreSQL 18, Drizzle ORM 1.0, `better-drizzle`, and database-enforced Row-Level Security (RLS) on tenant tables (`books`, `orders`, `order_items`, `subscriptions`).
+- **Cloud and emulators.** Floci (local S3 and Cloudflare R2 emulator), `vercel-labs/emulate` (local Stripe API and webhook emulator), and a built-in Bird.com HTTP email emulator.
 
-## Table of Contents
+## Repository layout
 
-- [express-rest-boilerplate](#express-rest-boilerplate)
-  - [Table of Contents](#table-of-contents)
-  - [Requirements](#requirements)
-  - [Features](#features)
-  - [Getting Started](#getting-started)
-    - [With a Node Version Manager](#with-a-node-version-manager)
-    - [With Github](#with-github)
-    - [With Docker Compose](#with-docker-compose)
-  - [Folder Structure](#folder-structure)
-  - [Scripts](#scripts)
-  - [Environment Variables](#environment-variables)
-
-## Requirements
-
-- [Node.js v20+](https://nodejs.org/en/download/) or [Docker](https://www.docker.com/)
-
-## Features
-
-- No transpilers, just vanilla javascript
-- Node.js v20 and ES2024 latest features
-- [ECMAScript modules](https://nodejs.org/api/esm.html#modules-ecmascript-modules) and import aliases
-- Code completion and optional type checking with [JSDoc](https://code.visualstudio.com/docs/languages/javascript#_jsdoc-support)
-- Structured logs with [pino](https://github.com/pinojs/pino)
-- Metrics with [Prometheus](https://github.com/siimon/prom-client) client
-- [OpenTelemetry](https://opentelemetry.io/) auto instrumentation for traces, metrics and logs.
-- Linting and formatting with [eslint](https://github.com/eslint/eslint) and [prettier](https://github.com/prettier/prettier)
-- API documentation with [OpenAPI v3](https://swagger.io/specification/) and [Swagger UI](https://swagger.io/tools/swagger-ui/)
-- Request validation based on OpenAPI definition with [openapi-validator-middleware](https://github.com/PayU/openapi-validator-middleware)
-- Health checks and gracefull shutdown with [Terminus](https://github.com/godaddy/terminus)
-- MongoDB ORM with [Mongoose](https://mongoosejs.com/)
-- [Docker](https://www.docker.com/) with [multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build/) and [distroless](https://github.com/GoogleContainerTools/distroless) base image for production builds
-- [Docker compose](https://docs.docker.com/compose/) file for easy setup, including observability tools (Grafana, Loki, Tempo and Prometheus)
-- Load environment variables from .env files with Node's [--env-file](https://nodejs.org/en/learn/command-line/how-to-read-environment-variables-from-nodejs) flag
-- Unit and integration tests with [Vitest](https://vitest.dev/) and [Supertest](https://github.com/visionmedia/supertest)
-- Code coverage with [Codecov](https://about.codecov.io/) github action
-- Git pre-commit hooks with [husky](https://github.com/typicode/husky) and [lint-staged](https://github.com/okonet/lint-staged)
-- Authentication and Authorization with [passport](http://passportjs.org)
-- Automatic error handling for express asynchronous routes with [express-async-errors](https://github.com/davidbanham/express-async-errors)
-- CI/CD with [Github Actions](https://github.com/features/actions)
-- Auto reload with [node's watch mode](https://nodejs.org/dist/latest-v20.x/docs/api/cli.html#--watch)
-- Server and tests debugging with [VSCode's debugger](https://code.visualstudio.com/docs/editor/debugging)
-- [Dependabot](https://docs.github.com/pt/code-security/dependabot/dependabot-security-updates/configuring-dependabot-security-updates) configuration file for automatic dependency updates
-- CORS configuration
-
-## Getting Started
-
-### With a Node Version Manager
-
-1. Install Node.JS v20. You can use a node version manager like [fnm](https://github.com/Schniz/fnm).
-
-```bash
-fnm install
-fnm use
+```text
+├── apps
+│   ├── api          # Hono OpenAPI server, better-auth, WebSockets, and feature slices
+│   ├── web          # TanStack Start frontend, Astryx UI primitives, and Paraglide i18n
+│   └── worker       # Standalone pg-boss consumer for email, webhooks, and CSV exports
+├── packages
+│   ├── contracts    # Shared Zod schemas, feature flags, and typed API client
+│   ├── db           # Drizzle ORM 1.0 schema, PostgreSQL RLS helper, migrations, and seed
+│   ├── email        # React Email templates, Bird.com client, and local email emulator
+│   ├── i18n         # Paraglide JS message catalogs (en, pt) and compiler output
+│   ├── jobs         # JobQueue interface, pg-boss adapter, and inline test queue
+│   └── runtime      # Node.js 26, Bun, and Cloudflare free-tier runtime adapters
+├── infra
+│   └── terraform    # HCP Terraform configuration for Neon, Cloudflare R2 and Workers, and Render
+├── docs
+│   ├── adr          # Architecture Decision Records (ADR-0001 through ADR-0009)
+│   ├── guides       # Style guide, module removal guide, and deployment cutover runbook
+│   ├── intents      # Project intent
+│   └── specs        # Full v2 build specification
+├── e2e              # Playwright browser suite
+├── scripts          # Local Stripe and Bird.com emulator runner
+├── compose.yaml     # Local Postgres 18, Floci S3 emulator, and opt-in grafana/otel-lgtm
+└── Dockerfile       # Multi-stage platformatic/node-caged:26-slim build for api and worker
 ```
 
-2. Download the template and install the dependencies.
+## Quickstart
+
+1. Install the pinned Node.js 26 and `pnpm` 12 toolchain with `mise`, then install dependencies.
 
 ```bash
-# with npm
-npm init @danielfsousa express-rest my-api
-
-# with yarn
-yarn create @danielfsousa express-rest my-api
-
-# with pnpm
-pnpm create @danielfsousa express-rest my-api
-
-# with bun
-bun create @danielfsousa express-rest my-api
-```
-
-3. Change .env database credentials
-
-```bash
+mise install
+pnpm install
 cp .env.example .env
-vim .env
 ```
 
-4. Run server in development mode. The server will restart everytime a file is changed.
+2. Start PostgreSQL 18 and the Floci S3 emulator.
 
 ```bash
-# with npm
-npm run dev
-
-# with yarn
-yarn dev
-
-# with pnpm
-pnpm dev
-
-# with bun
-bun dev
+docker compose up -d
 ```
 
-### With Github
-
-In github you can click on `Use this template` to create a new repository based on this template.
-
-Then, you can clone the template, install the dependencies and follow steps 3 and 4.
+3. Apply the Drizzle schema and seed the demo store (`acme-books`), sample books, and demo accounts.
 
 ```bash
-git clone git@github.com:<username>/<repo>.git
-cd <repo>
-npm install
+pnpm --filter @starter/db db:push
+pnpm --filter @starter/db db:seed
 ```
 
-### With Docker Compose
-
-You can use docker to spin up the server and the mongo database.
+4. Start the local Stripe and Bird.com emulators in one terminal, and run the API, Web, and Worker apps in another.
 
 ```bash
-docker compose up
+pnpm run dev:emulators
 ```
 
-This template also includes examples of some popular observality (o11y) tools to store logs, metrics and traces. You can start Loki, Grafana, Tempo and Prometheus using docker.
+```bash
+pnpm run dev:api
+pnpm run dev:web
+pnpm run dev:worker
+```
 
-Make sure to set the following environment variables:
+If you use `portless`, start the entire stack under named `.localhost` subdomains instead:
 
 ```bash
-LOG_FORMAT=json
+portless compose up -d
+pnpm run dev
+```
+
+Once running, open these endpoints:
+
+- Storefront and Merchant dashboard: `http://127.0.0.1:3000`
+- Scalar OpenAPI documentation: `http://127.0.0.1:3001/docs`
+- OpenAPI 3.1 JSON specification: `http://127.0.0.1:3001/openapi.json`
+- Bird.com email emulator inbox: `http://127.0.0.1:4010/messages`
+- Stripe emulator server: `http://127.0.0.1:4009`
+
+## Local observability (`--profile o11y`)
+
+To inspect distributed traces, metrics, and trace-correlated Pino logs locally, enable OpenTelemetry in `.env` and start the `o11y` Compose profile (`grafana/otel-lgtm`).
+
+```bash
 OTEL_ENABLED=true
+LOG_FORMAT=json
+OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:4318
 ```
-
-and run docker compose passing the `o11y` profile tag.
 
 ```bash
-docker compose --profile o11y up
+docker compose --profile o11y up -d
 ```
 
-Now all your logs, metrics and traces can be visualized in Grafana.
-
-A standard dashboard for the application is automatically created, now go to http://localhost:3000/dashboards to open Grafana and click on the `express-rest-boilerplate` dashboard under `General`.
-
-To learn how to search for logs and traces in Grafana, take a look at the [documentation](https://grafana.com/docs/grafana/latest/explore).
-
-## Folder Structure
-
-```bash
-├── config  # configuration files for docker compose containers
-├── bin     # command-line entrypoints
-├── src     # source code
-│   ├── controllers  # app controllers
-│   ├── enums        # enums
-│   ├── errors       # project wide error classes
-│   ├── lib          # configures and reexports libraries
-│   ├── middlewares  # express middlewares
-│   ├── models       # mongoose models
-│   ├── routes       # api routes
-│   ├── services     # bussines logic
-│   ├── templates    # email templates
-│   ├── validations  # TODO: remove folder
-│   ├── main.js      # server entrypoint
-│   └── config.js    # configuration object from environment variables
-└── test             # tests
-    ├── integration  # integration tests
-    └── unit         # unit tests
-
-```
+Open Grafana at `http://127.0.0.1:3005` (`admin` and `admin`) to query Loki logs, Tempo traces, and Prometheus metrics.
 
 ## Scripts
 
-```bash
-npm run lint       # lints code and check formatting
-npm run lint:fix   # lints code, check formatting and tries to fix found problems
-npm run start      # starts server
-npm run dev        # starts server in watch mode, waiting for file changes
-npm run test       # runn all tests in watch mode, waiting for file changes
-npm run test:cov   # runn all tests and report coverage
-npm run validate   # runs lint and test scripts for files on git's staging area
-```
+| Command                  | Description                                                            |
+| ------------------------ | ---------------------------------------------------------------------- |
+| `pnpm run dev`           | Start development processes through `portless`                         |
+| `pnpm run dev:api`       | Start the Hono API server (`apps/api`) in watch mode                   |
+| `pnpm run dev:web`       | Start the TanStack Start web app (`apps/web`) on port `3000`           |
+| `pnpm run dev:worker`    | Start the `pg-boss` worker (`apps/worker`) in watch mode               |
+| `pnpm run dev:emulators` | Start the local Stripe (`:4009`) and Bird.com (`:4010`) emulators      |
+| `pnpm run build`         | Build every workspace package and application                          |
+| `pnpm run check`         | Run Vite+ format, lint, and type verification (`vp check`)             |
+| `pnpm run check:fix`     | Format and autofix workspace files (`vp check --fix`)                  |
+| `pnpm run lint`          | Run type-aware Oxlint (`TSRS_FAST=1 oxlint --type-aware --type-check`) |
+| `pnpm run typecheck`     | Run TypeScript native preview checker (`tsrs --noEmit --fast`)         |
+| `pnpm run test`          | Run unit, component, and Testcontainers Postgres RLS integration tests |
+| `pnpm run test:cov`      | Run the test suite and enforce the 80% V8 coverage threshold           |
+| `pnpm run test:e2e`      | Run the Playwright end-to-end browser suite                            |
 
-## Environment Variables
+## Environment variables
 
-| Name                          | Type                                             | Description                             |
-| ----------------------------- | ------------------------------------------------ | --------------------------------------- |
-| NODE_ENV                      | production \| development \| test                | NodeJS environment                      |
-| PORT                          | Number                                           | Server port to listen for requests      |
-| LOG_FORMAT                    | json \| pretty                                   | Format of logs                          |
-| LOG_LEVEL                     | trace \| debug \| info \| warn \| error \| fatal | Logs below this level will be discarded |
-| LOG_DATABASE_QUERIES          | Boolean                                          | Should log database queries?            |
-| OTEL_ENABLED                  | Boolean                                          | Enable OpenTelemetry                    |
-| OTEL_SERVICE_NAME             | String                                           | Name of the service                     |
-| OTEL_EXPORTER_JAEGER_ENDPOINT | String                                           | Jaegar export endpoint for traces       |
-| JWT_SECRET                    | String                                           | JWT key for authn                       |
-| JWT_EXPIRATION_MINUTES        | Number                                           | JWT expiration duration in minutes      |
-| MONGO_URI                     | String                                           | MongoDB URI                             |
-| EMAIL_PORT                    | Number                                           | SMTP port                               |
-| EMAIL_HOST                    | String                                           | SMTP server host for sending emails     |
-| EMAIL_USERNAME                | String                                           | SMTP server username                    |
-| EMAIL_PASSWORD                | String                                           | SMTP server password                    |
+| Variable                        | Default                                            | Description                                                                              |
+| ------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `NODE_ENV`                      | `development`                                      | Runtime environment (`development`, `test`, or `production`)                             |
+| `HOST`                          | `127.0.0.1`                                        | Bind address for the API HTTP and WebSocket server                                       |
+| `PORT`                          | `3001`                                             | Listen port for the API server                                                           |
+| `LOG_LEVEL`                     | `info`                                             | Pino minimum log level (`trace`, `debug`, `info`, `warn`, `error`, `fatal`)              |
+| `LOG_FORMAT`                    | `pretty`                                           | Log output format (`pretty` or `json`)                                                   |
+| `OTEL_ENABLED`                  | `false`                                            | Export OpenTelemetry traces and metrics to `OTEL_EXPORTER_OTLP_ENDPOINT`                 |
+| `OTEL_EXPORTER_OTLP_ENDPOINT`   | `http://127.0.0.1:4318`                            | Base URL for the OTLP HTTP collector (`otel-lgtm` or Grafana Cloud)                      |
+| `OTEL_EXPORTER_OTLP_HEADERS`    | empty                                              | Optional comma-separated `key=value` headers for Grafana Cloud OTLP auth                 |
+| `DATABASE_URL`                  | `postgres://app_user:...@127.0.0.1:5432/bookstore` | Application connection string (`NOSUPERUSER NOBYPASSRLS`)                                |
+| `DATABASE_DIRECT_URL`           | `postgres://app_user:...@127.0.0.1:5432/bookstore` | Non-pooled connection string for PostgreSQL `LISTEN` and `NOTIFY`                        |
+| `DATABASE_ADMIN_URL`            | `postgres://postgres:...@127.0.0.1:5432/bookstore` | Schema owner connection string for Drizzle migrations                                    |
+| `WORKER_INLINE`                 | `false`                                            | Run background jobs in-process inside the API instead of a separate worker               |
+| `BETTER_AUTH_SECRET`            | dev secret                                         | Signing secret for `better-auth` sessions (minimum 32 characters)                        |
+| `BETTER_AUTH_URL`               | `http://127.0.0.1:3001`                            | Public base URL of the authentication server                                             |
+| `WEB_ORIGIN`                    | `http://127.0.0.1:3000`                            | Allowed CORS origin and redirect target for the web app                                  |
+| `S3_ENDPOINT`                   | `http://127.0.0.1:4566`                            | S3 or Cloudflare R2 endpoint URL (Floci locally)                                         |
+| `S3_REGION`                     | `us-east-1`                                        | S3 region (`auto` on Cloudflare R2)                                                      |
+| `S3_ACCESS_KEY_ID`              | `test`                                             | S3 or R2 access key ID                                                                   |
+| `S3_SECRET_ACCESS_KEY`          | `test`                                             | S3 or R2 secret access key                                                               |
+| `S3_BUCKET`                     | `bookstore-media`                                  | Bucket name for book cover uploads and CSV exports                                       |
+| `BIRD_API_BASE_URL`             | `http://127.0.0.1:4010`                            | Bird.com API base URL (points to local emulator in development)                          |
+| `BIRD_API_KEY`                  | `local-bird-dev-key`                               | Bird.com API bearer token                                                                |
+| `BIRD_FROM_EMAIL`               | `noreply@bookstore.local`                          | Sender address for transactional emails                                                  |
+| `STRIPE_SECRET_KEY`             | `sk_test_local_emulate`                            | Stripe secret key                                                                        |
+| `STRIPE_WEBHOOK_SECRET`         | `whsec_local_emulate`                              | Stripe webhook signing secret                                                            |
+| `STRIPE_API_HOST`               | `127.0.0.1`                                        | Optional Stripe API host override for `vercel-labs/emulate`                              |
+| `STRIPE_API_PORT`               | `4009`                                             | Optional Stripe API port override for `vercel-labs/emulate`                              |
+| `STRIPE_API_PROTOCOL`           | `http`                                             | Protocol for the Stripe API host (`http` or `https`)                                     |
+| `STRIPE_PRO_PRICE_ID`           | `price_pro_monthly`                                | Stripe recurring Price ID for the Pro store subscription plan                            |
+| `FEATURE_MULTI_TENANCY_ENABLED` | `true`                                             | Enable multi-store creation and store switching                                          |
+| `FEATURE_BILLING_ENABLED`       | `true`                                             | Enable Stripe checkout sessions, subscriptions, and webhooks                             |
+| `FEATURE_JOBS_ENABLED`          | `true`                                             | Enable `pg-boss` queues and `/api/stores/:storeId/exports` endpoints                     |
+| `FEATURE_REALTIME_ENABLED`      | `true`                                             | Enable `/ws` WebSocket push notifications for stock and order state                      |
+| `REALTIME_BROKER`               | `memory`                                           | Realtime event broker (`memory` or `pg-notify` for multi-instance `LISTEN` and `NOTIFY`) |
+| `FEATURE_I18N_ENABLED`          | `true`                                             | Enable Paraglide locale switching (`en` and `pt`)                                        |
+
+## Guides and architecture documentation
+
+- [Domain glossary](./GLOSSARY.md)
+- [Engineering style guide](./docs/guides/style-guide.md)
+- [How to swap runtimes and remove opt-in modules](./docs/guides/architecture-and-modules.md)
+- [How to deploy with Terraform and cut over from v1](./docs/guides/deployment-and-cutover.md)
+- [Architecture Decision Records](./docs/adr/)
