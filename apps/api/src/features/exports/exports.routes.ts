@@ -18,6 +18,7 @@ const exportItemParamsSchema = z.object({
 export const createBooksExportRoute = createRoute({
   method: 'post',
   path: '/api/v1/stores/{storeSlug}/exports/books',
+  tags: ['Exports'],
   request: {
     params: storeExportParamsSchema,
   },

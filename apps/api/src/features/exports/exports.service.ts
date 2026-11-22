@@ -4,7 +4,7 @@ import { and, desc, eq, storeExports, withStoreContext } from '@starter/db';
 import type { Database } from '@starter/db';
 import { JOB_NAMES } from '@starter/jobs';
 import type { JobQueue } from '@starter/jobs';
-import type { ResolvedStoreContext } from '../books/books.service.ts';
+import type { ResolvedStoreContext } from '../../middleware/store-context.ts';
 
 function toStoreExport(row: typeof storeExports.$inferSelect, storeSlug: string): StoreExport {
   const status = storeExportStatusSchema.parse(row.status);
@@ -16,7 +16,7 @@ function toStoreExport(row: typeof storeExports.$inferSelect, storeSlug: string)
     fileKey: row.fileKey,
     downloadUrl:
       status === 'completed' && row.fileKey
-        ? `/api/v1/stores/${storeSlug}/exports/${row.id}/download`
+        ? `/api/v1/stores/${encodeURIComponent(storeSlug)}/exports/${encodeURIComponent(row.id)}/download`
         : null,
     createdAt: row.createdAt.toISOString(),
     completedAt: row.completedAt ? row.completedAt.toISOString() : null,

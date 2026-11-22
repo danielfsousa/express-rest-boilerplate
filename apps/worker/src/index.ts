@@ -6,7 +6,7 @@ import { createS3Storage } from '@starter/runtime/storage';
 import { z } from 'zod';
 
 const workerEnvSchema = z.object({
-  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   DATABASE_URL: z.string().min(1),
   DATABASE_DIRECT_URL: z.string().optional(),
   S3_ENDPOINT: z.string().default('http://127.0.0.1:4566'),
@@ -14,8 +14,8 @@ const workerEnvSchema = z.object({
   S3_ACCESS_KEY_ID: z.string().default('test'),
   S3_SECRET_ACCESS_KEY: z.string().default('test'),
   S3_BUCKET: z.string().default('bookstore-media'),
-  BIRD_API_BASE_URL: z.string().default('http://127.0.0.1:4025'),
-  BIRD_API_KEY: z.string().default('bird_local_dev_key'),
+  BIRD_API_BASE_URL: z.string().default('http://127.0.0.1:4010'),
+  BIRD_API_KEY: z.string().default('local-bird-dev-key'),
   BIRD_FROM_EMAIL: z.string().email().default('noreply@bookstore.local'),
 });
 

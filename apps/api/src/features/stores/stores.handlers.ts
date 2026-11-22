@@ -34,7 +34,11 @@ export function createStoresRouter({
       return c.json({ error: 'Authentication required' }, 401);
     }
 
-    const stores = await listStoresForUser(drizzleDb, sessionUser.id, multiTenancyEnabled);
+    const stores = await listStoresForUser({
+      db: drizzleDb,
+      userId: sessionUser.id,
+      multiTenancyEnabled,
+    });
     return c.json({ stores }, 200);
   });
 
@@ -45,7 +49,12 @@ export function createStoresRouter({
     }
 
     const body = c.req.valid('json');
-    const result = await createStoreForUser(drizzleDb, sessionUser.id, body, multiTenancyEnabled);
+    const result = await createStoreForUser({
+      db: drizzleDb,
+      userId: sessionUser.id,
+      input: body,
+      multiTenancyEnabled,
+    });
 
     if (!result.ok) {
       return c.json({ error: result.error }, result.status);
@@ -56,7 +65,11 @@ export function createStoresRouter({
 
   router.openapi(getStoreRoute, async (c) => {
     const { storeSlug } = c.req.valid('param');
-    const store = await getStoreBySlug(drizzleDb, storeSlug, multiTenancyEnabled);
+    const store = await getStoreBySlug({
+      db: drizzleDb,
+      slug: storeSlug,
+      multiTenancyEnabled,
+    });
     if (!store) {
       return c.json({ error: 'Store not found' }, 404);
     }
@@ -71,13 +84,13 @@ export function createStoresRouter({
 
     const { storeSlug } = c.req.valid('param');
     const body = c.req.valid('json');
-    const result = await updateStoreForUser(
-      drizzleDb,
-      sessionUser.id,
-      storeSlug,
-      body,
+    const result = await updateStoreForUser({
+      db: drizzleDb,
+      userId: sessionUser.id,
+      slug: storeSlug,
+      input: body,
       multiTenancyEnabled,
-    );
+    });
 
     if (!result.ok) {
       return c.json({ error: result.error }, result.status);

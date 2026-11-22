@@ -5,7 +5,7 @@ import {
   createPgBossJobQueue,
   registerDefaultJobHandlers,
 } from '@starter/jobs';
-import { createDbClient, createLogger, createServer, onShutdown, readEnv } from '@starter/runtime';
+import { createLogger, createServer, onShutdown, readEnv } from '@starter/runtime';
 import { createS3Storage } from '@starter/runtime/storage';
 import { createApp } from './app.ts';
 import { parseEnv } from './config/env.ts';
@@ -15,7 +15,6 @@ import { createStripeClient } from './features/billing/billing.service.ts';
 async function main(): Promise<void> {
   const env = parseEnv(readEnv());
   const logger = createLogger({ level: env.LOG_LEVEL });
-  const db = createDbClient({ url: env.DATABASE_URL });
   const drizzleHandle = createDb(env.DATABASE_URL);
 
   if (!env.FEATURE_MULTI_TENANCY_ENABLED) {
@@ -80,7 +79,7 @@ async function main(): Promise<void> {
   }
 
   const app = createApp({
-    db,
+    db: drizzleHandle,
     logger,
     drizzleDb: drizzleHandle.db,
     auth,
@@ -111,7 +110,6 @@ async function main(): Promise<void> {
       await server.close();
       await jobQueue.stop();
       await drizzleHandle.close();
-      await db.close();
       logger.info('API server stopped');
     },
     { drainTimeoutMs: 10_000, logger },

@@ -157,10 +157,6 @@ export const deleteBookRoute = createRoute({
       description: 'Authentication required',
       content: { 'application/json': { schema: errorResponseSchema } },
     },
-    402: {
-      description: 'Store plan book limit reached',
-      content: { 'application/json': { schema: errorResponseSchema } },
-    },
     403: {
       description: 'Store membership required',
       content: { 'application/json': { schema: errorResponseSchema } },
@@ -191,10 +187,6 @@ export const uploadBookCoverRoute = createRoute({
     },
     401: {
       description: 'Authentication required',
-      content: { 'application/json': { schema: errorResponseSchema } },
-    },
-    402: {
-      description: 'Store plan book limit reached',
       content: { 'application/json': { schema: errorResponseSchema } },
     },
     403: {

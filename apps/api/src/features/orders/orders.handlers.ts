@@ -1,9 +1,8 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import type { Database } from '@starter/db';
 import type { JobQueue } from '@starter/jobs';
-import { getSessionUser } from '../auth/auth.service.ts';
+import { resolveMerchantStore, resolvePublicStore } from '../../middleware/store-context.ts';
 import type { AuthInstance } from '../auth/auth.service.ts';
-import { resolveStoreContext } from '../books/books.service.ts';
 import {
   createOrderRoute,
   getOrderRoute,
@@ -37,7 +36,11 @@ export function createOrdersRouter({
 
   router.openapi(createOrderRoute, async (c) => {
     const { storeSlug } = c.req.valid('param');
-    const store = await resolveStoreContext(drizzleDb, storeSlug, null, multiTenancyEnabled);
+    const store = await resolvePublicStore({
+      db: drizzleDb,
+      storeSlug,
+      multiTenancyEnabled,
+    });
     if (!store) {
       return c.json({ error: 'Store not found' }, 404);
     }
@@ -58,37 +61,34 @@ export function createOrdersRouter({
   });
 
   router.openapi(listOrdersRoute, async (c) => {
-    const sessionUser = await getSessionUser(auth, c.req.raw.headers);
-    if (!sessionUser) {
-      return c.json({ error: 'Authentication required' }, 401);
-    }
-
     const { storeSlug } = c.req.valid('param');
-    const store = await resolveStoreContext(
-      drizzleDb,
+    const ctx = await resolveMerchantStore({
+      db: drizzleDb,
+      auth,
+      headers: c.req.raw.headers,
       storeSlug,
-      sessionUser.id,
       multiTenancyEnabled,
-    );
-    if (!store) {
-      return c.json({ error: 'Store not found' }, 404);
-    }
-    if (!store.isMember) {
-      return c.json({ error: 'Store membership required' }, 403);
+    });
+    if (!ctx.ok) {
+      return c.json({ error: ctx.error }, ctx.status);
     }
 
-    const orders = await listOrdersForStore(drizzleDb, store);
-    return c.json({ orders }, 200);
+    const items = await listOrdersForStore(drizzleDb, ctx.store);
+    return c.json({ orders: items }, 200);
   });
 
   router.openapi(getOrderRoute, async (c) => {
     const { storeSlug, orderId } = c.req.valid('param');
-    const store = await resolveStoreContext(drizzleDb, storeSlug, null, multiTenancyEnabled);
+    const store = await resolvePublicStore({
+      db: drizzleDb,
+      storeSlug,
+      multiTenancyEnabled,
+    });
     if (!store) {
       return c.json({ error: 'Store not found' }, 404);
     }
 
-    const order = await getOrderForStore(drizzleDb, store, orderId);
+    const order = await getOrderForStore({ db: drizzleDb, store, orderId });
     if (!order) {
       return c.json({ error: 'Order not found' }, 404);
     }
@@ -97,27 +97,25 @@ export function createOrdersRouter({
   });
 
   router.openapi(updateOrderStatusRoute, async (c) => {
-    const sessionUser = await getSessionUser(auth, c.req.raw.headers);
-    if (!sessionUser) {
-      return c.json({ error: 'Authentication required' }, 401);
-    }
-
     const { storeSlug, orderId } = c.req.valid('param');
-    const store = await resolveStoreContext(
-      drizzleDb,
+    const ctx = await resolveMerchantStore({
+      db: drizzleDb,
+      auth,
+      headers: c.req.raw.headers,
       storeSlug,
-      sessionUser.id,
       multiTenancyEnabled,
-    );
-    if (!store) {
-      return c.json({ error: 'Store not found' }, 404);
-    }
-    if (!store.isMember) {
-      return c.json({ error: 'Store membership required' }, 403);
+    });
+    if (!ctx.ok) {
+      return c.json({ error: ctx.error }, ctx.status);
     }
 
-    const body = c.req.valid('json');
-    const result = await updateOrderStatusForStore(drizzleDb, store, orderId, body.status);
+    const { status } = c.req.valid('json');
+    const result = await updateOrderStatusForStore({
+      db: drizzleDb,
+      store: ctx.store,
+      orderId,
+      nextStatus: status,
+    });
     if (!result.ok) {
       return c.json({ error: result.error }, result.status);
     }

@@ -1,21 +1,39 @@
 import type { Order, StoreBillingSummary, UpgradeStoreResponse } from '@starter/contracts';
-import {
-  and,
-  books,
-  customers,
-  eq,
-  orderItems,
-  orders,
-  organization,
-  sql,
-  subscription,
-  withStoreContext,
-} from '@starter/db';
+import { and, books, eq, sql, subscription, withStoreContext } from '@starter/db';
 import type { Database } from '@starter/db';
-import type { Locale } from '@starter/i18n';
-import { JOB_NAMES } from '@starter/jobs';
 import type { JobQueue } from '@starter/jobs';
 import Stripe from 'stripe';
+import { settlePaidOrder } from '../orders/orders.service.ts';
+
+export interface PaymentGateway {
+  createOrderCheckoutSession(params: {
+    storeSlug: string;
+    order: Order;
+    webOrigin: string;
+  }): Promise<{ sessionId: string; url: string | null }>;
+}
+
+export function createStripePaymentGateway(stripe: Stripe): PaymentGateway {
+  return {
+    createOrderCheckoutSession: (params) =>
+      createOrderCheckoutSession({
+        stripe,
+        ...params,
+      }),
+  };
+}
+
+export function createMemoryPaymentGateway(): PaymentGateway {
+  return {
+    async createOrderCheckoutSession({ storeSlug, order, webOrigin }) {
+      const sessionId = `cs_mem_${crypto.randomUUID().slice(0, 8)}`;
+      return {
+        sessionId,
+        url: `${webOrigin}/s/${encodeURIComponent(storeSlug)}/orders/${encodeURIComponent(order.id)}?paid=1`,
+      };
+    },
+  };
+}
 
 export const FREE_PLAN_PUBLISHED_BOOK_LIMIT = 25;
 
@@ -219,70 +237,12 @@ export async function verifyAndProcessStripeWebhook(params: {
     const orderId = sessionObj.metadata?.['orderId'];
 
     if (storeId && orderId) {
-      await withStoreContext(params.db, storeId, async (tx) =>
-        tx
-          .update(orders)
-          .set({ status: 'paid', updatedAt: new Date() })
-          .where(and(eq(orders.id, orderId), eq(orders.storeId, storeId))),
-      );
-
-      if (params.jobQueue) {
-        const [storeRow] = await params.db
-          .select({ name: organization.name })
-          .from(organization)
-          .where(eq(organization.id, storeId))
-          .limit(1);
-
-        const orderDetails = await withStoreContext(params.db, storeId, async (tx) => {
-          const [orderRow] = await tx
-            .select({
-              id: orders.id,
-              totalCents: orders.totalCents,
-              currency: orders.currency,
-              customerEmail: customers.email,
-              customerName: customers.name,
-              customerLocale: customers.locale,
-            })
-            .from(orders)
-            .innerJoin(customers, eq(orders.customerId, customers.id))
-            .where(and(eq(orders.id, orderId), eq(orders.storeId, storeId)))
-            .limit(1);
-
-          if (!orderRow) {
-            return null;
-          }
-
-          const items = await tx
-            .select({
-              title: books.title,
-              quantity: orderItems.quantity,
-              unitPriceCents: orderItems.unitPriceCents,
-            })
-            .from(orderItems)
-            .innerJoin(books, eq(orderItems.bookId, books.id))
-            .where(and(eq(orderItems.orderId, orderId), eq(orderItems.storeId, storeId)));
-
-          return { orderRow, items };
-        });
-
-        if (orderDetails) {
-          const locale: Locale = orderDetails.orderRow.customerLocale === 'pt-BR' ? 'pt-BR' : 'en';
-          await params.jobQueue.enqueue({
-            name: JOB_NAMES.ORDER_RECEIPT,
-            payload: {
-              storeId,
-              storeName: storeRow?.name ?? storeId,
-              orderId: orderDetails.orderRow.id,
-              customerEmail: orderDetails.orderRow.customerEmail,
-              customerName: orderDetails.orderRow.customerName,
-              locale,
-              totalCents: orderDetails.orderRow.totalCents,
-              currency: orderDetails.orderRow.currency,
-              items: orderDetails.items,
-            },
-          });
-        }
-      }
+      await settlePaidOrder({
+        db: params.db,
+        storeId,
+        orderId,
+        jobQueue: params.jobQueue,
+      });
     }
   }
 

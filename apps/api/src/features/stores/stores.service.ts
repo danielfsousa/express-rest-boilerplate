@@ -1,19 +1,7 @@
-import { storeMetadataSchema } from '@starter/contracts';
-import type { CreateStoreInput, Store, StoreMetadata, UpdateStoreInput } from '@starter/contracts';
+import type { CreateStoreInput, Store, UpdateStoreInput } from '@starter/contracts';
 import { and, DEFAULT_STORE_ID, ensureDefaultStore, eq, member, organization } from '@starter/db';
 import type { Database } from '@starter/db';
-
-function parseMetadata(raw: string | null): StoreMetadata {
-  if (!raw) {
-    return { lowStockThreshold: 5 };
-  }
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    return storeMetadataSchema.parse(parsed);
-  } catch {
-    return { lowStockThreshold: 5 };
-  }
-}
+import { parseStoreMetadata } from '../../middleware/store-context.ts';
 
 function normalizeRole(role: string): 'owner' | 'staff' {
   return role === 'owner' ? 'owner' : 'staff';
@@ -29,7 +17,7 @@ function toStore(
   },
   role?: string,
 ): Store {
-  const metadata = parseMetadata(row.metadata);
+  const metadata = parseStoreMetadata(row.metadata);
   const store: Store = {
     id: row.id,
     slug: row.slug,
@@ -43,11 +31,17 @@ function toStore(
   return store;
 }
 
-export async function listStoresForUser(
-  db: Database,
-  userId: string,
-  multiTenancyEnabled: boolean,
-): Promise<Array<Store>> {
+export interface ListStoresParams {
+  db: Database;
+  userId: string;
+  multiTenancyEnabled: boolean;
+}
+
+export async function listStoresForUser({
+  db,
+  userId,
+  multiTenancyEnabled,
+}: ListStoresParams): Promise<Array<Store>> {
   if (!multiTenancyEnabled) {
     await ensureDefaultStore(db);
     const [row] = await db
@@ -74,12 +68,19 @@ export type CreateStoreResult =
   | { ok: true; store: Store }
   | { ok: false; status: 403 | 409; error: string };
 
-export async function createStoreForUser(
-  db: Database,
-  userId: string,
-  input: CreateStoreInput,
-  multiTenancyEnabled: boolean,
-): Promise<CreateStoreResult> {
+export interface CreateStoreParams {
+  db: Database;
+  userId: string;
+  input: CreateStoreInput;
+  multiTenancyEnabled: boolean;
+}
+
+export async function createStoreForUser({
+  db,
+  userId,
+  input,
+  multiTenancyEnabled,
+}: CreateStoreParams): Promise<CreateStoreResult> {
   if (!multiTenancyEnabled) {
     return {
       ok: false,
@@ -100,18 +101,14 @@ export async function createStoreForUser(
 
   const storeId = crypto.randomUUID();
   const memberId = crypto.randomUUID();
-  const metadata = JSON.stringify({
-    lowStockThreshold: input.lowStockThreshold,
-  });
-
-  const [created] = await db.transaction(async (tx) => {
-    const inserted = await tx
+  const created = await db.transaction(async (tx) => {
+    const [inserted] = await tx
       .insert(organization)
       .values({
         id: storeId,
         name: input.name,
         slug: input.slug,
-        metadata,
+        metadata: JSON.stringify({ lowStockThreshold: input.lowStockThreshold }),
       })
       .returning();
 
@@ -132,11 +129,17 @@ export async function createStoreForUser(
   return { ok: true, store: toStore(created, 'owner') };
 }
 
-export async function getStoreBySlug(
-  db: Database,
-  slug: string,
-  multiTenancyEnabled: boolean,
-): Promise<Store | null> {
+export interface GetStoreBySlugParams {
+  db: Database;
+  slug: string;
+  multiTenancyEnabled: boolean;
+}
+
+export async function getStoreBySlug({
+  db,
+  slug,
+  multiTenancyEnabled,
+}: GetStoreBySlugParams): Promise<Store | null> {
   if (!multiTenancyEnabled) {
     await ensureDefaultStore(db);
     const [row] = await db
@@ -156,13 +159,21 @@ export type UpdateStoreResult =
   | { ok: true; store: Store }
   | { ok: false; status: 403 | 404; error: string };
 
-export async function updateStoreForUser(
-  db: Database,
-  userId: string,
-  slug: string,
-  input: UpdateStoreInput,
-  multiTenancyEnabled: boolean,
-): Promise<UpdateStoreResult> {
+export interface UpdateStoreParams {
+  db: Database;
+  userId: string;
+  slug: string;
+  input: UpdateStoreInput;
+  multiTenancyEnabled: boolean;
+}
+
+export async function updateStoreForUser({
+  db,
+  userId,
+  slug,
+  input,
+  multiTenancyEnabled,
+}: UpdateStoreParams): Promise<UpdateStoreResult> {
   if (!multiTenancyEnabled) {
     await ensureDefaultStore(db);
   }
@@ -189,7 +200,7 @@ export async function updateStoreForUser(
     return { ok: false, status: 403, error: 'Owner role required' };
   }
 
-  const currentMeta = parseMetadata(target.metadata);
+  const currentMeta = parseStoreMetadata(target.metadata);
   const nextMeta = {
     lowStockThreshold: input.lowStockThreshold ?? currentMeta.lowStockThreshold,
   };

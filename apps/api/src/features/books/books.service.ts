@@ -5,21 +5,10 @@ import type {
   ListBooksResponse,
   UpdateBookInput,
 } from '@starter/contracts';
-import {
-  and,
-  books,
-  DEFAULT_STORE_ID,
-  ensureDefaultStore,
-  eq,
-  ilike,
-  member,
-  or,
-  organization,
-  sql,
-  withStoreContext,
-} from '@starter/db';
+import { and, books, eq, ilike, or, sql, withStoreContext } from '@starter/db';
 import type { Database } from '@starter/db';
 import type { ObjectStorage } from '@starter/runtime/storage';
+import type { ResolvedStoreContext } from '../../middleware/store-context.ts';
 import { assertCanPublishBook } from '../billing/billing.service.ts';
 
 const ALLOWED_COVER_TYPES = new Map<string, string>([
@@ -28,7 +17,7 @@ const ALLOWED_COVER_TYPES = new Map<string, string>([
   ['image/webp', 'webp'],
 ]);
 
-export const MAX_COVER_BYTES = 5 * 1024 * 1024;
+const MAX_COVER_BYTES = 5 * 1024 * 1024;
 
 function toBook(row: typeof books.$inferSelect, storeSlug: string): Book {
   return {
@@ -64,74 +53,25 @@ function isUniqueViolation(error: unknown): boolean {
   return false;
 }
 
-export interface ResolvedStoreContext {
-  id: string;
-  slug: string;
-  isMember: boolean;
+export interface ListBooksParams {
+  db: Database;
+  store: ResolvedStoreContext;
+  query: ListBooksQuery;
 }
 
-export async function resolveStoreContext(
-  db: Database,
-  storeSlug: string,
-  userId: string | null,
-  multiTenancyEnabled: boolean,
-): Promise<ResolvedStoreContext | null> {
-  if (!multiTenancyEnabled) {
-    await ensureDefaultStore(db);
-  }
-
-  const [store] = await db
-    .select({ id: organization.id, slug: organization.slug })
-    .from(organization)
-    .where(
-      multiTenancyEnabled
-        ? eq(organization.slug, storeSlug)
-        : eq(organization.id, DEFAULT_STORE_ID),
-    )
-    .limit(1);
-
-  if (!store) {
-    return null;
-  }
-
-  if (!userId) {
-    return { id: store.id, slug: store.slug, isMember: false };
-  }
-
-  const [membership] = await db
-    .select({ id: member.id })
-    .from(member)
-    .where(and(eq(member.organizationId, store.id), eq(member.userId, userId)))
-    .limit(1);
-
-  return {
-    id: store.id,
-    slug: store.slug,
-    isMember: membership !== undefined,
-  };
-}
-
-export async function listBooksForStore(
-  db: Database,
-  store: ResolvedStoreContext,
-  query: ListBooksQuery,
-): Promise<ListBooksResponse> {
+export async function listBooksForStore({
+  db,
+  store,
+  query,
+}: ListBooksParams): Promise<ListBooksResponse> {
   return await withStoreContext(db, store.id, async (tx) => {
     const conditions = [eq(books.storeId, store.id)];
-
     if (!store.isMember) {
       conditions.push(eq(books.published, true));
-    } else if (query.published !== undefined) {
-      conditions.push(eq(books.published, query.published === 'true'));
     }
-
     if (query.q && query.q.trim().length > 0) {
       const pattern = `%${query.q.trim()}%`;
-      const searchCond = or(
-        ilike(books.title, pattern),
-        ilike(books.author, pattern),
-        ilike(books.sku, pattern),
-      );
+      const searchCond = or(ilike(books.title, pattern), ilike(books.author, pattern));
       if (searchCond) {
         conditions.push(searchCond);
       }
@@ -139,22 +79,23 @@ export async function listBooksForStore(
 
     const whereClause = and(...conditions);
 
-    const rows = await tx
-      .select()
-      .from(books)
-      .where(whereClause)
-      .orderBy(books.createdAt)
-      .limit(query.limit)
-      .offset(query.offset);
-
-    const [countRow] = await tx
-      .select({ count: sql<number>`count(*)::int` })
-      .from(books)
-      .where(whereClause);
+    const [rows, countRows] = await Promise.all([
+      tx
+        .select()
+        .from(books)
+        .where(whereClause)
+        .limit(query.limit)
+        .offset(query.offset)
+        .orderBy(books.createdAt),
+      tx
+        .select({ count: sql<number>`count(*)::int` })
+        .from(books)
+        .where(whereClause),
+    ]);
 
     return {
       books: rows.map((row) => toBook(row, store.slug)),
-      total: countRow?.count ?? 0,
+      total: countRows[0]?.count ?? 0,
       limit: query.limit,
       offset: query.offset,
     };
@@ -165,12 +106,19 @@ export type CreateBookResult =
   | { ok: true; book: Book }
   | { ok: false; status: 402 | 409; error: string };
 
-export async function createBookForStore(
-  db: Database,
-  store: ResolvedStoreContext,
-  input: CreateBookInput,
+export interface CreateBookParams {
+  db: Database;
+  store: ResolvedStoreContext;
+  input: CreateBookInput;
+  billingEnabled?: boolean | undefined;
+}
+
+export async function createBookForStore({
+  db,
+  store,
+  input,
   billingEnabled = false,
-): Promise<CreateBookResult> {
+}: CreateBookParams): Promise<CreateBookResult> {
   if (input.published) {
     const check = await assertCanPublishBook(db, store.id, billingEnabled);
     if (!check.allowed) {
@@ -212,11 +160,13 @@ export async function createBookForStore(
   }
 }
 
-export async function getBookForStore(
-  db: Database,
-  store: ResolvedStoreContext,
-  bookId: string,
-): Promise<Book | null> {
+export interface GetBookParams {
+  db: Database;
+  store: ResolvedStoreContext;
+  bookId: string;
+}
+
+export async function getBookForStore({ db, store, bookId }: GetBookParams): Promise<Book | null> {
   const [row] = await withStoreContext(db, store.id, async (tx) =>
     tx
       .select()
@@ -236,15 +186,23 @@ export type UpdateBookResult =
   | { ok: true; book: Book }
   | { ok: false; status: 402 | 404 | 409; error: string };
 
-export async function updateBookForStore(
-  db: Database,
-  store: ResolvedStoreContext,
-  bookId: string,
-  input: UpdateBookInput,
+export interface UpdateBookParams {
+  db: Database;
+  store: ResolvedStoreContext;
+  bookId: string;
+  input: UpdateBookInput;
+  billingEnabled?: boolean | undefined;
+}
+
+export async function updateBookForStore({
+  db,
+  store,
+  bookId,
+  input,
   billingEnabled = false,
-): Promise<UpdateBookResult> {
+}: UpdateBookParams): Promise<UpdateBookResult> {
   if (input.published === true) {
-    const existing = await getBookForStore(db, store, bookId);
+    const existing = await getBookForStore({ db, store, bookId });
     if (existing && !existing.published) {
       const check = await assertCanPublishBook(db, store.id, billingEnabled);
       if (!check.allowed) {
@@ -252,6 +210,7 @@ export async function updateBookForStore(
       }
     }
   }
+
   const patch: Partial<typeof books.$inferInsert> = {
     updatedAt: new Date(),
   };
@@ -305,12 +264,19 @@ export async function updateBookForStore(
   }
 }
 
-export async function deleteBookForStore(
-  db: Database,
-  store: ResolvedStoreContext,
-  bookId: string,
-  storage?: ObjectStorage,
-): Promise<boolean> {
+export interface DeleteBookParams {
+  db: Database;
+  store: ResolvedStoreContext;
+  bookId: string;
+  storage?: ObjectStorage | undefined;
+}
+
+export async function deleteBookForStore({
+  db,
+  store,
+  bookId,
+  storage,
+}: DeleteBookParams): Promise<boolean> {
   const [deleted] = await withStoreContext(db, store.id, async (tx) =>
     tx
       .delete(books)
@@ -333,13 +299,21 @@ export type UploadCoverResult =
   | { ok: true; coverKey: string; coverUrl: string }
   | { ok: false; status: 400 | 404 | 413 | 503; error: string };
 
-export async function uploadBookCover(
-  db: Database,
-  store: ResolvedStoreContext,
-  bookId: string,
-  file: File,
-  storage?: ObjectStorage,
-): Promise<UploadCoverResult> {
+export interface UploadBookCoverParams {
+  db: Database;
+  store: ResolvedStoreContext;
+  bookId: string;
+  file: File;
+  storage?: ObjectStorage | undefined;
+}
+
+export async function uploadBookCover({
+  db,
+  store,
+  bookId,
+  file,
+  storage,
+}: UploadBookCoverParams): Promise<UploadCoverResult> {
   if (!storage) {
     return { ok: false, status: 503, error: 'Object storage is not configured' };
   }
@@ -361,7 +335,7 @@ export async function uploadBookCover(
     };
   }
 
-  const existing = await getBookForStore(db, store, bookId);
+  const existing = await getBookForStore({ db, store, bookId });
   if (!existing) {
     return { ok: false, status: 404, error: 'Book not found' };
   }
@@ -382,6 +356,10 @@ export async function uploadBookCover(
       .where(and(eq(books.id, bookId), eq(books.storeId, store.id))),
   );
 
+  if (existing.coverKey && existing.coverKey !== coverKey) {
+    await storage.deleteObject(existing.coverKey);
+  }
+
   return {
     ok: true,
     coverKey,
@@ -389,17 +367,24 @@ export async function uploadBookCover(
   };
 }
 
-export async function getBookCover(
-  db: Database,
-  store: ResolvedStoreContext,
-  bookId: string,
-  storage?: ObjectStorage,
-): Promise<{ body: Uint8Array; contentType: string } | null> {
+export interface GetBookCoverParams {
+  db: Database;
+  store: ResolvedStoreContext;
+  bookId: string;
+  storage?: ObjectStorage | undefined;
+}
+
+export async function getBookCover({
+  db,
+  store,
+  bookId,
+  storage,
+}: GetBookCoverParams): Promise<{ body: Uint8Array; contentType: string } | null> {
   if (!storage) {
     return null;
   }
 
-  const book = await getBookForStore(db, store, bookId);
+  const book = await getBookForStore({ db, store, bookId });
   if (!book?.coverKey) {
     return null;
   }

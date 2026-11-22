@@ -3,6 +3,10 @@ import { defineConfig } from 'oxlint';
 
 export default defineConfig({
   ...cloudflare,
+  rules: {
+    ...(cloudflare.rules ?? {}),
+    'max-params': ['error', { max: 3 }],
+  },
   ignorePatterns: [
     '**/node_modules/**',
     '**/dist/**',

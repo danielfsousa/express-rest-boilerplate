@@ -2,9 +2,8 @@ import { OpenAPIHono } from '@hono/zod-openapi';
 import type { Database } from '@starter/db';
 import type { JobQueue } from '@starter/jobs';
 import type Stripe from 'stripe';
-import { getSessionUser } from '../auth/auth.service.ts';
+import { resolveMerchantStore } from '../../middleware/store-context.ts';
 import type { AuthInstance } from '../auth/auth.service.ts';
-import { resolveStoreContext } from '../books/books.service.ts';
 import { getStoreBillingRoute, upgradeStoreBillingRoute } from './billing.routes.ts';
 import {
   getStoreBillingSummary,
@@ -36,57 +35,43 @@ export function createBillingRouter({
   const router = new OpenAPIHono();
 
   router.openapi(getStoreBillingRoute, async (c) => {
-    const sessionUser = await getSessionUser(auth, c.req.raw.headers);
-    if (!sessionUser) {
-      return c.json({ error: 'Authentication required' }, 401);
-    }
-
     const { storeSlug } = c.req.valid('param');
-    const store = await resolveStoreContext(
-      drizzleDb,
+    const ctx = await resolveMerchantStore({
+      db: drizzleDb,
+      auth,
+      headers: c.req.raw.headers,
       storeSlug,
-      sessionUser.id,
       multiTenancyEnabled,
-    );
-    if (!store) {
-      return c.json({ error: 'Store not found' }, 404);
-    }
-    if (!store.isMember) {
-      return c.json({ error: 'Store membership required' }, 403);
+    });
+    if (!ctx.ok) {
+      return c.json({ error: ctx.error }, ctx.status);
     }
 
-    const summary = await getStoreBillingSummary(drizzleDb, store.id);
+    const summary = await getStoreBillingSummary(drizzleDb, ctx.store.id);
     return c.json(summary, 200);
   });
 
   router.openapi(upgradeStoreBillingRoute, async (c) => {
-    const sessionUser = await getSessionUser(auth, c.req.raw.headers);
-    if (!sessionUser) {
-      return c.json({ error: 'Authentication required' }, 401);
-    }
-
     const { storeSlug } = c.req.valid('param');
-    const store = await resolveStoreContext(
-      drizzleDb,
+    const ctx = await resolveMerchantStore({
+      db: drizzleDb,
+      auth,
+      headers: c.req.raw.headers,
       storeSlug,
-      sessionUser.id,
       multiTenancyEnabled,
-    );
-    if (!store) {
-      return c.json({ error: 'Store not found' }, 404);
-    }
-    if (!store.isMember) {
-      return c.json({ error: 'Store membership required' }, 403);
+    });
+    if (!ctx.ok) {
+      return c.json({ error: ctx.error }, ctx.status);
     }
 
     const result = await upgradeStoreSubscription({
       db: drizzleDb,
       stripe,
-      storeId: store.id,
-      storeName: store.slug,
+      storeId: ctx.store.id,
+      storeName: ctx.store.name,
       proPriceId,
       webOrigin,
-      storeSlug: store.slug,
+      storeSlug: ctx.store.slug,
     });
     return c.json(result, 200);
   });

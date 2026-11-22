@@ -1,5 +1,5 @@
 import type { CreateOrderInput, Order, OrderItem, OrderStatus } from '@starter/contracts';
-import { orderStatusSchema, storeMetadataSchema } from '@starter/contracts';
+import { orderStatusSchema } from '@starter/contracts';
 import {
   and,
   books,
@@ -7,6 +7,7 @@ import {
   desc,
   eq,
   gte,
+  inArray,
   member,
   orderItems,
   orders,
@@ -20,8 +21,8 @@ import type { Locale } from '@starter/i18n';
 import { JOB_NAMES } from '@starter/jobs';
 import type { JobQueue } from '@starter/jobs';
 import type Stripe from 'stripe';
+import type { ResolvedStoreContext } from '../../middleware/store-context.ts';
 import { createOrderCheckoutSession } from '../billing/billing.service.ts';
-import type { ResolvedStoreContext } from '../books/books.service.ts';
 import {
   calculateOrderTotalCents,
   canTransitionOrderStatus,
@@ -83,6 +84,10 @@ function toOrder(
   };
 }
 
+function normalizeLocale(value: string | undefined): Locale {
+  return value === 'pt-BR' ? 'pt-BR' : 'en';
+}
+
 export type CreateOrderResult =
   | { ok: true; order: Order }
   | { ok: false; status: 404 | 409; error: string };
@@ -101,6 +106,16 @@ export interface CreateOrderParams {
   jobQueue?: JobQueue | undefined;
 }
 
+interface ResolvedOrderLine {
+  bookId: string;
+  title: string;
+  sku: string;
+  currency: string;
+  quantity: number;
+  unitPriceCents: number;
+  newStock: number;
+}
+
 export async function createOrderForStore({
   db,
   store,
@@ -115,31 +130,12 @@ export async function createOrderForStore({
   const sortedItems = [...aggregated.entries()].toSorted(([a], [b]) => a.localeCompare(b));
 
   let result:
-    | {
-        ok: true;
-        order: Order;
-        resolvedLines: Array<{
-          bookId: string;
-          title: string;
-          sku: string;
-          currency: string;
-          quantity: number;
-          unitPriceCents: number;
-          newStock: number;
-        }>;
-      }
+    | { ok: true; order: Order; resolvedLines: Array<ResolvedOrderLine> }
     | { ok: false; status: 404 | 409; error: string };
+
   try {
     result = await withStoreContext(db, store.id, async (tx) => {
-      const resolvedLines: Array<{
-        bookId: string;
-        title: string;
-        sku: string;
-        currency: string;
-        quantity: number;
-        unitPriceCents: number;
-        newStock: number;
-      }> = [];
+      const resolvedLines: Array<ResolvedOrderLine> = [];
 
       for (const [bookId, quantity] of sortedItems) {
         const [decremented] = await tx
@@ -182,32 +178,22 @@ export async function createOrderForStore({
         });
       }
 
-      const [existingCustomer] = await tx
-        .select()
-        .from(customers)
-        .where(and(eq(customers.storeId, store.id), eq(customers.email, input.customerEmail)))
-        .limit(1);
-
-      let customerRow: typeof customers.$inferSelect | undefined;
-      if (existingCustomer) {
-        const [updatedCustomer] = await tx
-          .update(customers)
-          .set({ name: input.customerName, locale: input.customerLocale })
-          .where(eq(customers.id, existingCustomer.id))
-          .returning();
-        customerRow = updatedCustomer ?? existingCustomer;
-      } else {
-        const [insertedCustomer] = await tx
-          .insert(customers)
-          .values({
-            storeId: store.id,
-            email: input.customerEmail,
+      const [customerRow] = await tx
+        .insert(customers)
+        .values({
+          storeId: store.id,
+          email: input.customerEmail,
+          name: input.customerName,
+          locale: input.customerLocale,
+        })
+        .onConflictDoUpdate({
+          target: [customers.storeId, customers.email],
+          set: {
             name: input.customerName,
             locale: input.customerLocale,
-          })
-          .returning();
-        customerRow = insertedCustomer;
-      }
+          },
+        })
+        .returning();
 
       if (!customerRow) {
         throw new OrderTxAbort(409, 'Unable to record customer');
@@ -231,22 +217,25 @@ export async function createOrderForStore({
         throw new OrderTxAbort(409, 'Unable to create order');
       }
 
-      const insertedItems: Array<OrderItem> = [];
-      for (const line of resolvedLines) {
-        const [itemRow] = await tx
-          .insert(orderItems)
-          .values({
+      const insertedItemRows = await tx
+        .insert(orderItems)
+        .values(
+          resolvedLines.map((line) => ({
             storeId: store.id,
             orderId: orderRow.id,
             bookId: line.bookId,
             quantity: line.quantity,
             unitPriceCents: line.unitPriceCents,
-          })
-          .returning();
-        if (itemRow) {
-          insertedItems.push(toOrderItem(itemRow, { title: line.title, sku: line.sku }));
-        }
-      }
+          })),
+        )
+        .returning();
+
+      const lineMetaByBookId = new Map(
+        resolvedLines.map((line) => [line.bookId, { title: line.title, sku: line.sku }]),
+      );
+      const insertedItems = insertedItemRows.map((row) =>
+        toOrderItem(row, lineMetaByBookId.get(row.bookId) ?? { title: '', sku: '' }),
+      );
 
       return {
         ok: true as const,
@@ -279,50 +268,35 @@ export async function createOrderForStore({
   }
 
   if (result.ok && jobQueue) {
-    const [storeInfo] = await db
-      .select({ name: organization.name, metadata: organization.metadata })
-      .from(organization)
-      .where(eq(organization.id, store.id))
-      .limit(1);
-
-    let parsedThreshold = 5;
-    if (storeInfo?.metadata) {
-      try {
-        const parsedMeta = storeMetadataSchema.safeParse(JSON.parse(storeInfo.metadata));
-        if (parsedMeta.success && typeof parsedMeta.data.lowStockThreshold === 'number') {
-          parsedThreshold = parsedMeta.data.lowStockThreshold;
-        }
-      } catch {
-        parsedThreshold = 5;
-      }
-    }
-
-    const storeName = storeInfo?.name ?? store.slug;
-    const threshold = parsedThreshold;
-    const locale: Locale = input.customerLocale === 'pt-BR' ? 'pt-BR' : 'en';
+    const locale = normalizeLocale(input.customerLocale);
+    const jobsToEnqueue: Array<Promise<string | null>> = [];
 
     if (!billing?.enabled) {
-      await jobQueue.enqueue({
-        name: JOB_NAMES.ORDER_RECEIPT,
-        payload: {
-          storeId: store.id,
-          storeName,
-          orderId: result.order.id,
-          customerEmail: result.order.customerEmail,
-          customerName: result.order.customerName,
-          locale,
-          totalCents: result.order.totalCents,
-          currency: result.order.currency,
-          items: result.order.items.map((item) => ({
-            title: item.title,
-            quantity: item.quantity,
-            unitPriceCents: item.unitPriceCents,
-          })),
-        },
-      });
+      jobsToEnqueue.push(
+        jobQueue.enqueue({
+          name: JOB_NAMES.ORDER_RECEIPT,
+          payload: {
+            storeId: store.id,
+            storeName: store.name,
+            orderId: result.order.id,
+            customerEmail: result.order.customerEmail,
+            customerName: result.order.customerName,
+            locale,
+            totalCents: result.order.totalCents,
+            currency: result.order.currency,
+            items: result.order.items.map((item) => ({
+              title: item.title,
+              quantity: item.quantity,
+              unitPriceCents: item.unitPriceCents,
+            })),
+          },
+        }),
+      );
     }
 
-    const lowStockLines = result.resolvedLines.filter((line) => line.newStock <= threshold);
+    const lowStockLines = result.resolvedLines.filter(
+      (line) => line.newStock <= store.lowStockThreshold,
+    );
     if (lowStockLines.length > 0) {
       const owners = await db
         .select({ email: user.email })
@@ -332,26 +306,116 @@ export async function createOrderForStore({
 
       for (const line of lowStockLines) {
         for (const owner of owners) {
-          await jobQueue.enqueue({
-            name: JOB_NAMES.LOW_STOCK_ALERT,
-            payload: {
-              storeId: store.id,
-              storeName,
-              ownerEmail: owner.email,
-              bookId: line.bookId,
-              bookTitle: line.title,
-              sku: line.sku,
-              stock: line.newStock,
-              threshold,
-              locale,
-            },
-          });
+          jobsToEnqueue.push(
+            jobQueue.enqueue({
+              name: JOB_NAMES.LOW_STOCK_ALERT,
+              payload: {
+                storeId: store.id,
+                storeName: store.name,
+                ownerEmail: owner.email,
+                bookId: line.bookId,
+                bookTitle: line.title,
+                sku: line.sku,
+                stock: line.newStock,
+                threshold: store.lowStockThreshold,
+                locale,
+              },
+            }),
+          );
         }
       }
     }
+
+    await Promise.all(jobsToEnqueue);
   }
 
-  return result;
+  return result.ok ? { ok: true, order: result.order } : result;
+}
+
+export interface SettlePaidOrderParams {
+  db: Database;
+  storeId: string;
+  orderId: string;
+  jobQueue?: JobQueue | undefined;
+}
+
+export async function settlePaidOrder({
+  db,
+  storeId,
+  orderId,
+  jobQueue,
+}: SettlePaidOrderParams): Promise<boolean> {
+  const settled = await withStoreContext(db, storeId, async (tx) => {
+    const [orderRow] = await tx
+      .select({
+        id: orders.id,
+        status: orders.status,
+        totalCents: orders.totalCents,
+        currency: orders.currency,
+        customerEmail: customers.email,
+        customerName: customers.name,
+        customerLocale: customers.locale,
+      })
+      .from(orders)
+      .innerJoin(customers, eq(orders.customerId, customers.id))
+      .where(and(eq(orders.id, orderId), eq(orders.storeId, storeId)))
+      .limit(1);
+
+    if (!orderRow) {
+      return null;
+    }
+
+    const currentStatus = orderStatusSchema.parse(orderRow.status);
+    if (!canTransitionOrderStatus(currentStatus, 'paid')) {
+      return null;
+    }
+
+    await tx
+      .update(orders)
+      .set({ status: 'paid', updatedAt: new Date() })
+      .where(and(eq(orders.id, orderId), eq(orders.storeId, storeId)));
+
+    const items = await tx
+      .select({
+        title: books.title,
+        quantity: orderItems.quantity,
+        unitPriceCents: orderItems.unitPriceCents,
+      })
+      .from(orderItems)
+      .innerJoin(books, eq(orderItems.bookId, books.id))
+      .where(and(eq(orderItems.orderId, orderId), eq(orderItems.storeId, storeId)));
+
+    return { orderRow, items };
+  });
+
+  if (!settled) {
+    return false;
+  }
+
+  if (jobQueue) {
+    const [storeRow] = await db
+      .select({ name: organization.name })
+      .from(organization)
+      .where(eq(organization.id, storeId))
+      .limit(1);
+
+    await jobQueue.enqueue({
+      name: JOB_NAMES.ORDER_RECEIPT,
+      payload: {
+        storeId,
+        storeName: storeRow?.name ?? storeId,
+        orderId: settled.orderRow.id,
+        customerEmail: settled.orderRow.customerEmail,
+        customerName: settled.orderRow.customerName,
+        locale: normalizeLocale(settled.orderRow.customerLocale),
+        totalCents: settled.orderRow.totalCents,
+        currency: settled.orderRow.currency,
+        items: settled.items,
+      },
+    });
+  }
+
+  return true;
 }
 
 export async function listOrdersForStore(
@@ -370,36 +434,49 @@ export async function listOrdersForStore(
       .where(eq(orders.storeId, store.id))
       .orderBy(desc(orders.createdAt));
 
-    const result: Array<Order> = [];
-    for (const row of orderRows) {
-      const itemRows = await tx
-        .select({
-          item: orderItems,
-          title: books.title,
-          sku: books.sku,
-        })
-        .from(orderItems)
-        .innerJoin(books, eq(orderItems.bookId, books.id))
-        .where(eq(orderItems.orderId, row.order.id));
-
-      result.push(
-        toOrder(
-          row.order,
-          { email: row.customerEmail, name: row.customerName },
-          itemRows.map((entry) => toOrderItem(entry.item, { title: entry.title, sku: entry.sku })),
-        ),
-      );
+    if (orderRows.length === 0) {
+      return [];
     }
 
-    return result;
+    const orderIds = orderRows.map((row) => row.order.id);
+    const allItemRows = await tx
+      .select({
+        item: orderItems,
+        title: books.title,
+        sku: books.sku,
+      })
+      .from(orderItems)
+      .innerJoin(books, eq(orderItems.bookId, books.id))
+      .where(inArray(orderItems.orderId, orderIds));
+
+    const itemsByOrderId = new Map<string, Array<OrderItem>>();
+    for (const entry of allItemRows) {
+      const list = itemsByOrderId.get(entry.item.orderId) ?? [];
+      list.push(toOrderItem(entry.item, { title: entry.title, sku: entry.sku }));
+      itemsByOrderId.set(entry.item.orderId, list);
+    }
+
+    return orderRows.map((row) =>
+      toOrder(
+        row.order,
+        { email: row.customerEmail, name: row.customerName },
+        itemsByOrderId.get(row.order.id) ?? [],
+      ),
+    );
   });
 }
 
-export async function getOrderForStore(
-  db: Database,
-  store: ResolvedStoreContext,
-  orderId: string,
-): Promise<Order | null> {
+export interface GetOrderParams {
+  db: Database;
+  store: ResolvedStoreContext;
+  orderId: string;
+}
+
+export async function getOrderForStore({
+  db,
+  store,
+  orderId,
+}: GetOrderParams): Promise<Order | null> {
   return await withStoreContext(db, store.id, async (tx) => {
     const [row] = await tx
       .select({
@@ -438,12 +515,19 @@ export type UpdateOrderStatusResult =
   | { ok: true; order: Order }
   | { ok: false; status: 404 | 409; error: string };
 
-export async function updateOrderStatusForStore(
-  db: Database,
-  store: ResolvedStoreContext,
-  orderId: string,
-  nextStatus: OrderStatus,
-): Promise<UpdateOrderStatusResult> {
+export interface UpdateOrderStatusParams {
+  db: Database;
+  store: ResolvedStoreContext;
+  orderId: string;
+  nextStatus: OrderStatus;
+}
+
+export async function updateOrderStatusForStore({
+  db,
+  store,
+  orderId,
+  nextStatus,
+}: UpdateOrderStatusParams): Promise<UpdateOrderStatusResult> {
   return await withStoreContext(db, store.id, async (tx) => {
     const [existing] = await tx
       .select({

@@ -1,7 +1,7 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import type { Database } from '@starter/db';
 import type { ObjectStorage } from '@starter/runtime/storage';
-import { getSessionUser } from '../auth/auth.service.ts';
+import { resolveMerchantStore, resolvePublicStore } from '../../middleware/store-context.ts';
 import type { AuthInstance } from '../auth/auth.service.ts';
 import {
   createBookRoute,
@@ -17,17 +17,20 @@ import {
   getBookCover,
   getBookForStore,
   listBooksForStore,
-  resolveStoreContext,
   updateBookForStore,
   uploadBookCover,
 } from './books.service.ts';
 
-function isUploadFile(value: FormDataEntryValue | null): value is File {
+function isUploadedFile(value: unknown): value is File {
   return (
-    value !== null &&
     typeof value === 'object' &&
+    value !== null &&
+    'arrayBuffer' in value &&
     typeof value.arrayBuffer === 'function' &&
-    typeof value.type === 'string'
+    'type' in value &&
+    typeof value.type === 'string' &&
+    'size' in value &&
+    typeof value.size === 'number'
   );
 }
 
@@ -50,45 +53,42 @@ export function createBooksRouter({
 
   router.openapi(listBooksRoute, async (c) => {
     const { storeSlug } = c.req.valid('param');
-    const query = c.req.valid('query');
-    const sessionUser = await getSessionUser(auth, c.req.raw.headers);
-
-    const store = await resolveStoreContext(
-      drizzleDb,
+    const store = await resolvePublicStore({
+      db: drizzleDb,
+      auth,
+      headers: c.req.raw.headers,
       storeSlug,
-      sessionUser?.id ?? null,
       multiTenancyEnabled,
-    );
+    });
     if (!store) {
       return c.json({ error: 'Store not found' }, 404);
     }
 
-    const result = await listBooksForStore(drizzleDb, store, query);
+    const query = c.req.valid('query');
+    const result = await listBooksForStore({ db: drizzleDb, store, query });
     return c.json(result, 200);
   });
 
   router.openapi(createBookRoute, async (c) => {
-    const sessionUser = await getSessionUser(auth, c.req.raw.headers);
-    if (!sessionUser) {
-      return c.json({ error: 'Authentication required' }, 401);
-    }
-
     const { storeSlug } = c.req.valid('param');
-    const store = await resolveStoreContext(
-      drizzleDb,
+    const ctx = await resolveMerchantStore({
+      db: drizzleDb,
+      auth,
+      headers: c.req.raw.headers,
       storeSlug,
-      sessionUser.id,
       multiTenancyEnabled,
-    );
-    if (!store) {
-      return c.json({ error: 'Store not found' }, 404);
-    }
-    if (!store.isMember) {
-      return c.json({ error: 'Store membership required' }, 403);
+    });
+    if (!ctx.ok) {
+      return c.json({ error: ctx.error }, ctx.status);
     }
 
     const body = c.req.valid('json');
-    const result = await createBookForStore(drizzleDb, store, body, billingEnabled);
+    const result = await createBookForStore({
+      db: drizzleDb,
+      store: ctx.store,
+      input: body,
+      billingEnabled,
+    });
     if (!result.ok) {
       return c.json({ error: result.error }, result.status);
     }
@@ -98,19 +98,18 @@ export function createBooksRouter({
 
   router.openapi(getBookRoute, async (c) => {
     const { storeSlug, bookId } = c.req.valid('param');
-    const sessionUser = await getSessionUser(auth, c.req.raw.headers);
-
-    const store = await resolveStoreContext(
-      drizzleDb,
+    const store = await resolvePublicStore({
+      db: drizzleDb,
+      auth,
+      headers: c.req.raw.headers,
       storeSlug,
-      sessionUser?.id ?? null,
       multiTenancyEnabled,
-    );
+    });
     if (!store) {
       return c.json({ error: 'Store not found' }, 404);
     }
 
-    const book = await getBookForStore(drizzleDb, store, bookId);
+    const book = await getBookForStore({ db: drizzleDb, store, bookId });
     if (!book) {
       return c.json({ error: 'Book not found' }, 404);
     }
@@ -119,27 +118,26 @@ export function createBooksRouter({
   });
 
   router.openapi(updateBookRoute, async (c) => {
-    const sessionUser = await getSessionUser(auth, c.req.raw.headers);
-    if (!sessionUser) {
-      return c.json({ error: 'Authentication required' }, 401);
-    }
-
     const { storeSlug, bookId } = c.req.valid('param');
-    const store = await resolveStoreContext(
-      drizzleDb,
+    const ctx = await resolveMerchantStore({
+      db: drizzleDb,
+      auth,
+      headers: c.req.raw.headers,
       storeSlug,
-      sessionUser.id,
       multiTenancyEnabled,
-    );
-    if (!store) {
-      return c.json({ error: 'Store not found' }, 404);
-    }
-    if (!store.isMember) {
-      return c.json({ error: 'Store membership required' }, 403);
+    });
+    if (!ctx.ok) {
+      return c.json({ error: ctx.error }, ctx.status);
     }
 
     const body = c.req.valid('json');
-    const result = await updateBookForStore(drizzleDb, store, bookId, body, billingEnabled);
+    const result = await updateBookForStore({
+      db: drizzleDb,
+      store: ctx.store,
+      bookId,
+      input: body,
+      billingEnabled,
+    });
     if (!result.ok) {
       return c.json({ error: result.error }, result.status);
     }
@@ -148,60 +146,52 @@ export function createBooksRouter({
   });
 
   router.openapi(deleteBookRoute, async (c) => {
-    const sessionUser = await getSessionUser(auth, c.req.raw.headers);
-    if (!sessionUser) {
-      return c.json({ error: 'Authentication required' }, 401);
-    }
-
     const { storeSlug, bookId } = c.req.valid('param');
-    const store = await resolveStoreContext(
-      drizzleDb,
+    const ctx = await resolveMerchantStore({
+      db: drizzleDb,
+      auth,
+      headers: c.req.raw.headers,
       storeSlug,
-      sessionUser.id,
       multiTenancyEnabled,
-    );
-    if (!store) {
-      return c.json({ error: 'Store not found' }, 404);
-    }
-    if (!store.isMember) {
-      return c.json({ error: 'Store membership required' }, 403);
+    });
+    if (!ctx.ok) {
+      return c.json({ error: ctx.error }, ctx.status);
     }
 
-    const deleted = await deleteBookForStore(drizzleDb, store, bookId, storage);
+    const deleted = await deleteBookForStore({ db: drizzleDb, store: ctx.store, bookId, storage });
     if (!deleted) {
       return c.json({ error: 'Book not found' }, 404);
     }
 
-    return c.json({ deleted: true as const }, 200);
+    return c.json({ deleted: true }, 200);
   });
 
   router.openapi(uploadBookCoverRoute, async (c) => {
-    const sessionUser = await getSessionUser(auth, c.req.raw.headers);
-    if (!sessionUser) {
-      return c.json({ error: 'Authentication required' }, 401);
-    }
-
     const { storeSlug, bookId } = c.req.valid('param');
-    const store = await resolveStoreContext(
-      drizzleDb,
+    const ctx = await resolveMerchantStore({
+      db: drizzleDb,
+      auth,
+      headers: c.req.raw.headers,
       storeSlug,
-      sessionUser.id,
       multiTenancyEnabled,
-    );
-    if (!store) {
-      return c.json({ error: 'Store not found' }, 404);
-    }
-    if (!store.isMember) {
-      return c.json({ error: 'Store membership required' }, 403);
+    });
+    if (!ctx.ok) {
+      return c.json({ error: ctx.error }, ctx.status);
     }
 
     const formData = await c.req.formData();
-    const file = formData.get('file');
-    if (!isUploadFile(file)) {
-      return c.json({ error: 'Multipart field "file" is required' }, 400);
+    const fileEntry = formData.get('file');
+    if (!isUploadedFile(fileEntry)) {
+      return c.json({ error: 'Missing file field in multipart form data' }, 400);
     }
 
-    const result = await uploadBookCover(drizzleDb, store, bookId, file, storage);
+    const result = await uploadBookCover({
+      db: drizzleDb,
+      store: ctx.store,
+      bookId,
+      file: fileEntry,
+      storage,
+    });
     if (!result.ok) {
       return c.json({ error: result.error }, result.status);
     }
@@ -210,26 +200,29 @@ export function createBooksRouter({
   });
 
   router.get('/api/v1/stores/:storeSlug/books/:bookId/cover', async (c) => {
-    const storeSlug = c.req.param('storeSlug');
-    const bookId = c.req.param('bookId');
-    const sessionUser = await getSessionUser(auth, c.req.raw.headers);
-
-    const store = await resolveStoreContext(
-      drizzleDb,
-      storeSlug,
-      sessionUser?.id ?? null,
+    const store = await resolvePublicStore({
+      db: drizzleDb,
+      auth,
+      headers: c.req.raw.headers,
+      storeSlug: c.req.param('storeSlug'),
       multiTenancyEnabled,
-    );
+    });
     if (!store) {
       return c.json({ error: 'Store not found' }, 404);
     }
 
-    const cover = await getBookCover(drizzleDb, store, bookId, storage);
+    const cover = await getBookCover({
+      db: drizzleDb,
+      store,
+      bookId: c.req.param('bookId'),
+      storage,
+    });
     if (!cover) {
       return c.json({ error: 'Cover not found' }, 404);
     }
 
-    return new Response(new Uint8Array(cover.body), {
+    const body = new Uint8Array(cover.body);
+    return new Response(body, {
       status: 200,
       headers: {
         'content-type': cover.contentType,
