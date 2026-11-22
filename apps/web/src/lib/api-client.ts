@@ -5,8 +5,10 @@ import {
   listBooksResponseSchema,
   listOrdersResponseSchema,
   orderSchema,
+  storeBillingSummarySchema,
   storeListResponseSchema,
   storeSchema,
+  upgradeStoreResponseSchema,
   uploadCoverResponseSchema,
 } from '@starter/contracts';
 import type {
@@ -19,10 +21,12 @@ import type {
   ListOrdersResponse,
   Order,
   Store,
+  StoreBillingSummary,
   StoreListResponse,
   UpdateBookInput,
   UpdateOrderStatusInput,
   UpdateStoreInput,
+  UpgradeStoreResponse,
   UploadCoverResponse,
 } from '@starter/contracts';
 import { getApiBaseUrl } from './env.ts';
@@ -178,6 +182,20 @@ export const apiClient = {
       `/api/v1/stores/${encodeURIComponent(storeSlug)}/orders/${encodeURIComponent(orderId)}/status`,
       { method: 'PATCH', body: JSON.stringify(input) },
       (data) => orderSchema.parse(data),
+    );
+  },
+  getBilling(storeSlug: string): Promise<StoreBillingSummary> {
+    return requestJson(
+      `/api/v1/stores/${encodeURIComponent(storeSlug)}/billing`,
+      { method: 'GET' },
+      (data) => storeBillingSummarySchema.parse(data),
+    );
+  },
+  upgradeStore(storeSlug: string): Promise<UpgradeStoreResponse> {
+    return requestJson(
+      `/api/v1/stores/${encodeURIComponent(storeSlug)}/billing/upgrade`,
+      { method: 'POST' },
+      (data) => upgradeStoreResponseSchema.parse(data),
     );
   },
 };

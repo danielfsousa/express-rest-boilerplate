@@ -13,6 +13,8 @@ import {
   withStoreContext,
 } from '@starter/db';
 import type { Database } from '@starter/db';
+import type Stripe from 'stripe';
+import { createOrderCheckoutSession } from '../billing/billing.service.ts';
 import type { ResolvedStoreContext } from '../books/books.service.ts';
 import {
   calculateOrderTotalCents,
@@ -79,10 +81,17 @@ export type CreateOrderResult =
   | { ok: true; order: Order }
   | { ok: false; status: 404 | 409; error: string };
 
+export interface OrderBillingContext {
+  enabled: boolean;
+  stripe: Stripe;
+  webOrigin: string;
+}
+
 export async function createOrderForStore(
   db: Database,
   store: ResolvedStoreContext,
   input: CreateOrderInput,
+  billing?: OrderBillingContext,
 ): Promise<CreateOrderResult> {
   const aggregated = new Map<string, number>();
   for (const item of input.items) {
@@ -90,8 +99,9 @@ export async function createOrderForStore(
   }
   const sortedItems = [...aggregated.entries()].toSorted(([a], [b]) => a.localeCompare(b));
 
+  let result: CreateOrderResult;
   try {
-    return await withStoreContext(db, store.id, async (tx) => {
+    result = await withStoreContext(db, store.id, async (tx) => {
       const resolvedLines: Array<{
         bookId: string;
         title: string;
@@ -180,7 +190,7 @@ export async function createOrderForStore(
         .values({
           storeId: store.id,
           customerId: customerRow.id,
-          status: 'paid',
+          status: billing?.enabled ? 'pending_payment' : 'paid',
           totalCents,
           currency,
         })
@@ -218,6 +228,25 @@ export async function createOrderForStore(
     }
     throw error;
   }
+
+  if (result.ok && billing?.enabled) {
+    const session = await createOrderCheckoutSession({
+      stripe: billing.stripe,
+      storeSlug: store.slug,
+      order: result.order,
+      webOrigin: billing.webOrigin,
+    });
+    await withStoreContext(db, store.id, async (tx) =>
+      tx
+        .update(orders)
+        .set({ stripeCheckoutSessionId: session.sessionId, updatedAt: new Date() })
+        .where(and(eq(orders.id, result.order.id), eq(orders.storeId, store.id))),
+    );
+    result.order.stripeCheckoutSessionId = session.sessionId;
+    result.order.checkoutUrl = session.url;
+  }
+
+  return result;
 }
 
 export async function listOrdersForStore(

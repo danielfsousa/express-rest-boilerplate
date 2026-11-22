@@ -1,9 +1,11 @@
+import { stripe as stripePlugin } from '@better-auth/stripe';
 import {
   account,
   invitation,
   member,
   organization,
   session,
+  subscription,
   user,
   verification,
 } from '@starter/db';
@@ -14,6 +16,7 @@ import { m, resolveLocale } from '@starter/i18n';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { organization as organizationPlugin } from 'better-auth/plugins';
+import type Stripe from 'stripe';
 
 export interface CreateAuthOptions {
   db: Database;
@@ -22,6 +25,10 @@ export interface CreateAuthOptions {
   trustedOrigins: Array<string>;
   mailer?: Mailer | undefined;
   i18nEnabled?: boolean | undefined;
+  billingEnabled?: boolean | undefined;
+  stripeClient?: Stripe | undefined;
+  stripeWebhookSecret?: string | undefined;
+  proPriceId?: string | undefined;
 }
 
 export function createAuth({
@@ -31,7 +38,31 @@ export function createAuth({
   trustedOrigins,
   mailer,
   i18nEnabled = true,
+  billingEnabled = false,
+  stripeClient,
+  stripeWebhookSecret,
+  proPriceId = 'price_pro_monthly',
 }: CreateAuthOptions) {
+  const plugins = [
+    organizationPlugin(),
+    ...(billingEnabled && stripeClient && stripeWebhookSecret
+      ? [
+          stripePlugin({
+            stripeClient,
+            stripeWebhookSecret,
+            createCustomerOnSignUp: false,
+            subscription: {
+              enabled: true,
+              plans: [
+                { name: 'free', priceId: 'price_free' },
+                { name: 'pro', priceId: proPriceId },
+              ],
+            },
+          }),
+        ]
+      : []),
+  ];
+
   return betterAuth({
     secret,
     baseURL,
@@ -46,6 +77,7 @@ export function createAuth({
         organization,
         member,
         invitation,
+        subscription,
       },
     }),
     emailAndPassword: {
@@ -87,7 +119,7 @@ export function createAuth({
         },
       },
     },
-    plugins: [organizationPlugin()],
+    plugins,
   });
 }
 

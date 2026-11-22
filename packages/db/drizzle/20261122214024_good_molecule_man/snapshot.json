@@ -1,0 +1,141 @@
+{
+  "type": "diff",
+  "version": "10",
+  "dialect": "postgres",
+  "id": "4b770bcb-39d5-41fe-8971-7df4f4ebc137",
+  "prevIds": ["b2230ac9-a670-4c51-b94d-4c713a8fce95"],
+  "footprints": [
+    {
+      "statementType": "add_column",
+      "statementTarget": ["column", "public", "subscription", "cancel_at"],
+      "writes": [
+        "s|col|public.subscription.cancel_at",
+        "n|col|public.subscription.cancel_at",
+        "e|col|public.subscription.cancel_at"
+      ],
+      "reads": ["n|tbl|public.subscription", "n|sch|public"]
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": ["column", "public", "subscription", "canceled_at"],
+      "writes": [
+        "s|col|public.subscription.canceled_at",
+        "n|col|public.subscription.canceled_at",
+        "e|col|public.subscription.canceled_at"
+      ],
+      "reads": ["n|tbl|public.subscription", "n|sch|public"]
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": ["column", "public", "subscription", "ended_at"],
+      "writes": [
+        "s|col|public.subscription.ended_at",
+        "n|col|public.subscription.ended_at",
+        "e|col|public.subscription.ended_at"
+      ],
+      "reads": ["n|tbl|public.subscription", "n|sch|public"]
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": ["column", "public", "subscription", "billing_interval"],
+      "writes": [
+        "s|col|public.subscription.billing_interval",
+        "n|col|public.subscription.billing_interval",
+        "e|col|public.subscription.billing_interval"
+      ],
+      "reads": ["n|tbl|public.subscription", "n|sch|public"]
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": ["column", "public", "subscription", "stripe_schedule_id"],
+      "writes": [
+        "s|col|public.subscription.stripe_schedule_id",
+        "n|col|public.subscription.stripe_schedule_id",
+        "e|col|public.subscription.stripe_schedule_id"
+      ],
+      "reads": ["n|tbl|public.subscription", "n|sch|public"]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "subscription",
+        "name": "cancel_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "subscription",
+        "name": "canceled_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "subscription",
+        "name": "ended_at",
+        "type": "timestamp with time zone",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "subscription",
+        "name": "billing_interval",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "subscription",
+        "name": "stripe_schedule_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    }
+  ]
+}

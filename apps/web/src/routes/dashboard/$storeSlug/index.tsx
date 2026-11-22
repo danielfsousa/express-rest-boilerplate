@@ -5,6 +5,7 @@ import { Spinner } from '@astryxdesign/core/Spinner';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { AppLayout } from '../../../components/AppLayout.tsx';
 import { StoreSettingsForm, StoreSwitcher, useStore } from '../../../features/stores/index.ts';
+import { isBillingEnabled } from '../../../lib/env.ts';
 
 export const Route = createFileRoute('/dashboard/$storeSlug/')({
   component: MerchantDashboardPage,
@@ -26,6 +27,11 @@ function MerchantDashboardPage() {
         <Link to="/dashboard/$storeSlug/orders" params={{ storeSlug }}>
           <Button label="Manage Orders" variant="secondary" size="sm" />
         </Link>
+        {isBillingEnabled() ? (
+          <Link to="/dashboard/$storeSlug/billing" params={{ storeSlug }}>
+            <Button label="Billing" variant="secondary" size="sm" />
+          </Link>
+        ) : null}
         <Link to="/s/$storeSlug" params={{ storeSlug }}>
           <Button label="View Storefront" variant="ghost" size="sm" />
         </Link>

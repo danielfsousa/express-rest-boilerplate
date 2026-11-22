@@ -10,6 +10,7 @@ import {
   organization,
   session,
   storeExports,
+  subscription,
   user,
   verification,
 } from './schema/index.ts';
@@ -25,6 +26,7 @@ const schema = {
   organization,
   session,
   storeExports,
+  subscription,
   user,
   verification,
 };

@@ -15,6 +15,7 @@ export function CheckoutForm({ storeSlug, bookId }: { storeSlug: string; bookId:
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
   const [quantity, setQuantity] = useState('1');
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -31,6 +32,10 @@ export function CheckoutForm({ storeSlug, bookId }: { storeSlug: string; bookId:
           },
         ],
       });
+      if (order.checkoutUrl) {
+        setCheckoutUrl(order.checkoutUrl);
+        return;
+      }
       await navigate({
         to: '/s/$storeSlug/orders/$orderId',
         params: { storeSlug, orderId: order.id },
@@ -49,6 +54,13 @@ export function CheckoutForm({ storeSlug, bookId }: { storeSlug: string; bookId:
       >
         <VStack gap="md">
           <Heading level={3}>Checkout</Heading>
+          {checkoutUrl ? (
+            <Banner status="info" title="Complete your payment">
+              <a href={checkoutUrl} target="_blank" rel="noreferrer">
+                Proceed to Stripe Checkout
+              </a>
+            </Banner>
+          ) : null}
           {createOrder.error ? (
             <Banner
               status="error"

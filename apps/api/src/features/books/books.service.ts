@@ -20,6 +20,7 @@ import {
 } from '@starter/db';
 import type { Database } from '@starter/db';
 import type { ObjectStorage } from '@starter/runtime/storage';
+import { assertCanPublishBook } from '../billing/billing.service.ts';
 
 const ALLOWED_COVER_TYPES = new Map<string, string>([
   ['image/jpeg', 'jpg'],
@@ -160,13 +161,23 @@ export async function listBooksForStore(
   });
 }
 
-export type CreateBookResult = { ok: true; book: Book } | { ok: false; status: 409; error: string };
+export type CreateBookResult =
+  | { ok: true; book: Book }
+  | { ok: false; status: 402 | 409; error: string };
 
 export async function createBookForStore(
   db: Database,
   store: ResolvedStoreContext,
   input: CreateBookInput,
+  billingEnabled = false,
 ): Promise<CreateBookResult> {
+  if (input.published) {
+    const check = await assertCanPublishBook(db, store.id, billingEnabled);
+    if (!check.allowed) {
+      return { ok: false, status: 402, error: check.error };
+    }
+  }
+
   try {
     const [created] = await withStoreContext(db, store.id, async (tx) =>
       tx
@@ -223,14 +234,24 @@ export async function getBookForStore(
 
 export type UpdateBookResult =
   | { ok: true; book: Book }
-  | { ok: false; status: 404 | 409; error: string };
+  | { ok: false; status: 402 | 404 | 409; error: string };
 
 export async function updateBookForStore(
   db: Database,
   store: ResolvedStoreContext,
   bookId: string,
   input: UpdateBookInput,
+  billingEnabled = false,
 ): Promise<UpdateBookResult> {
+  if (input.published === true) {
+    const existing = await getBookForStore(db, store, bookId);
+    if (existing && !existing.published) {
+      const check = await assertCanPublishBook(db, store.id, billingEnabled);
+      if (!check.allowed) {
+        return { ok: false, status: 402, error: check.error };
+      }
+    }
+  }
   const patch: Partial<typeof books.$inferInsert> = {
     updatedAt: new Date(),
   };

@@ -31,6 +31,7 @@ export const orderSchema = z.object({
   totalCents: z.number().int().min(0),
   currency: z.string().length(3),
   stripeCheckoutSessionId: z.string().nullable(),
+  checkoutUrl: z.string().nullable().optional(),
   items: z.array(orderItemSchema),
   createdAt: z.string(),
   updatedAt: z.string(),

@@ -4,7 +4,9 @@ import type { Database } from '@starter/db';
 import type { ObjectStorage } from '@starter/runtime/storage';
 import type { DbClient, RuntimeLogger } from '@starter/runtime/types';
 import { cors } from 'hono/cors';
+import type Stripe from 'stripe';
 import type { AuthInstance } from './features/auth/auth.service.ts';
+import { createBillingRouter } from './features/billing/billing.handlers.ts';
 import { createBooksRouter } from './features/books/books.handlers.ts';
 import { createHealthRouter } from './features/health/health.handlers.ts';
 import { createOrdersRouter } from './features/orders/orders.handlers.ts';
@@ -17,6 +19,11 @@ export interface CreateAppOptions {
   auth?: AuthInstance;
   storage?: ObjectStorage;
   multiTenancyEnabled?: boolean;
+  billingEnabled?: boolean;
+  stripeClient?: Stripe | undefined;
+  stripeWebhookSecret?: string;
+  stripeProPriceId?: string;
+  webOrigin?: string;
   trustedOrigins?: Array<string>;
 }
 
@@ -27,6 +34,11 @@ export function createApp({
   auth,
   storage,
   multiTenancyEnabled = true,
+  billingEnabled = false,
+  stripeClient,
+  stripeWebhookSecret = '',
+  stripeProPriceId = 'price_pro_monthly',
+  webOrigin = 'http://127.0.0.1:3000',
   trustedOrigins = ['http://127.0.0.1:3000'],
 }: CreateAppOptions): OpenAPIHono {
   const app = new OpenAPIHono();
@@ -66,8 +78,46 @@ export function createApp({
 
   if (drizzleDb && auth) {
     app.route('/', createStoresRouter({ drizzleDb, auth, multiTenancyEnabled }));
-    app.route('/', createBooksRouter({ drizzleDb, auth, multiTenancyEnabled, storage }));
-    app.route('/', createOrdersRouter({ drizzleDb, auth, multiTenancyEnabled }));
+    app.route(
+      '/',
+      createBooksRouter({
+        drizzleDb,
+        auth,
+        multiTenancyEnabled,
+        billingEnabled,
+        storage,
+      }),
+    );
+
+    const billingContext =
+      billingEnabled && stripeClient
+        ? { enabled: true, stripe: stripeClient, webOrigin }
+        : undefined;
+
+    app.route(
+      '/',
+      createOrdersRouter({
+        drizzleDb,
+        auth,
+        multiTenancyEnabled,
+        billing: billingContext,
+      }),
+    );
+
+    if (billingEnabled && stripeClient) {
+      app.route(
+        '/',
+        createBillingRouter({
+          drizzleDb,
+          auth,
+          stripe: stripeClient,
+          webhookSecret: stripeWebhookSecret,
+          proPriceId: stripeProPriceId,
+          webOrigin,
+          multiTenancyEnabled,
+        }),
+      );
+    }
   }
 
   app.doc31('/openapi.json', {

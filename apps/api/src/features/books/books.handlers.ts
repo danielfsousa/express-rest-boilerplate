@@ -35,6 +35,7 @@ export interface CreateBooksRouterOptions {
   drizzleDb: Database;
   auth: AuthInstance;
   multiTenancyEnabled: boolean;
+  billingEnabled?: boolean | undefined;
   storage?: ObjectStorage | undefined;
 }
 
@@ -42,6 +43,7 @@ export function createBooksRouter({
   drizzleDb,
   auth,
   multiTenancyEnabled,
+  billingEnabled = false,
   storage,
 }: CreateBooksRouterOptions): OpenAPIHono {
   const router = new OpenAPIHono();
@@ -86,7 +88,7 @@ export function createBooksRouter({
     }
 
     const body = c.req.valid('json');
-    const result = await createBookForStore(drizzleDb, store, body);
+    const result = await createBookForStore(drizzleDb, store, body, billingEnabled);
     if (!result.ok) {
       return c.json({ error: result.error }, result.status);
     }
@@ -137,7 +139,7 @@ export function createBooksRouter({
     }
 
     const body = c.req.valid('json');
-    const result = await updateBookForStore(drizzleDb, store, bookId, body);
+    const result = await updateBookForStore(drizzleDb, store, bookId, body, billingEnabled);
     if (!result.ok) {
       return c.json({ error: result.error }, result.status);
     }

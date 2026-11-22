@@ -12,3 +12,8 @@ export function isI18nEnabled(): boolean {
   const flag: unknown = import.meta.env?.['VITE_FEATURE_I18N_ENABLED'];
   return flag !== 'false';
 }
+
+export function isBillingEnabled(): boolean {
+  const flag: unknown = import.meta.env?.['VITE_FEATURE_BILLING_ENABLED'];
+  return flag !== 'false';
+}

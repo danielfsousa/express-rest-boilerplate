@@ -9,6 +9,7 @@ import {
   listOrdersRoute,
   updateOrderStatusRoute,
 } from './orders.routes.ts';
+import type { OrderBillingContext } from './orders.service.ts';
 import {
   createOrderForStore,
   getOrderForStore,
@@ -20,12 +21,14 @@ export interface CreateOrdersRouterOptions {
   drizzleDb: Database;
   auth: AuthInstance;
   multiTenancyEnabled: boolean;
+  billing?: OrderBillingContext | undefined;
 }
 
 export function createOrdersRouter({
   drizzleDb,
   auth,
   multiTenancyEnabled,
+  billing,
 }: CreateOrdersRouterOptions): OpenAPIHono {
   const router = new OpenAPIHono();
 
@@ -37,7 +40,7 @@ export function createOrdersRouter({
     }
 
     const body = c.req.valid('json');
-    const result = await createOrderForStore(drizzleDb, store, body);
+    const result = await createOrderForStore(drizzleDb, store, body, billing);
     if (!result.ok) {
       return c.json({ error: result.error }, result.status);
     }

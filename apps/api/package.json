@@ -8,6 +8,7 @@
     "start": "node src/index.ts"
   },
   "dependencies": {
+    "@better-auth/stripe": "^1.7.27",
     "@hono/zod-openapi": "^1.6.3",
     "@scalar/hono-api-reference": "^0.12.23",
     "@starter/contracts": "workspace:*",
@@ -17,10 +18,12 @@
     "@starter/runtime": "workspace:*",
     "better-auth": "^1.7.27",
     "hono": "^4.13.20",
+    "stripe": "^23.2.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {
     "@testcontainers/postgresql": "^12.2.2",
+    "emulate": "^0.14.0",
     "testcontainers": "^12.2.2"
   }
 }

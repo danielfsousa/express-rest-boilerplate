@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "skills": {
+    "better-drizzle": {
+      "source": "almeidazs/better-drizzle",
+      "commit": "1a6562d12490f8f8f9fe147a5e38a2941d2d954c",
+      "sourceType": "github",
+      "skillPath": "skills/better-drizzle/SKILL.md",
+      "computedHash": "32b67416b84c56ef16547c245895e763efb4024069c5f04d05d79786bbf6e8e5"
+    }
+  }
+}

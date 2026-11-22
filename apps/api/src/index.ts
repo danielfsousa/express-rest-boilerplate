@@ -5,6 +5,7 @@ import { createS3Storage } from '@starter/runtime/storage';
 import { createApp } from './app.ts';
 import { parseEnv } from './config/env.ts';
 import { createAuth } from './features/auth/auth.service.ts';
+import { createStripeClient } from './features/billing/billing.service.ts';
 
 async function main(): Promise<void> {
   const env = parseEnv(readEnv());
@@ -22,6 +23,15 @@ async function main(): Promise<void> {
     fromEmail: env.BIRD_FROM_EMAIL,
   });
 
+  const stripeClient = env.FEATURE_BILLING_ENABLED
+    ? createStripeClient({
+        secretKey: env.STRIPE_SECRET_KEY,
+        host: env.STRIPE_API_HOST,
+        port: env.STRIPE_API_PORT,
+        protocol: env.STRIPE_API_PROTOCOL,
+      })
+    : undefined;
+
   const trustedOrigins = [env.WEB_ORIGIN, env.BETTER_AUTH_URL];
   const auth = createAuth({
     db: drizzleHandle.db,
@@ -30,6 +40,10 @@ async function main(): Promise<void> {
     trustedOrigins,
     mailer,
     i18nEnabled: env.FEATURE_I18N_ENABLED,
+    billingEnabled: env.FEATURE_BILLING_ENABLED,
+    stripeClient,
+    stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
+    proPriceId: env.STRIPE_PRO_PRICE_ID,
   });
 
   const storage = createS3Storage({
@@ -47,6 +61,11 @@ async function main(): Promise<void> {
     auth,
     storage,
     multiTenancyEnabled: env.FEATURE_MULTI_TENANCY_ENABLED,
+    billingEnabled: env.FEATURE_BILLING_ENABLED,
+    stripeClient,
+    stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
+    stripeProPriceId: env.STRIPE_PRO_PRICE_ID,
+    webOrigin: env.WEB_ORIGIN,
     trustedOrigins,
   });
 
