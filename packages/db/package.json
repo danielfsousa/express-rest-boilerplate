@@ -1,0 +1,26 @@
+{
+  "name": "@starter/db",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
+  },
+  "dependencies": {
+    "drizzle-orm": "1.0.0-rc.6",
+    "postgres": "^4.1.1",
+    "uuidv7": "^1.2.1"
+  },
+  "devDependencies": {
+    "@testcontainers/postgresql": "^12.2.2",
+    "drizzle-kit": "1.0.0-rc.6",
+    "testcontainers": "^12.2.2"
+  }
+}

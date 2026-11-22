@@ -3,6 +3,8 @@ dist/
 coverage/
 .vite/
 .tanstack/
+.output/
+apps/web/src/routeTree.gen.ts
 *.tsbuildinfo
 .env
 .env.local

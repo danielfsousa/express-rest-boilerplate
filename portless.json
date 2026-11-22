@@ -5,6 +5,10 @@
     "apps/api": {
       "name": "api",
       "script": "dev"
+    },
+    "apps/web": {
+      "name": "web",
+      "script": "dev"
     }
   }
 }

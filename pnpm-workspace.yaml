@@ -2,9 +2,14 @@ packages:
   - 'apps/*'
   - 'packages/*'
 allowBuilds:
+  '@astryxdesign/cli': true
+  '@astryxdesign/core': true
   cpu-features: false
+  esbuild: true
   lefthook: true
   protobufjs: false
   ssh2: false
 minimumReleaseAgeExclude:
   - hono@4.13.20
+  - '@tanstack/query-core@5.108.3'
+  - '@tanstack/react-query@5.108.3'

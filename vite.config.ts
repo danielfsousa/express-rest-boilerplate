@@ -14,6 +14,11 @@ export default defineConfig({
     semi: true,
   },
   test: {
-    include: ['packages/*/src/**/*.test.ts', 'apps/*/src/**/*.test.ts', 'apps/*/test/**/*.test.ts'],
+    include: [
+      'packages/*/src/**/*.test.ts',
+      'packages/*/test/**/*.test.ts',
+      'apps/*/src/**/*.test.ts',
+      'apps/*/test/**/*.test.ts',
+    ],
   },
 });

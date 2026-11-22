@@ -1,12 +1,17 @@
 {
   "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "lib": ["ES2024", "DOM", "DOM.Iterable"]
+  },
   "include": [
     "oxlint.config.ts",
     "vite.config.ts",
     "apps/*/src/**/*.ts",
+    "apps/*/src/**/*.tsx",
     "apps/*/test/**/*.ts",
     "packages/*/src/**/*.ts",
     "packages/*/test/**/*.ts"
   ],
-  "exclude": ["**/node_modules/**", "**/dist/**", "**/coverage/**"]
+  "exclude": ["**/node_modules/**", "**/dist/**", "**/coverage/**", "**/.output/**"]
 }
