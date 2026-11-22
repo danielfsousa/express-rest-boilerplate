@@ -1,3 +1,7 @@
+import { z } from 'zod';
+import { createBirdMailer } from './mailer.ts';
+import type { Mailer } from './mailer.ts';
+
 export interface CapturedBirdEmail {
   id: string;
   receivedAt: string;
@@ -8,78 +12,48 @@ export interface CapturedBirdEmail {
   text: string;
 }
 
-function parseBirdPayload(raw: unknown): Omit<CapturedBirdEmail, 'id' | 'receivedAt'> {
-  if (typeof raw !== 'object' || raw === null) {
-    return { to: [], from: '', subject: '', html: '', text: '' };
-  }
-
-  const recipients =
-    'recipients' in raw && Array.isArray(raw.recipients)
-      ? raw.recipients
-          .map((item: unknown) => {
-            if (
-              typeof item === 'object' &&
-              item !== null &&
-              'address' in item &&
-              typeof item.address === 'object' &&
-              item.address !== null &&
-              'email' in item.address &&
-              typeof item.address.email === 'string'
-            ) {
-              return item.address.email;
-            }
-            return null;
-          })
-          .filter((email): email is string => email !== null)
-      : [];
-
-  let from = '';
-  if (
-    'sender' in raw &&
-    typeof raw.sender === 'object' &&
-    raw.sender !== null &&
-    'address' in raw.sender &&
-    typeof raw.sender.address === 'object' &&
-    raw.sender.address !== null &&
-    'email' in raw.sender.address &&
-    typeof raw.sender.address.email === 'string'
-  ) {
-    from = raw.sender.address.email;
-  }
-
-  let subject = '';
-  let html = '';
-  let text = '';
-  if ('content' in raw && typeof raw.content === 'object' && raw.content !== null) {
-    if ('subject' in raw.content && typeof raw.content.subject === 'string') {
-      subject = raw.content.subject;
-    }
-    if ('html' in raw.content && typeof raw.content.html === 'string') {
-      html = raw.content.html;
-    }
-    if ('text' in raw.content && typeof raw.content.text === 'string') {
-      text = raw.content.text;
-    }
-  }
-
-  return { to: recipients, from, subject, html, text };
+export interface BirdEmulator {
+  fetch: (request: Request) => Promise<Response>;
+  createMailer: (fromEmail?: string) => Mailer;
+  getMessages: () => ReadonlyArray<CapturedBirdEmail>;
+  clear: () => void;
 }
 
-export function createBirdEmulatorFetch(): (request: Request) => Promise<Response> {
+const birdSendPayloadSchema = z.object({
+  recipients: z
+    .array(z.object({ address: z.object({ email: z.string() }) }))
+    .optional()
+    .default([]),
+  sender: z.object({ address: z.object({ email: z.string() }) }).optional(),
+  content: z
+    .object({
+      subject: z.string().optional().default(''),
+      html: z.string().optional().default(''),
+      text: z.string().optional().default(''),
+    })
+    .optional(),
+});
+
+export function createBirdEmulator(): BirdEmulator {
   const messages: Array<CapturedBirdEmail> = [];
 
-  return async (request: Request): Promise<Response> => {
+  const emulatorFetch = async (request: Request): Promise<Response> => {
     const url = new URL(request.url);
 
     if (request.method === 'POST' && url.pathname === '/v1/email/messages') {
-      const payload: unknown = await request.json();
-      const parsed = parseBirdPayload(payload);
+      const parsed = birdSendPayloadSchema.safeParse(await request.json());
       const id = crypto.randomUUID();
-      messages.push({
-        id,
-        receivedAt: new Date().toISOString(),
-        ...parsed,
-      });
+      if (parsed.success) {
+        messages.push({
+          id,
+          receivedAt: new Date().toISOString(),
+          to: parsed.data.recipients.map((recipient) => recipient.address.email),
+          from: parsed.data.sender?.address.email ?? '',
+          subject: parsed.data.content?.subject ?? '',
+          html: parsed.data.content?.html ?? '',
+          text: parsed.data.content?.text ?? '',
+        });
+      }
       return Response.json({ id, status: 'accepted' }, { status: 202 });
     }
 
@@ -94,4 +68,23 @@ export function createBirdEmulatorFetch(): (request: Request) => Promise<Respons
 
     return Response.json({ error: 'Not found' }, { status: 404 });
   };
+
+  return {
+    fetch: emulatorFetch,
+    createMailer: (fromEmail = 'noreply@bookstore.local') =>
+      createBirdMailer({
+        apiBaseUrl: 'http://bird.emulator.local',
+        apiKey: 'bird-emulator-key',
+        fromEmail,
+        fetchImpl: emulatorFetch,
+      }),
+    getMessages: () => [...messages],
+    clear: () => {
+      messages.length = 0;
+    },
+  };
+}
+
+export function createBirdEmulatorFetch(): (request: Request) => Promise<Response> {
+  return createBirdEmulator().fetch;
 }

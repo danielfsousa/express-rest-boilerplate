@@ -1,4 +1,9 @@
-export { createBirdEmulatorFetch, type CapturedBirdEmail } from './emulator.ts';
+export {
+  createBirdEmulator,
+  createBirdEmulatorFetch,
+  type BirdEmulator,
+  type CapturedBirdEmail,
+} from './emulator.ts';
 export {
   createBirdMailer,
   createNoopMailer,

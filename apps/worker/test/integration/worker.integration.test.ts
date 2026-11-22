@@ -1,34 +1,20 @@
-import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { bookSchema, orderSchema, storeExportSchema } from '@starter/contracts';
-import { createDb, migrateDb, sql } from '@starter/db';
-import { createBirdEmulatorFetch, createBirdMailer } from '@starter/email';
+import { createDb } from '@starter/db';
+import { createBirdEmulator } from '@starter/email';
 import {
   createInlineJobQueue,
   createPgBossJobQueue,
   registerDefaultJobHandlers,
 } from '@starter/jobs';
-import { createDbClient, createLogger } from '@starter/runtime';
-import { createS3Storage } from '@starter/runtime/storage';
-import { PostgreSqlContainer } from '@testcontainers/postgresql';
+import { createLogger } from '@starter/runtime';
+import { createMemoryStorage, createS3Storage } from '@starter/runtime/storage';
 import { GenericContainer } from 'testcontainers';
 import { afterAll, beforeAll, describe, expect, test } from 'vite-plus/test';
-import { z } from 'zod';
 import { createApp } from '../../../../apps/api/src/app.ts';
 import { createAuth } from '../../../../apps/api/src/features/auth/auth.service.ts';
-
-const migrationsFolder = path.resolve(import.meta.dirname, '../../../../packages/db/drizzle');
-
-const capturedMessagesSchema = z.object({
-  messages: z.array(
-    z.object({
-      to: z.array(z.string()),
-      subject: z.string(),
-      html: z.string(),
-      text: z.string(),
-    }),
-  ),
-});
+import { startTestPostgres } from '../../../../packages/db/test/harness.ts';
+import type { TestPostgresHarness } from '../../../../packages/db/test/harness.ts';
 
 function extractSessionCookie(response: Response): string {
   const setCookie = response.headers.get('set-cookie');
@@ -59,40 +45,17 @@ async function waitFor<T>(
 }
 
 describe('pg-boss worker, emails, and CSV exports integration (apps/worker)', () => {
-  let pgContainer: Awaited<ReturnType<PostgreSqlContainer['start']>>;
+  let pg: TestPostgresHarness;
   let flociContainer: Awaited<ReturnType<GenericContainer['start']>>;
-  let appUri: string;
   let flociEndpoint: string;
 
   beforeAll(async () => {
-    const [pg, floci] = await Promise.all([
-      new PostgreSqlContainer('postgres:17-alpine').start(),
+    const [pgHarness, floci] = await Promise.all([
+      startTestPostgres(),
       new GenericContainer('floci/floci:latest').withExposedPorts(4566).start(),
     ]);
-    pgContainer = pg;
+    pg = pgHarness;
     flociContainer = floci;
-
-    const adminUri = pg.getConnectionUri();
-    const adminHandle = createDb(adminUri, 1);
-    try {
-      await adminHandle.db.execute(
-        sql.raw(`
-          CREATE ROLE app_user LOGIN PASSWORD 'app_password' NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS;
-          GRANT CONNECT, CREATE ON DATABASE ${pg.getDatabase()} TO app_user;
-          CREATE SCHEMA IF NOT EXISTS pgboss AUTHORIZATION app_user;
-          GRANT USAGE ON SCHEMA public TO app_user;
-        `),
-      );
-    } finally {
-      await adminHandle.close();
-    }
-
-    await migrateDb(adminUri, migrationsFolder);
-
-    const parsed = new URL(adminUri);
-    parsed.username = 'app_user';
-    parsed.password = 'app_password';
-    appUri = parsed.toString();
 
     flociEndpoint = `http://${floci.getHost()}:${String(floci.getMappedPort(4566))}`;
     const bucketRes = await fetch(`${flociEndpoint}/bookstore-media`, {
@@ -102,20 +65,14 @@ describe('pg-boss worker, emails, and CSV exports integration (apps/worker)', ()
   }, 120_000);
 
   afterAll(async () => {
-    await Promise.all([pgContainer?.stop(), flociContainer?.stop()]);
+    await Promise.all([pg?.stop(), flociContainer?.stop()]);
   });
 
   test('processes pg-boss order receipt, low-stock alert, and CSV export jobs', async () => {
     const logger = createLogger({ level: 'silent' });
-    const dbClient = createDbClient({ url: appUri });
-    const drizzleHandle = createDb(appUri);
-    const emulatorFetch = createBirdEmulatorFetch();
-    const mailer = createBirdMailer({
-      apiBaseUrl: 'http://bird.emulator.test',
-      apiKey: 'test-bird-key',
-      fromEmail: 'noreply@bookstore.local',
-      fetchImpl: emulatorFetch,
-    });
+    const drizzleHandle = createDb(pg.appUri);
+    const emulator = createBirdEmulator();
+    const mailer = emulator.createMailer('noreply@bookstore.local');
     const storage = createS3Storage({
       endpoint: flociEndpoint,
       region: 'us-east-1',
@@ -125,14 +82,14 @@ describe('pg-boss worker, emails, and CSV exports integration (apps/worker)', ()
     });
 
     const apiQueue = createPgBossJobQueue({
-      connectionString: appUri,
+      connectionString: pg.appUri,
       schema: 'pgboss',
       retryLimit: 3,
       retryDelay: 30,
       retryBackoff: true,
     });
     const workerQueue = createPgBossJobQueue({
-      connectionString: appUri,
+      connectionString: pg.appUri,
       schema: 'pgboss',
       retryLimit: 3,
       retryDelay: 30,
@@ -149,6 +106,7 @@ describe('pg-boss worker, emails, and CSV exports integration (apps/worker)', ()
         storage,
         logger,
       });
+
       const auth = createAuth({
         db: drizzleHandle.db,
         secret: 'integration-test-secret-32-characters',
@@ -159,7 +117,7 @@ describe('pg-boss worker, emails, and CSV exports integration (apps/worker)', ()
       });
 
       const app = createApp({
-        db: dbClient,
+        db: drizzleHandle,
         logger,
         drizzleDb: drizzleHandle.db,
         auth,
@@ -205,7 +163,6 @@ describe('pg-boss worker, emails, and CSV exports integration (apps/worker)', ()
       expect(bookRes.status).toBe(201);
       const book = bookSchema.parse(await bookRes.json());
 
-      // Order 2 units so stock drops to 4 (<= default threshold 5), localized in pt-BR.
       const orderRes = await app.request('/api/v1/stores/worker-books/orders', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -220,17 +177,15 @@ describe('pg-boss worker, emails, and CSV exports integration (apps/worker)', ()
       const order = orderSchema.parse(await orderRes.json());
       expect(order.status).toBe('paid');
 
-      // Wait for pg-boss worker to deliver both order receipt (pt-BR) and low-stock alert emails.
       const captured = await waitFor(async () => {
-        const res = await emulatorFetch(new Request('http://bird.emulator.test/__messages'));
-        const parsed = capturedMessagesSchema.parse(await res.json());
-        const hasReceipt = parsed.messages.some((msg) => msg.to.includes('joao@example.com'));
-        const hasLowStock = parsed.messages.some(
+        const msgs = emulator.getMessages();
+        const hasReceipt = msgs.some((msg) => msg.to.includes('joao@example.com'));
+        const hasLowStock = msgs.some(
           (msg) =>
             msg.to.includes('ada-worker@example.com') &&
             msg.subject.includes('Designing Event-Driven Systems'),
         );
-        return hasReceipt && hasLowStock ? parsed.messages : null;
+        return hasReceipt && hasLowStock ? msgs : null;
       });
 
       const receiptMsg = captured.find((msg) => msg.to.includes('joao@example.com'));
@@ -245,7 +200,6 @@ describe('pg-boss worker, emails, and CSV exports integration (apps/worker)', ()
       expect(lowStockMsg?.subject).toContain('Designing Event-Driven Systems');
       expect(lowStockMsg?.text).toContain('4');
 
-      // Trigger CSV export job and poll until completed.
       const exportCreateRes = await app.request('/api/v1/stores/worker-books/exports/books', {
         method: 'POST',
         headers: { cookie },
@@ -287,28 +241,16 @@ describe('pg-boss worker, emails, and CSV exports integration (apps/worker)', ()
       expect(downloadedCsv).toContain('WRK-1,Designing Event-Driven Systems');
     } finally {
       await Promise.all([apiQueue.stop(), workerQueue.stop()]);
-      await Promise.all([drizzleHandle.close(), dbClient.close()]);
+      await drizzleHandle.close();
     }
   }, 30_000);
 
   test('FEATURE_JOBS_ENABLED=false inline fallback completes CSV export synchronously', async () => {
     const logger = createLogger({ level: 'silent' });
-    const dbClient = createDbClient({ url: appUri });
-    const drizzleHandle = createDb(appUri);
-    const emulatorFetch = createBirdEmulatorFetch();
-    const mailer = createBirdMailer({
-      apiBaseUrl: 'http://bird.emulator.test',
-      apiKey: 'test-bird-key',
-      fromEmail: 'noreply@bookstore.local',
-      fetchImpl: emulatorFetch,
-    });
-    const storage = createS3Storage({
-      endpoint: flociEndpoint,
-      region: 'us-east-1',
-      accessKeyId: 'test',
-      secretAccessKey: 'test',
-      bucket: 'bookstore-media',
-    });
+    const drizzleHandle = createDb(pg.appUri);
+    const emulator = createBirdEmulator();
+    const mailer = emulator.createMailer('noreply@bookstore.local');
+    const storage = createMemoryStorage();
 
     const inlineQueue = createInlineJobQueue();
     await inlineQueue.start();
@@ -328,7 +270,7 @@ describe('pg-boss worker, emails, and CSV exports integration (apps/worker)', ()
       });
 
       const app = createApp({
-        db: dbClient,
+        db: drizzleHandle,
         logger,
         drizzleDb: drizzleHandle.db,
         auth,
@@ -380,7 +322,7 @@ describe('pg-boss worker, emails, and CSV exports integration (apps/worker)', ()
       expect(exp.downloadUrl).toBeTruthy();
     } finally {
       await inlineQueue.stop();
-      await Promise.all([drizzleHandle.close(), dbClient.close()]);
+      await drizzleHandle.close();
     }
   }, 30_000);
 });

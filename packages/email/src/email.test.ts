@@ -1,25 +1,12 @@
-import { createServer } from '@starter/runtime';
 import { describe, expect, test } from 'vite-plus/test';
 import {
-  createBirdEmulatorFetch,
-  createBirdMailer,
+  createBirdEmulator,
   LowStockAlertEmail,
   OrderReceiptEmail,
   PasswordResetEmail,
   renderEmail,
   WelcomeEmail,
 } from './index.ts';
-
-function isCapturedResponse(
-  value: unknown,
-): value is { messages: Array<{ to: Array<string>; subject: string; html: string }> } {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'messages' in value &&
-    Array.isArray(value.messages)
-  );
-}
 
 describe('packages/email', () => {
   test('renders localized React Email templates in en and pt-BR', async () => {
@@ -65,41 +52,22 @@ describe('packages/email', () => {
     expect(lowStockPt.html).toContain('SKU-1');
   });
 
-  test('Bird mailer delivers rendered email to local Bird HTTP emulator', async () => {
-    const server = await createServer({
-      port: 0,
-      hostname: '127.0.0.1',
-      fetch: createBirdEmulatorFetch(),
+  test('Bird mailer delivers rendered email to in-process Bird emulator', async () => {
+    const emulator = createBirdEmulator();
+    const mailer = emulator.createMailer('noreply@bookstore.local');
+
+    const rendered = await renderEmail(WelcomeEmail({ name: 'Carol', locale: 'en' }));
+    const sent = await mailer.send({
+      to: 'carol@example.com',
+      subject: 'Welcome',
+      html: rendered.html,
+      text: rendered.text,
     });
+    expect(sent.messageId.length).toBeGreaterThan(0);
 
-    try {
-      const mailer = createBirdMailer({
-        apiBaseUrl: server.url,
-        apiKey: 'test-key',
-        fromEmail: 'noreply@bookstore.local',
-      });
-
-      const rendered = await renderEmail(WelcomeEmail({ name: 'Carol', locale: 'en' }));
-      const sent = await mailer.send({
-        to: 'carol@example.com',
-        subject: 'Welcome',
-        html: rendered.html,
-        text: rendered.text,
-      });
-      expect(sent.messageId.length).toBeGreaterThan(0);
-
-      const capturedRes = await fetch(`${server.url}/__messages`);
-      expect(capturedRes.status).toBe(200);
-      const rawBody: unknown = await capturedRes.json();
-      expect(isCapturedResponse(rawBody)).toBe(true);
-      if (!isCapturedResponse(rawBody)) {
-        return;
-      }
-      expect(rawBody.messages).toHaveLength(1);
-      expect(rawBody.messages[0]?.to).toEqual(['carol@example.com']);
-      expect(rawBody.messages[0]?.html).toContain('Welcome, Carol!');
-    } finally {
-      await server.close();
-    }
+    const messages = emulator.getMessages();
+    expect(messages).toHaveLength(1);
+    expect(messages[0]?.to).toEqual(['carol@example.com']);
+    expect(messages[0]?.html).toContain('Welcome, Carol!');
   });
 });

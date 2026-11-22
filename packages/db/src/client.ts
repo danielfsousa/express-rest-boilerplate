@@ -1,3 +1,4 @@
+import { setTimeout as delay } from 'node:timers/promises';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import postgres from 'postgres';
@@ -8,6 +9,22 @@ export function createDb(url: string, maxConnections = 10) {
   const db = drizzle({ client, relations });
   return {
     db,
+    ping: async (timeoutMs = 2000): Promise<boolean> => {
+      const controller = new AbortController();
+      try {
+        const timeoutPromise = delay(timeoutMs, undefined, { signal: controller.signal }).then(
+          () => {
+            throw new Error(`Database ping timed out after ${String(timeoutMs)} ms`);
+          },
+        );
+        await Promise.race([client`SELECT 1`, timeoutPromise]);
+        return true;
+      } catch {
+        return false;
+      } finally {
+        controller.abort();
+      }
+    },
     close: async (): Promise<void> => {
       await client.end({ timeout: 5 });
     },

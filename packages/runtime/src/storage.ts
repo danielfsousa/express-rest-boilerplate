@@ -25,6 +25,26 @@ export interface CreateS3StorageOptions {
   forcePathStyle?: boolean;
 }
 
+function isS3NotFoundError(error: unknown): boolean {
+  if (typeof error !== 'object' || error === null) {
+    return false;
+  }
+  const name = 'name' in error && typeof error.name === 'string' ? error.name : '';
+  if (name === 'NoSuchKey' || name === 'NotFound') {
+    return true;
+  }
+  if (
+    '$metadata' in error &&
+    typeof error.$metadata === 'object' &&
+    error.$metadata !== null &&
+    'httpStatusCode' in error.$metadata &&
+    error.$metadata.httpStatusCode === 404
+  ) {
+    return true;
+  }
+  return false;
+}
+
 export function createS3Storage({
   endpoint,
   region,
@@ -71,8 +91,11 @@ export function createS3Storage({
           body: bytes,
           contentType: result.ContentType ?? 'application/octet-stream',
         };
-      } catch {
-        return null;
+      } catch (error: unknown) {
+        if (isS3NotFoundError(error)) {
+          return null;
+        }
+        throw error;
       }
     },
     async deleteObject(key) {
@@ -82,6 +105,32 @@ export function createS3Storage({
           Key: key,
         }),
       );
+    },
+  };
+}
+
+export function createMemoryStorage(): ObjectStorage {
+  const objects = new Map<string, StoredObject>();
+
+  return {
+    async putObject({ key, body, contentType }) {
+      objects.set(key, {
+        body: new Uint8Array(body),
+        contentType,
+      });
+    },
+    async getObject(key) {
+      const entry = objects.get(key);
+      if (!entry) {
+        return null;
+      }
+      return {
+        body: new Uint8Array(entry.body),
+        contentType: entry.contentType,
+      };
+    },
+    async deleteObject(key) {
+      objects.delete(key);
     },
   };
 }
