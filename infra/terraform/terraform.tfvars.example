@@ -1,0 +1,8 @@
+domain                = "example.com"
+cloudflare_account_id = "00000000000000000000000000000000"
+cloudflare_zone_id    = "00000000000000000000000000000000"
+api_image_url         = "ghcr.io/danielfsousa/nodejs-fullstack-starter/api:latest"
+worker_image_url      = "ghcr.io/danielfsousa/nodejs-fullstack-starter/worker:latest"
+enable_separate_worker = false
+enable_cloudflare_kv  = true
+bird_from_email       = "noreply@example.com"

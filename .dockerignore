@@ -1,4 +1,14 @@
-node_modules/
-.git/
-coverage/
+node_modules
+**/node_modules
+**/dist
+**/.output
+**/.tanstack
+coverage
+.git
 .env
+.env.*
+!.env.example
+e2e
+playwright-report
+test-results
+infra/terraform/.terraform
