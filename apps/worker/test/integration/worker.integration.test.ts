@@ -231,6 +231,12 @@ describe('pg-boss worker, emails, and CSV exports integration (apps/worker)', ()
         );
       }
 
+      const listExportsRes = await app.request('/api/v1/stores/worker-books/exports', {
+        method: 'GET',
+        headers: { cookie },
+      });
+      expect(listExportsRes.status).toBe(200);
+
       const downloadRes = await app.request(
         `/api/v1/stores/worker-books/exports/${queuedExport.id}/download`,
         { method: 'GET', headers: { cookie } },

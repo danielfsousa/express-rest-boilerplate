@@ -270,6 +270,37 @@ describe('Books and Floci cover upload integration (apps/api)', () => {
         }),
       );
       expect(bigRes.status).toBe(413);
+
+      // Update book metadata and stock
+      const patchRes = await app.fetch(
+        new Request(`http://localhost/api/v1/stores/alpha-books/books/${book1.id}`, {
+          method: 'PATCH',
+          headers: { 'content-type': 'application/json', cookie: cookieA },
+          body: JSON.stringify({
+            title: 'Updated Pragmatic Book',
+            priceCents: 4900,
+            stock: 12,
+          }),
+        }),
+      );
+      expect(patchRes.status).toBe(200);
+      const patched = bookSchema.parse(await patchRes.json());
+      expect(patched.title).toBe('Updated Pragmatic Book');
+      expect(patched.stock).toBe(12);
+
+      // Delete book and confirm cover + row are removed
+      const deleteRes = await app.fetch(
+        new Request(`http://localhost/api/v1/stores/alpha-books/books/${book1.id}`, {
+          method: 'DELETE',
+          headers: { cookie: cookieA },
+        }),
+      );
+      expect(deleteRes.status).toBe(200);
+
+      const getAfterDelete = await app.fetch(
+        new Request(`http://localhost/api/v1/stores/alpha-books/books/${book1.id}`),
+      );
+      expect(getAfterDelete.status).toBe(404);
     } finally {
       await drizzleHandle.close();
       await db.close();

@@ -6,7 +6,9 @@
   },
   "include": [
     "oxlint.config.ts",
+    "playwright.config.ts",
     "vite.config.ts",
+    "e2e/**/*.ts",
     "scripts/**/*.ts",
     "apps/*/src/**/*.ts",
     "apps/*/src/**/*.tsx",

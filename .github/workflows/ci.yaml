@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  ci:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -18,6 +18,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build web app
+        run: pnpm --filter @starter/web build
+
       - name: Format and lint check
         run: pnpm run check
 
@@ -27,5 +30,48 @@ jobs:
       - name: Typecheck
         run: pnpm run typecheck
 
-      - name: Test
-        run: pnpm run test
+      - name: Unit, component, and integration tests with coverage
+        run: pnpm run test:cov
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup mise
+        uses: jdx/mise-action@v2
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Start Postgres and Floci
+        run: POSTGRES_HOST_PORT=5432 docker compose up -d postgres floci floci-init
+
+      - name: Run database migrations
+        env:
+          DATABASE_ADMIN_URL: postgres://postgres:postgres@127.0.0.1:5432/bookstore
+        run: pnpm --filter @starter/db db:migrate
+
+      - name: Start emulators, API, and Web and run Playwright E2E
+        env:
+          DATABASE_URL: postgres://app_user:app_password@127.0.0.1:5432/bookstore
+          DATABASE_DIRECT_URL: postgres://app_user:app_password@127.0.0.1:5432/bookstore
+          WORKER_INLINE: 'true'
+          FEATURE_BILLING_ENABLED: 'false'
+          E2E_WEB_URL: http://127.0.0.1:3000
+          E2E_API_URL: http://127.0.0.1:3001
+          E2E_BIRD_URL: http://127.0.0.1:4010
+        run: |
+          pnpm run dev:emulators &
+          pnpm --filter @starter/api start &
+          pnpm --filter @starter/web dev -- --host 127.0.0.1 --port 3000 &
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:3001/health/live && curl -sf http://127.0.0.1:3000; then break; fi
+            sleep 1
+          done
+          pnpm run test:e2e

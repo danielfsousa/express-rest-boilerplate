@@ -1,10 +1,12 @@
 import { describe, expect, test } from 'vite-plus/test';
 import {
   createBirdEmulator,
+  createNoopMailer,
   LowStockAlertEmail,
   OrderReceiptEmail,
   PasswordResetEmail,
   renderEmail,
+  renderPasswordResetEmail,
   WelcomeEmail,
 } from './index.ts';
 
@@ -69,5 +71,33 @@ describe('packages/email', () => {
     expect(messages).toHaveLength(1);
     expect(messages[0]?.to).toEqual(['carol@example.com']);
     expect(messages[0]?.html).toContain('Welcome, Carol!');
+
+    const listRes = await emulator.fetch(new Request('http://bird.emulator.local/__messages'));
+    expect(listRes.status).toBe(200);
+
+    const notFoundRes = await emulator.fetch(new Request('http://bird.emulator.local/unknown'));
+    expect(notFoundRes.status).toBe(404);
+
+    const clearRes = await emulator.fetch(
+      new Request('http://bird.emulator.local/__messages', { method: 'DELETE' }),
+    );
+    expect(clearRes.status).toBe(200);
+    expect(emulator.getMessages()).toHaveLength(0);
+
+    const resetRendered = await renderPasswordResetEmail({
+      name: 'Carol',
+      resetUrl: 'https://example.com/reset',
+      locale: 'en',
+    });
+    expect(resetRendered.html).toContain('https://example.com/reset');
+
+    const noopMailer = createNoopMailer();
+    const noopResult = await noopMailer.send({
+      to: 'carol@example.com',
+      subject: 'Noop',
+      html: '<p>noop</p>',
+      text: 'noop',
+    });
+    expect(noopResult.messageId).toBeTruthy();
   });
 });
