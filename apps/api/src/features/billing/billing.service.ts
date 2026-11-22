@@ -2,6 +2,7 @@ import type { Order, StoreBillingSummary, UpgradeStoreResponse } from '@starter/
 import { and, books, eq, sql, subscription, withStoreContext } from '@starter/db';
 import type { Database } from '@starter/db';
 import type { JobQueue } from '@starter/jobs';
+import type { RealtimeBroker } from '@starter/runtime/realtime';
 import Stripe from 'stripe';
 import { settlePaidOrder } from '../orders/orders.service.ts';
 
@@ -215,6 +216,7 @@ export async function verifyAndProcessStripeWebhook(params: {
   signature: string | undefined;
   db: Database;
   jobQueue?: JobQueue | undefined;
+  realtimeBroker?: RealtimeBroker | undefined;
 }): Promise<WebhookResult> {
   if (!params.signature) {
     return { ok: false, status: 400, error: 'Missing stripe-signature header' };
@@ -242,6 +244,7 @@ export async function verifyAndProcessStripeWebhook(params: {
         storeId,
         orderId,
         jobQueue: params.jobQueue,
+        realtimeBroker: params.realtimeBroker,
       });
     }
   }

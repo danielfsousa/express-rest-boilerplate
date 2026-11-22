@@ -1,6 +1,7 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import type { Database } from '@starter/db';
 import type { JobQueue } from '@starter/jobs';
+import type { RealtimeBroker } from '@starter/runtime/realtime';
 import type Stripe from 'stripe';
 import { resolveMerchantStore } from '../../middleware/store-context.ts';
 import type { AuthInstance } from '../auth/auth.service.ts';
@@ -20,6 +21,7 @@ export interface CreateBillingRouterOptions {
   webOrigin: string;
   multiTenancyEnabled: boolean;
   jobQueue?: JobQueue | undefined;
+  realtimeBroker?: RealtimeBroker | undefined;
 }
 
 export function createBillingRouter({
@@ -31,6 +33,7 @@ export function createBillingRouter({
   webOrigin,
   multiTenancyEnabled,
   jobQueue,
+  realtimeBroker,
 }: CreateBillingRouterOptions): OpenAPIHono {
   const router = new OpenAPIHono();
 
@@ -86,6 +89,7 @@ export function createBillingRouter({
       signature,
       db: drizzleDb,
       jobQueue,
+      realtimeBroker,
     });
     if (!result.ok) {
       return c.json({ error: result.error }, result.status);

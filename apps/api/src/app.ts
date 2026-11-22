@@ -2,8 +2,10 @@ import { OpenAPIHono } from '@hono/zod-openapi';
 import { Scalar } from '@scalar/hono-api-reference';
 import type { Database } from '@starter/db';
 import type { JobQueue } from '@starter/jobs';
+import { createWebSocketAdapter } from '@starter/runtime';
+import type { RealtimeBroker } from '@starter/runtime/realtime';
 import type { ObjectStorage } from '@starter/runtime/storage';
-import type { DbClient, RuntimeLogger } from '@starter/runtime/types';
+import type { DbClient, RuntimeLogger, WebSocketAdapter } from '@starter/runtime/types';
 import { cors } from 'hono/cors';
 import type Stripe from 'stripe';
 import type { AuthInstance } from './features/auth/auth.service.ts';
@@ -12,6 +14,7 @@ import { createBooksRouter } from './features/books/books.handlers.ts';
 import { createExportsRouter } from './features/exports/exports.handlers.ts';
 import { createHealthRouter } from './features/health/health.handlers.ts';
 import { createOrdersRouter } from './features/orders/orders.handlers.ts';
+import { registerRealtimeRoute } from './features/realtime/realtime.handlers.ts';
 import { createStoresRouter } from './features/stores/stores.handlers.ts';
 
 export interface CreateAppOptions {
@@ -21,6 +24,9 @@ export interface CreateAppOptions {
   auth?: AuthInstance;
   storage?: ObjectStorage;
   jobQueue?: JobQueue | undefined;
+  realtimeEnabled?: boolean | undefined;
+  realtimeBroker?: RealtimeBroker | undefined;
+  onWebSocketAdapter?: ((adapter: WebSocketAdapter) => void) | undefined;
   multiTenancyEnabled?: boolean;
   billingEnabled?: boolean;
   stripeClient?: Stripe | undefined;
@@ -37,6 +43,9 @@ export function createApp({
   auth,
   storage,
   jobQueue,
+  realtimeEnabled = false,
+  realtimeBroker,
+  onWebSocketAdapter,
   multiTenancyEnabled = true,
   billingEnabled = false,
   stripeClient,
@@ -106,6 +115,7 @@ export function createApp({
         multiTenancyEnabled,
         billing: billingContext,
         jobQueue,
+        realtimeBroker,
       }),
     );
 
@@ -120,6 +130,19 @@ export function createApp({
       }),
     );
 
+    if (realtimeEnabled && realtimeBroker) {
+      const webSocketAdapter = createWebSocketAdapter(app);
+      onWebSocketAdapter?.(webSocketAdapter);
+      registerRealtimeRoute({
+        app,
+        drizzleDb,
+        auth,
+        multiTenancyEnabled,
+        broker: realtimeBroker,
+        webSocketAdapter,
+      });
+    }
+
     if (billingEnabled && stripeClient) {
       app.route(
         '/',
@@ -132,6 +155,7 @@ export function createApp({
           webOrigin,
           multiTenancyEnabled,
           jobQueue,
+          realtimeBroker,
         }),
       );
     }

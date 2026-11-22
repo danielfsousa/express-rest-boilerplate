@@ -17,3 +17,8 @@ export function isBillingEnabled(): boolean {
   const flag: unknown = import.meta.env?.['VITE_FEATURE_BILLING_ENABLED'];
   return flag !== 'false';
 }
+
+export function isRealtimeEnabled(): boolean {
+  const flag: unknown = import.meta.env?.['VITE_FEATURE_REALTIME_ENABLED'];
+  return flag !== 'false';
+}

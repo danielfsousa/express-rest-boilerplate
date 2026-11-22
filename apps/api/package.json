@@ -24,7 +24,9 @@
   },
   "devDependencies": {
     "@testcontainers/postgresql": "^12.2.2",
+    "@types/ws": "^8.18.2",
     "emulate": "^0.14.0",
-    "testcontainers": "^12.2.2"
+    "testcontainers": "^12.2.2",
+    "ws": "^8.23.0"
   }
 }

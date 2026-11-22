@@ -1,6 +1,7 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
 import type { Database } from '@starter/db';
 import type { JobQueue } from '@starter/jobs';
+import type { RealtimeBroker } from '@starter/runtime/realtime';
 import { resolveMerchantStore, resolvePublicStore } from '../../middleware/store-context.ts';
 import type { AuthInstance } from '../auth/auth.service.ts';
 import {
@@ -23,6 +24,7 @@ export interface CreateOrdersRouterOptions {
   multiTenancyEnabled: boolean;
   billing?: OrderBillingContext | undefined;
   jobQueue?: JobQueue | undefined;
+  realtimeBroker?: RealtimeBroker | undefined;
 }
 
 export function createOrdersRouter({
@@ -31,6 +33,7 @@ export function createOrdersRouter({
   multiTenancyEnabled,
   billing,
   jobQueue,
+  realtimeBroker,
 }: CreateOrdersRouterOptions): OpenAPIHono {
   const router = new OpenAPIHono();
 
@@ -52,6 +55,7 @@ export function createOrdersRouter({
       input: body,
       billing,
       jobQueue,
+      realtimeBroker,
     });
     if (!result.ok) {
       return c.json({ error: result.error }, result.status);
@@ -115,6 +119,7 @@ export function createOrdersRouter({
       store: ctx.store,
       orderId,
       nextStatus: status,
+      realtimeBroker,
     });
     if (!result.ok) {
       return c.json({ error: result.error }, result.status);

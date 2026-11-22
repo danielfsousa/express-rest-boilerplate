@@ -20,9 +20,14 @@ import type { Database } from '@starter/db';
 import type { Locale } from '@starter/i18n';
 import { JOB_NAMES } from '@starter/jobs';
 import type { JobQueue } from '@starter/jobs';
+import type { RealtimeBroker } from '@starter/runtime/realtime';
 import type Stripe from 'stripe';
 import type { ResolvedStoreContext } from '../../middleware/store-context.ts';
 import { createOrderCheckoutSession } from '../billing/billing.service.ts';
+import {
+  publishOrderCreatedEvent,
+  publishOrderStatusChangedEvent,
+} from '../realtime/realtime.handlers.ts';
 import {
   calculateOrderTotalCents,
   canTransitionOrderStatus,
@@ -104,6 +109,7 @@ export interface CreateOrderParams {
   input: CreateOrderInput;
   billing?: OrderBillingContext | undefined;
   jobQueue?: JobQueue | undefined;
+  realtimeBroker?: RealtimeBroker | undefined;
 }
 
 interface ResolvedOrderLine {
@@ -122,6 +128,7 @@ export async function createOrderForStore({
   input,
   billing,
   jobQueue,
+  realtimeBroker,
 }: CreateOrderParams): Promise<CreateOrderResult> {
   const aggregated = new Map<string, number>();
   for (const item of input.items) {
@@ -329,6 +336,10 @@ export async function createOrderForStore({
     await Promise.all(jobsToEnqueue);
   }
 
+  if (result.ok) {
+    await publishOrderCreatedEvent({ broker: realtimeBroker, order: result.order });
+  }
+
   return result.ok ? { ok: true, order: result.order } : result;
 }
 
@@ -337,6 +348,7 @@ export interface SettlePaidOrderParams {
   storeId: string;
   orderId: string;
   jobQueue?: JobQueue | undefined;
+  realtimeBroker?: RealtimeBroker | undefined;
 }
 
 export async function settlePaidOrder({
@@ -344,6 +356,7 @@ export async function settlePaidOrder({
   storeId,
   orderId,
   jobQueue,
+  realtimeBroker,
 }: SettlePaidOrderParams): Promise<boolean> {
   const settled = await withStoreContext(db, storeId, async (tx) => {
     const [orderRow] = await tx
@@ -414,6 +427,13 @@ export async function settlePaidOrder({
       },
     });
   }
+
+  await publishOrderStatusChangedEvent({
+    broker: realtimeBroker,
+    storeId,
+    orderId,
+    status: 'paid',
+  });
 
   return true;
 }
@@ -520,6 +540,7 @@ export interface UpdateOrderStatusParams {
   store: ResolvedStoreContext;
   orderId: string;
   nextStatus: OrderStatus;
+  realtimeBroker?: RealtimeBroker | undefined;
 }
 
 export async function updateOrderStatusForStore({
@@ -527,8 +548,9 @@ export async function updateOrderStatusForStore({
   store,
   orderId,
   nextStatus,
+  realtimeBroker,
 }: UpdateOrderStatusParams): Promise<UpdateOrderStatusResult> {
-  return await withStoreContext(db, store.id, async (tx) => {
+  const result: UpdateOrderStatusResult = await withStoreContext(db, store.id, async (tx) => {
     const [existing] = await tx
       .select({
         order: orders,
@@ -583,7 +605,7 @@ export async function updateOrderStatusForStore({
 
     const finalRow = updated ?? existing.order;
     return {
-      ok: true,
+      ok: true as const,
       order: toOrder(
         finalRow,
         { email: existing.customerEmail, name: existing.customerName },
@@ -591,4 +613,15 @@ export async function updateOrderStatusForStore({
       ),
     };
   });
+
+  if (result.ok) {
+    await publishOrderStatusChangedEvent({
+      broker: realtimeBroker,
+      storeId: store.id,
+      orderId,
+      status: result.order.status,
+    });
+  }
+
+  return result;
 }

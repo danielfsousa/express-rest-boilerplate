@@ -14,6 +14,10 @@
       "types": "./src/storage.ts",
       "default": "./src/storage.ts"
     },
+    "./realtime": {
+      "types": "./src/realtime.ts",
+      "default": "./src/realtime.ts"
+    },
     "./types": {
       "types": "./src/types.ts",
       "default": "./src/types.ts"
@@ -22,6 +26,8 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1175.0",
     "@hono/node-server": "^2.1.11",
+    "@hono/node-ws": "^1.3.2",
+    "hono": "^4.13.20",
     "pino": "^10.4.0",
     "postgres": "^4.1.1"
   }

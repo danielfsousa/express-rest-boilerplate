@@ -37,6 +37,7 @@ export const envSchema = z.object({
   FEATURE_BILLING_ENABLED: booleanFlagSchema,
   FEATURE_JOBS_ENABLED: booleanFlagSchema,
   FEATURE_REALTIME_ENABLED: booleanFlagSchema,
+  REALTIME_BROKER: z.enum(['memory', 'postgres']).default('memory'),
   FEATURE_I18N_ENABLED: booleanFlagSchema,
 });
 

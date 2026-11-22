@@ -6,7 +6,13 @@ import {
   registerDefaultJobHandlers,
 } from '@starter/jobs';
 import { createLogger, createServer, onShutdown, readEnv } from '@starter/runtime';
+import {
+  createMemoryRealtimeBroker,
+  createNoopRealtimeBroker,
+  createPostgresRealtimeBroker,
+} from '@starter/runtime/realtime';
 import { createS3Storage } from '@starter/runtime/storage';
+import type { WebSocketAdapter } from '@starter/runtime/types';
 import { createApp } from './app.ts';
 import { parseEnv } from './config/env.ts';
 import { createAuth } from './features/auth/auth.service.ts';
@@ -78,6 +84,16 @@ async function main(): Promise<void> {
     });
   }
 
+  const realtimeBroker = !env.FEATURE_REALTIME_ENABLED
+    ? createNoopRealtimeBroker()
+    : env.REALTIME_BROKER === 'postgres'
+      ? await createPostgresRealtimeBroker({
+          url: env.DATABASE_DIRECT_URL ?? env.DATABASE_URL,
+        })
+      : createMemoryRealtimeBroker();
+
+  let webSocketAdapter: WebSocketAdapter | undefined;
+
   const app = createApp({
     db: drizzleHandle,
     logger,
@@ -85,6 +101,11 @@ async function main(): Promise<void> {
     auth,
     storage,
     jobQueue,
+    realtimeEnabled: env.FEATURE_REALTIME_ENABLED,
+    realtimeBroker,
+    onWebSocketAdapter: (adapter) => {
+      webSocketAdapter = adapter;
+    },
     multiTenancyEnabled: env.FEATURE_MULTI_TENANCY_ENABLED,
     billingEnabled: env.FEATURE_BILLING_ENABLED,
     stripeClient,
@@ -98,6 +119,7 @@ async function main(): Promise<void> {
     fetch: app.fetch,
     port: env.PORT,
     hostname: env.HOST,
+    webSocketAdapter,
   });
 
   logger.info(
@@ -108,6 +130,7 @@ async function main(): Promise<void> {
   onShutdown(
     async () => {
       await server.close();
+      await realtimeBroker.close();
       await jobQueue.stop();
       await drizzleHandle.close();
       logger.info('API server stopped');

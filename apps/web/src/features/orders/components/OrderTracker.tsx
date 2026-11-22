@@ -7,16 +7,16 @@ import { Spinner } from '@astryxdesign/core/Spinner';
 import { Text } from '@astryxdesign/core/Text';
 import { VStack } from '@astryxdesign/core/VStack';
 import { Link } from '@tanstack/react-router';
+import { formatCurrency } from '../../../lib/format.ts';
+import { useOrderRealtime } from '../../realtime/index.ts';
 import { useOrder } from '../hooks/useOrders.ts';
 
 function formatPrice(cents: number, currency: string): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-  }).format(cents / 100);
+  return formatCurrency(cents, currency);
 }
 
 export function OrderTracker({ storeSlug, orderId }: { storeSlug: string; orderId: string }) {
+  useOrderRealtime({ storeSlug, orderId });
   const { data: order, isLoading, error } = useOrder(storeSlug, orderId);
 
   if (isLoading) {

@@ -6,9 +6,12 @@ import { HStack } from '@astryxdesign/core/HStack';
 import { Spinner } from '@astryxdesign/core/Spinner';
 import { Text } from '@astryxdesign/core/Text';
 import { VStack } from '@astryxdesign/core/VStack';
+import { formatCurrency } from '../../../lib/format.ts';
+import { useOrderRealtime } from '../../realtime/index.ts';
 import { useOrders, useUpdateOrderStatus } from '../hooks/useOrders.ts';
 
 export function MerchantOrdersTable({ storeSlug }: { storeSlug: string }) {
+  useOrderRealtime({ storeSlug });
   const { data, isLoading, error } = useOrders(storeSlug);
   const updateStatus = useUpdateOrderStatus(storeSlug);
 
@@ -32,8 +35,8 @@ export function MerchantOrdersTable({ storeSlug }: { storeSlug: string }) {
                 {order.customerName} ({order.customerEmail})
               </Text>
               <Text color="secondary">
-                Status: {order.status} · Total: ${(order.totalCents / 100).toFixed(2)} · Items:{' '}
-                {String(order.items.length)}
+                Status: {order.status} · Total: {formatCurrency(order.totalCents, order.currency)} ·
+                Items: {String(order.items.length)}
               </Text>
             </VStack>
             <HStack gap="sm">
