@@ -1,5 +1,4 @@
-import { Button } from '@astryxdesign/core/Button';
-import { HStack } from '@astryxdesign/core/HStack';
+import { Button, HStack } from '@starter/ui';
 import { SUPPORTED_LOCALES } from '@starter/i18n';
 import { useLocale } from '../LocaleProvider.tsx';
 

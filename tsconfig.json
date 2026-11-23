@@ -15,7 +15,16 @@
     "apps/*/test/**/*.ts",
     "packages/*/src/**/*.ts",
     "packages/*/src/**/*.tsx",
-    "packages/*/test/**/*.ts"
+    "packages/*/test/**/*.ts",
+    "packages/ui/.storybook/**/*.ts",
+    "packages/ui/.storybook/**/*.tsx",
+    "packages/ui/vite.config.ts"
   ],
-  "exclude": ["**/node_modules/**", "**/dist/**", "**/coverage/**", "**/.output/**"]
+  "exclude": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/coverage/**",
+    "**/.output/**",
+    "**/storybook-static/**"
+  ]
 }

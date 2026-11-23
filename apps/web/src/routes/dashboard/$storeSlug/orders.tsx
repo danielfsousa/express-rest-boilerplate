@@ -1,5 +1,4 @@
-import { Button } from '@astryxdesign/core/Button';
-import { HStack } from '@astryxdesign/core/HStack';
+import { Button, HStack } from '@starter/ui';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { AppLayout } from '#/components/AppLayout.tsx';
 import { MerchantOrdersTable } from '#/features/orders/index.ts';

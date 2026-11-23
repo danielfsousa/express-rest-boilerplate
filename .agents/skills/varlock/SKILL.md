@@ -1,12 +1,12 @@
 ---
 name: varlock
 description: >-
-  Secure environment variable management with Varlock in nodejs-fullstack-starter.
+  Secure environment variable management with Varlock in ts-blueprint.
   Use when handling secrets, API keys, credentials, or any environment configuration (.env.schema, .env.prod, env.d.ts).
   Ensures secrets are never exposed in terminal, logs, or LLM context.
 ---
 
-# Varlock Skill (`nodejs-fullstack-starter`)
+# Varlock Skill (`ts-blueprint`)
 
 This repository uses [Varlock](https://varlock.dev) (`@env-spec`) to define, validate, type, and secure environment variables across the monorepo.
 

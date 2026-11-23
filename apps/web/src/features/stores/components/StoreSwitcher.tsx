@@ -1,6 +1,4 @@
-import { Button } from '@astryxdesign/core/Button';
-import { HStack } from '@astryxdesign/core/HStack';
-import { Text } from '@astryxdesign/core/Text';
+import { Button, HStack, Text } from '@starter/ui';
 import { Link } from '@tanstack/react-router';
 import { isMultiTenancyEnabled } from '#/lib/env.ts';
 import { useStores } from '../hooks/useStores.ts';

@@ -7,7 +7,7 @@ export const Route = createRootRoute({
     meta: [
       { charSet: 'utf8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'nodejs-fullstack-starter' },
+      { title: 'ts-blueprint' },
     ],
     links: [{ rel: 'stylesheet', href: layersCssUrl }],
   }),

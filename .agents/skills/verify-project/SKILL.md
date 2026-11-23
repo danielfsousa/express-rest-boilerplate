@@ -1,11 +1,11 @@
 ---
 name: verify-project
-description: 'Verify nodejs-fullstack-starter across static checks, coverage tests, production builds, Docker targets, Terraform validation, and live HTTP and database probes. Use before opening a PR or cutting a release.'
+description: 'Verify ts-blueprint across static checks, coverage tests, production builds, Docker targets, Terraform validation, and live HTTP and database probes. Use before opening a PR or cutting a release.'
 ---
 
-# Verify nodejs-fullstack-starter
+# Verify ts-blueprint
 
-Climb the verification ladder for `nodejs-fullstack-starter` and record every rung in `<scratch>/verify/nodejs-fullstack-starter-local/notes.md` with the current git commit SHA.
+Climb the verification ladder for `ts-blueprint` and record every rung in `<scratch>/verify/ts-blueprint-local/notes.md` with the current git commit SHA.
 
 ## Rung 1: Static checks and test suite with coverage
 

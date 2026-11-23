@@ -8,6 +8,14 @@
       "types": "./src/index.ts",
       "default": "./src/index.ts"
     },
+    "./web": {
+      "types": "./src/web/index.ts",
+      "default": "./src/web/index.ts"
+    },
+    "./email": {
+      "types": "./src/email/index.ts",
+      "default": "./src/email/index.ts"
+    },
     "./theme": {
       "types": "./src/theme.ts",
       "default": "./src/theme.ts"
@@ -18,15 +26,34 @@
     },
     "./styles.css": "./src/styles.css"
   },
+  "scripts": {
+    "storybook": "storybook dev -p 6006",
+    "storybook:build": "storybook build"
+  },
   "dependencies": {
     "@astryxdesign/core": "catalog:",
     "@astryxdesign/theme-stone": "catalog:",
+    "@react-email/components": "catalog:",
     "react": "catalog:"
   },
   "devDependencies": {
+    "@astryxdesign/build": "catalog:",
+    "@babel/core": "^7.29.13",
+    "@storybook/addon-a11y": "catalog:",
+    "@storybook/addon-docs": "catalog:",
+    "@storybook/addon-mcp": "catalog:",
+    "@storybook/react-vite": "catalog:",
+    "@stylexjs/babel-plugin": "catalog:",
+    "@stylexjs/stylex": "catalog:",
+    "@stylexjs/unplugin": "catalog:",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@types/react": "catalog:",
-    "jsdom": "^26.1.0"
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "jsdom": "^26.1.0",
+    "react-dom": "catalog:",
+    "storybook": "catalog:",
+    "vite": "catalog:"
   }
 }

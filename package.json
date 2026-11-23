@@ -1,5 +1,5 @@
 {
-  "name": "nodejs-fullstack-starter",
+  "name": "ts-blueprint",
   "version": "2.0.0",
   "private": true,
   "description": "Full-stack TypeScript monorepo starter implementing a multi-tenant bookstore platform",
@@ -23,6 +23,8 @@
     "email:templates:validate": "vp run @starter/email#templates:validate",
     "email:templates:dry-run": "vp run @starter/email#templates:dry-run",
     "build": "vp run --cache -r build",
+    "storybook": "vp run @starter/ui#storybook",
+    "storybook:build": "vp run --cache @starter/ui#storybook:build",
     "check": "vp run task:check",
     "check:fix": "vp check --fix",
     "fmt": "vp fmt",

@@ -1,17 +1,16 @@
-import { Button, Hr, Link, Section, Text } from '@react-email/components';
 import { m } from '@starter/i18n';
 import type { Locale } from '@starter/i18n';
-import { starterLightTokens } from '@starter/ui/tokens';
+import { Button, Divider, Link, Section, Text } from '@starter/ui/email';
 import type { ReactElement } from 'react';
-import { EmailLayout } from './EmailLayout.tsx';
+import { defineTemplate } from '../define-template.ts';
+import { EmailLayout } from '../layouts/EmailLayout.tsx';
+import { EMAIL_TEMPLATES } from '../template-catalog.ts';
 
 export interface PasswordResetEmailProps {
   name: string;
   resetUrl: string;
   locale: Locale;
 }
-
-const { colors, radii } = starterLightTokens;
 
 export function PasswordResetEmail({
   name,
@@ -26,48 +25,28 @@ export function PasswordResetEmail({
 
   return (
     <EmailLayout locale={locale} subject={subject} preview={body} heading={heading}>
-      <Text
-        style={{
-          color: colors.inkSecondary,
-          fontSize: '15px',
-          lineHeight: '24px',
-          margin: '0 0 20px 0',
-        }}
-      >
+      <Text tone="secondary" spacing="lg">
         {body}
       </Text>
-      <Section style={{ marginBottom: '20px' }}>
-        <Button
-          href={resetUrl}
-          style={{
-            backgroundColor: colors.accent,
-            borderRadius: radii.element,
-            color: colors.onAccent,
-            display: 'inline-block',
-            fontSize: '14px',
-            fontWeight: '600',
-            lineHeight: '20px',
-            padding: '12px 20px',
-            textDecoration: 'none',
-          }}
-        >
-          {cta}
-        </Button>
+      <Section spacing="lg">
+        <Button href={resetUrl}>{cta}</Button>
       </Section>
-      <Hr style={{ borderColor: colors.border, margin: '16px 0' }} />
-      <Text
-        style={{
-          color: colors.inkMuted,
-          fontSize: '12px',
-          lineHeight: '18px',
-          margin: '0',
-          wordBreak: 'break-all',
-        }}
-      >
-        <Link href={resetUrl} style={{ color: colors.inkSecondary, textDecoration: 'underline' }}>
-          {resetUrl}
-        </Link>
+      <Divider spacing="md" />
+      <Text tone="muted" size="xs" breakAll>
+        <Link href={resetUrl}>{resetUrl}</Link>
       </Text>
     </EmailLayout>
   );
 }
+
+export const passwordResetEmailTemplate = defineTemplate<PasswordResetEmailProps>({
+  slug: EMAIL_TEMPLATES.PASSWORD_RESET,
+  name: 'Bookstore Password Reset',
+  description: 'Sent when a user requests a password reset link.',
+  component: PasswordResetEmail,
+  compileLanguage: (locale) => ({
+    subject: m.email_reset_subject({}, { locale }),
+    previewText: m.email_reset_body({ name: '{{ name }}' }, { locale }),
+    props: { name: '{{ name }}', resetUrl: '{{ reset_url }}', locale },
+  }),
+});

@@ -1,16 +1,15 @@
-import { Text } from '@react-email/components';
 import { m } from '@starter/i18n';
 import type { Locale } from '@starter/i18n';
-import { starterLightTokens } from '@starter/ui/tokens';
+import { Text } from '@starter/ui/email';
 import type { ReactElement } from 'react';
-import { EmailLayout } from './EmailLayout.tsx';
+import { defineTemplate } from '../define-template.ts';
+import { EmailLayout } from '../layouts/EmailLayout.tsx';
+import { EMAIL_TEMPLATES } from '../template-catalog.ts';
 
 export interface WelcomeEmailProps {
   name: string;
   locale: Locale;
 }
-
-const { colors } = starterLightTokens;
 
 export function WelcomeEmail({ name, locale }: WelcomeEmailProps): ReactElement {
   const opts = { locale };
@@ -20,16 +19,19 @@ export function WelcomeEmail({ name, locale }: WelcomeEmailProps): ReactElement 
 
   return (
     <EmailLayout locale={locale} subject={subject} preview={body} heading={heading}>
-      <Text
-        style={{
-          color: colors.inkSecondary,
-          fontSize: '15px',
-          lineHeight: '24px',
-          margin: '0',
-        }}
-      >
-        {body}
-      </Text>
+      <Text tone="secondary">{body}</Text>
     </EmailLayout>
   );
 }
+
+export const welcomeEmailTemplate = defineTemplate<WelcomeEmailProps>({
+  slug: EMAIL_TEMPLATES.WELCOME,
+  name: 'Bookstore Welcome Email',
+  description: 'Sent when a new merchant signs up.',
+  component: WelcomeEmail,
+  compileLanguage: (locale) => ({
+    subject: m.email_welcome_subject({}, { locale }),
+    previewText: m.email_welcome_body({}, { locale }),
+    props: { name: '{{ name }}', locale },
+  }),
+});

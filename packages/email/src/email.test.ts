@@ -8,13 +8,14 @@ import {
 } from './index.ts';
 import {
   compileBirdEmailTemplates,
+  getRegisteredTemplates,
   LowStockAlertEmail,
   OrderReceiptEmail,
   PasswordResetEmail,
+  passwordResetEmailTemplate,
   renderEmail,
-  renderPasswordResetEmail,
   WelcomeEmail,
-} from './templates/index.ts';
+} from './templates-entry.ts';
 
 describe('packages/email', () => {
   test('renders localized React JSX templates in en and pt-BR', async () => {
@@ -63,6 +64,7 @@ describe('packages/email', () => {
   });
 
   test('compiles TSX templates, uploads via Bird SDK, and delivers stored template emails', async () => {
+    expect(getRegisteredTemplates()).toHaveLength(4);
     const templates = await compileBirdEmailTemplates();
     expect(templates).toHaveLength(4);
 
@@ -140,7 +142,7 @@ describe('packages/email', () => {
     expect(clearRes.status).toBe(200);
     expect(emulator.getMessages()).toHaveLength(0);
 
-    const resetRendered = await renderPasswordResetEmail({
+    const resetRendered = await passwordResetEmailTemplate.render({
       name: 'Carol',
       resetUrl: 'https://example.com/reset',
       locale: 'en',

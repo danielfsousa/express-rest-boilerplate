@@ -15,6 +15,7 @@ apps/web/src/routeTree.gen.ts
 logs/
 *.log
 playwright-report/
+storybook-static/
 test-results/
 .terraform/
 *.tfstate*

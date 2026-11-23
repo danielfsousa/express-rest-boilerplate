@@ -9,19 +9,19 @@
       "default": "./src/index.ts"
     },
     "./templates": {
-      "types": "./src/templates/index.ts",
+      "types": "./src/templates-entry.ts",
       "default": "./dist/templates/index.mjs"
     }
   },
   "scripts": {
-    "build": "vp pack src/templates/index.ts --out-dir dist/templates --format esm",
+    "build": "vp pack",
     "templates:upload": "vp run --cache -t @starter/email#build && node src/cli/upload-templates.ts",
     "templates:validate": "vp run --cache -t @starter/email#build && node src/cli/upload-templates.ts --validate-only",
     "templates:dry-run": "vp run --cache -t @starter/email#build && node src/cli/upload-templates.ts --dry-run"
   },
   "dependencies": {
     "@messagebird/sdk": "catalog:",
-    "@react-email/components": "^1.0.12",
+    "@react-email/components": "catalog:",
     "@react-email/render": "^2.3.1",
     "@starter/i18n": "workspace:*",
     "@starter/runtime": "workspace:*",

@@ -1,7 +1,4 @@
-import { Banner } from '@astryxdesign/core/Banner';
-import { Button } from '@astryxdesign/core/Button';
-import { HStack } from '@astryxdesign/core/HStack';
-import { Spinner } from '@astryxdesign/core/Spinner';
+import { Banner, Button, HStack, Spinner } from '@starter/ui';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { AppLayout } from '#/components/AppLayout.tsx';
 import { StoreSettingsForm, StoreSwitcher, useStore } from '#/features/stores/index.ts';

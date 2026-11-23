@@ -1,9 +1,10 @@
-import { Column, Hr, Row, Section, Text } from '@react-email/components';
 import { m } from '@starter/i18n';
 import type { Locale } from '@starter/i18n';
-import { starterLightTokens } from '@starter/ui/tokens';
+import { Callout, Column, Divider, Row, Text } from '@starter/ui/email';
 import type { ReactElement } from 'react';
-import { EmailLayout } from './EmailLayout.tsx';
+import { defineTemplate } from '../define-template.ts';
+import { EmailLayout } from '../layouts/EmailLayout.tsx';
+import { EMAIL_TEMPLATES } from '../template-catalog.ts';
 
 export interface LowStockAlertEmailProps {
   storeName: string;
@@ -13,8 +14,6 @@ export interface LowStockAlertEmailProps {
   threshold: number | string;
   locale: Locale;
 }
-
-const { colors, radii, borders } = starterLightTokens;
 
 export function LowStockAlertEmail({
   storeName,
@@ -45,64 +44,54 @@ export function LowStockAlertEmail({
       eyebrow={storeName}
       heading={heading}
     >
-      <Text
-        style={{
-          color: colors.inkSecondary,
-          fontSize: '15px',
-          lineHeight: '24px',
-          margin: '0 0 20px 0',
-        }}
-      >
+      <Text tone="secondary" spacing="lg">
         {body}
       </Text>
-      <Section
-        style={{
-          backgroundColor: colors.warningBg,
-          border: `${borders.width} solid ${colors.warning}`,
-          borderRadius: radii.element,
-          padding: '16px',
-        }}
-      >
+      <Callout tone="warning">
         <Row>
           <Column>
-            <Text
-              style={{
-                color: colors.warningText,
-                fontSize: '13px',
-                fontWeight: '600',
-                lineHeight: '20px',
-                margin: '0',
-              }}
-            >
+            <Text tone="warning" size="xs" weight="semibold">
               SKU: {sku}
             </Text>
           </Column>
           <Column align="right">
-            <Text
-              style={{
-                color: colors.warningText,
-                fontSize: '13px',
-                fontWeight: '600',
-                lineHeight: '20px',
-                margin: '0',
-              }}
-            >
+            <Text tone="warning" size="xs" weight="semibold">
               {String(stock)} / {String(threshold)}
             </Text>
           </Column>
         </Row>
-        <Hr style={{ borderColor: colors.border, margin: '10px 0' }} />
-        <Text
-          style={{
-            color: colors.ink,
-            fontSize: '14px',
-            lineHeight: '20px',
-            margin: '0',
-          }}
-        >
+        <Divider spacing="xs" />
+        <Text tone="primary" size="sm">
           {bookTitle}
         </Text>
-      </Section>
+      </Callout>
     </EmailLayout>
   );
 }
+
+export const lowStockAlertEmailTemplate = defineTemplate<LowStockAlertEmailProps>({
+  slug: EMAIL_TEMPLATES.LOW_STOCK_ALERT,
+  name: 'Bookstore Low Stock Alert',
+  description: 'Sent to store owners when a book falls below the low stock threshold.',
+  component: LowStockAlertEmail,
+  compileLanguage: (locale) => ({
+    subject: m.email_low_stock_subject({ bookTitle: '{{ book_title }}' }, { locale }),
+    previewText: m.email_low_stock_body(
+      {
+        bookTitle: '{{ book_title }}',
+        sku: '{{ sku }}',
+        stock: '{{ stock }}',
+        threshold: '{{ threshold }}',
+      },
+      { locale },
+    ),
+    props: {
+      storeName: '{{ store_name }}',
+      bookTitle: '{{ book_title }}',
+      sku: '{{ sku }}',
+      stock: '{{ stock }}',
+      threshold: '{{ threshold }}',
+      locale,
+    },
+  }),
+});

@@ -1,9 +1,10 @@
-import { Column, Hr, Row, Section, Text } from '@react-email/components';
 import { m } from '@starter/i18n';
 import type { Locale } from '@starter/i18n';
-import { starterLightTokens } from '@starter/ui/tokens';
+import { Callout, Column, Divider, Row, Section, Text } from '@starter/ui/email';
 import type { ReactElement } from 'react';
-import { EmailLayout } from './EmailLayout.tsx';
+import { defineTemplate } from '../define-template.ts';
+import { EmailLayout } from '../layouts/EmailLayout.tsx';
+import { EMAIL_TEMPLATES } from '../template-catalog.ts';
 
 export interface OrderReceiptItem {
   title: string;
@@ -20,8 +21,6 @@ export interface OrderReceiptEmailProps {
   locale: Locale;
   liquidItemsLoop?: boolean | undefined;
 }
-
-const { colors, radii, borders } = starterLightTokens;
 
 export function OrderReceiptEmail({
   storeName,
@@ -45,57 +44,29 @@ export function OrderReceiptEmail({
       eyebrow={storeName}
       heading={heading}
     >
-      <Text
-        style={{
-          color: colors.inkSecondary,
-          fontSize: '15px',
-          lineHeight: '24px',
-          margin: '0 0 20px 0',
-        }}
-      >
+      <Text tone="secondary" spacing="lg">
         {body}
       </Text>
-      <Section
-        style={{
-          backgroundColor: colors.mutedSurface,
-          border: `${borders.width} solid ${colors.border}`,
-          borderRadius: radii.element,
-          padding: '16px',
-        }}
-      >
+      <Callout tone="muted">
         {liquidItemsLoop ? (
           <>
-            <Text style={{ color: colors.ink, fontSize: '14px', lineHeight: '20px', margin: '0' }}>
+            <Text tone="primary" size="sm">
               {'{% for item in items %}'}
             </Text>
-            <Text
-              style={{
-                color: colors.ink,
-                fontSize: '14px',
-                lineHeight: '22px',
-                margin: '4px 0',
-              }}
-            >
+            <Text tone="primary" size="sm">
               {'{{ item.title }} × {{ item.quantity }} ({{ item.unit_price_formatted }})'}
             </Text>
-            <Text style={{ color: colors.ink, fontSize: '14px', lineHeight: '20px', margin: '0' }}>
+            <Text tone="primary" size="sm">
               {'{% endfor %}'}
             </Text>
           </>
         ) : (
           items.map((item, index) => (
             <Section key={`${item.title}-${String(item.quantity)}`}>
-              {index > 0 ? <Hr style={{ borderColor: colors.border, margin: '8px 0' }} /> : null}
+              {index > 0 ? <Divider spacing="xs" /> : null}
               <Row>
                 <Column>
-                  <Text
-                    style={{
-                      color: colors.ink,
-                      fontSize: '14px',
-                      lineHeight: '20px',
-                      margin: '0',
-                    }}
-                  >
+                  <Text tone="primary" size="sm">
                     {`${item.title} × ${String(item.quantity)} (${item.unitPriceFormatted})`}
                   </Text>
                 </Column>
@@ -103,23 +74,38 @@ export function OrderReceiptEmail({
             </Section>
           ))
         )}
-        <Hr style={{ borderColor: colors.borderStrong, margin: '12px 0' }} />
+        <Divider tone="strong" spacing="sm" />
         <Row>
           <Column>
-            <Text
-              style={{
-                color: colors.successText,
-                fontSize: '14px',
-                fontWeight: '600',
-                lineHeight: '20px',
-                margin: '0',
-              }}
-            >
+            <Text tone="success" size="sm" weight="semibold">
               {totalFormatted}
             </Text>
           </Column>
         </Row>
-      </Section>
+      </Callout>
     </EmailLayout>
   );
 }
+
+export const orderReceiptEmailTemplate = defineTemplate<OrderReceiptEmailProps>({
+  slug: EMAIL_TEMPLATES.ORDER_RECEIPT,
+  name: 'Bookstore Order Receipt',
+  description: 'Sent when a customer order is paid.',
+  component: OrderReceiptEmail,
+  compileLanguage: (locale) => ({
+    subject: m.email_receipt_subject({ storeName: '{{ store_name }}' }, { locale }),
+    previewText: m.email_receipt_body(
+      { orderId: '{{ order_id }}', totalFormatted: '{{ total_formatted }}' },
+      { locale },
+    ),
+    props: {
+      storeName: '{{ store_name }}',
+      orderId: '{{ order_id }}',
+      customerName: '{{ customer_name }}',
+      totalFormatted: '{{ total_formatted }}',
+      items: [],
+      locale,
+      liquidItemsLoop: true,
+    },
+  }),
+});

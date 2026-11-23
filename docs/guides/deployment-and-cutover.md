@@ -41,7 +41,7 @@ curl -fsS http://127.0.0.1:3001/health/ready
 ```bash
 terraform login
 export TF_CLOUD_ORGANIZATION="your-org"
-export TF_WORKSPACE="nodejs-fullstack-starter-prod"
+export TF_WORKSPACE="ts-blueprint-prod"
 ```
 
 ### 2. Initialize and apply the Terraform configuration
@@ -86,7 +86,7 @@ curl -fsS https://api.demo.<domain>/openapi.json | head -c 200
 
 ## Cut over the repository from v1 to v2
 
-Before merging `v2` into `main` and renaming the GitHub repository from `express-rest-boilerplate` to `nodejs-fullstack-starter`, archive the final `v1` state on its own tag and branch so existing users still have working links.
+Before merging `v2` into `main` and renaming the GitHub repository from `express-rest-boilerplate` to `ts-blueprint`, archive the final `v1` state on its own tag and branch so existing users still have working links.
 
 1. Tag and branch the final `v1` commit on `origin/main`:
 
@@ -105,8 +105,8 @@ git merge --ff-only v2
 git push origin main
 ```
 
-3. Rename the GitHub repository to `nodejs-fullstack-starter` (GitHub automatically redirects git clones and web traffic from `express-rest-boilerplate`):
+3. Rename the GitHub repository to `ts-blueprint` (GitHub automatically redirects git clones and web traffic from `express-rest-boilerplate`):
 
 ```bash
-gh repo rename nodejs-fullstack-starter --yes
+gh repo rename ts-blueprint --yes
 ```

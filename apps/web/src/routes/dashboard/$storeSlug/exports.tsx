@@ -1,4 +1,4 @@
-import { Button } from '@astryxdesign/core/Button';
+import { Button } from '@starter/ui';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { AppLayout } from '#/components/AppLayout.tsx';
 import { ExportsPanel } from '#/features/exports/index.ts';

@@ -2,6 +2,9 @@
   "mcpServers": {
     "varlock": {
       "url": "https://docs.mcp.varlock.dev/mcp"
+    },
+    "storybook": {
+      "url": "http://localhost:6006/mcp"
     }
   }
 }

@@ -114,7 +114,7 @@ All corner radii come from Astryx's radius scale:
 
 ## Components
 
-### Web UI Kit (`@starter/ui`)
+### Web UI Kit (`@starter/ui` / `@starter/ui/web`)
 
 - `StarterThemeProvider`: Applies `starterTheme` (Astryx Stone + monochrome overrides) and system/light/dark color mode.
 - `PageShell`: Top-level page container with optional warning/info banner, title, subtitle, and right-aligned action bar.
@@ -122,13 +122,19 @@ All corner radii come from Astryx's radius scale:
 - `DataRow`: Horizontal entity row (`title`, `subtitle`, `status`, `actions`) for book catalogs and order lists.
 - `StatusPill`: Accessible status indicator combining `<StatusDot>` and visible text (`neutral`, `info`, `success`, `warning`, `error`).
 - `EmptyNotice`: Standardized empty-state placeholder built on Astryx `<EmptyState>`.
+- Curated Astryx primitives (`Badge`, `Banner`, `Button`, `Card`, `Divider`, `EmptyState`, `Heading`, `HStack`, `Section`, `Spinner`, `StatusDot`, `Switch`, `Text`, `TextArea`, `TextInput`, `VStack`, `Theme`, `useTheme`) re-exported from `@starter/ui` and `@starter/ui/web`.
 
-### Transactional Email (`@starter/email`)
+### Transactional Email (`@starter/ui/email` + `@starter/email`)
 
-Built with prebuilt `@react-email/components` (`Html`, `Head`, `Font`, `Preview`, `Body`, `Container`, `Section`, `Row`, `Column`, `Heading`, `Text`, `Button`, `Hr`, `Link`) and styled exclusively with `starterLightTokens`:
+Built with tokenized primitives in `@starter/ui/email` (`Document`, `Card`, `Eyebrow`, `Heading`, `Text`, `Button`, `Link`, `Divider`, `Callout`, `Section`, `Row`, `Column`) over `@react-email/components` and `starterLightTokens`:
 
-- `EmailLayout`: Shared stone-bordered card layout with Figtree webfont + Helvetica fallback, brand eyebrow, `h1` heading, divider, and footer.
-- `WelcomeEmail`, `PasswordResetEmail`, `OrderReceiptEmail`, `LowStockAlertEmail`: Localized (`en`, `pt-BR`) templates compiled into Bird Liquid templates.
+- `EmailLayout` (`packages/email/src/layouts/EmailLayout.tsx`): Shared stone-bordered card layout with Figtree webfont + Helvetica fallback, brand eyebrow, `h1` heading, divider, and footer.
+- `WelcomeEmail`, `PasswordResetEmail`, `OrderReceiptEmail`, `LowStockAlertEmail` (`packages/email/src/templates/`): Localized (`en`, `pt-BR`) `.tsx` templates self-registered via `defineTemplate` (`packages/email/src/define-template.ts`) and compiled into Bird Liquid templates.
+
+### Storybook & Storybook MCP
+
+- Run `pnpm run storybook` (`http://localhost:6006`) to preview web kit components, Astryx primitives, and email kit components in light and dark modes, or `pnpm run storybook:build` to build static docs.
+- `@storybook/addon-mcp` exposes component manifests and stories at `http://localhost:6006/mcp` (configured in `.mcp.json` and `.agents/mcp_config.json`).
 
 ## Do's and Don'ts
 

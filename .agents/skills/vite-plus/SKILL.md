@@ -2,11 +2,11 @@
 name: vite-plus
 description: >-
   Unified Vite+ (`vp`) toolchain, Vite Task (`vp run`) caching, `vpx` TypeScript runner,
-  single-root `vite.config.ts`, and `.vite-hooks` / `vp staged` workflows in nodejs-fullstack-starter.
+  single-root `vite.config.ts`, and `.vite-hooks` / `vp staged` workflows in ts-blueprint.
   Use when running builds, checks, tests, TypeScript scripts, or modifying workspace tasks.
 ---
 
-# Vite+ (`vp`) Skill (`nodejs-fullstack-starter`)
+# Vite+ (`vp`) Skill (`ts-blueprint`)
 
 This repository is standardized on **Vite+** (`vite-plus`), which unifies Vite, Vitest, Rolldown/tsdown (`vp pack`), Oxlint, Oxfmt, `tsrs`, and Vite Task (`vp run`) behind `vp`, `vpr`, and `vpx`.
 

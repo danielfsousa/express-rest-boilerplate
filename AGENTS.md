@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Workspace instructions for AI agents and contributors working in `nodejs-fullstack-starter`.
+Workspace instructions for AI agents and contributors working in `ts-blueprint`.
 
 ## Required Reading
 

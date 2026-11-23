@@ -179,7 +179,7 @@ export function createApp({
   app.doc31('/openapi.json', {
     openapi: '3.1.0',
     info: {
-      title: 'nodejs-fullstack-starter API',
+      title: 'ts-blueprint API',
       version: '2.0.0',
     },
   });
@@ -188,7 +188,7 @@ export function createApp({
     '/docs',
     Scalar({
       url: '/openapi.json',
-      pageTitle: 'nodejs-fullstack-starter API Docs',
+      pageTitle: 'ts-blueprint API Docs',
     }),
   );
 

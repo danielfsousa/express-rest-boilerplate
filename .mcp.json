@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "varlock": {
+      "type": "http",
+      "url": "https://docs.mcp.varlock.dev/mcp"
+    },
+    "storybook": {
+      "type": "http",
+      "url": "http://localhost:6006/mcp"
+    }
+  }
+}

@@ -1,12 +1,14 @@
-import { Banner } from '@astryxdesign/core/Banner';
-import { Button } from '@astryxdesign/core/Button';
-import { Card } from '@astryxdesign/core/Card';
-import { Heading } from '@astryxdesign/core/Heading';
-import { HStack } from '@astryxdesign/core/HStack';
-import { Spinner } from '@astryxdesign/core/Spinner';
-import { Text } from '@astryxdesign/core/Text';
-import { TextInput } from '@astryxdesign/core/TextInput';
-import { VStack } from '@astryxdesign/core/VStack';
+import {
+  Banner,
+  Button,
+  Card,
+  Heading,
+  HStack,
+  Spinner,
+  Text,
+  TextInput,
+  VStack,
+} from '@starter/ui';
 import { Link } from '@tanstack/react-router';
 import { useReducer } from 'react';
 import { getApiBaseUrl } from '#/lib/env.ts';

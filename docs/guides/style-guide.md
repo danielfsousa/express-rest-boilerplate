@@ -1,6 +1,6 @@
 # Engineering Style Guide
 
-This guide documents the house coding, architecture, and testing standards for `nodejs-fullstack-starter`. Every new module and refactor follows these rules.
+This guide documents the house coding, architecture, and testing standards for `ts-blueprint`. Every new module and refactor follows these rules.
 
 ## 1. Domain Vocabulary
 

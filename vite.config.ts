@@ -47,6 +47,7 @@ export default defineConfig({
       '**/coverage/**',
       '**/.tanstack/**',
       '**/.output/**',
+      '**/storybook-static/**',
       '**/routeTree.gen.ts',
       'packages/i18n/src/paraglide/**',
       'env.d.ts',
@@ -100,7 +101,12 @@ export default defineConfig({
   fmt: {
     singleQuote: true,
     semi: true,
-    ignorePatterns: ['env.d.ts', 'packages/i18n/src/paraglide/**', '**/routeTree.gen.ts'],
+    ignorePatterns: [
+      'env.d.ts',
+      'packages/i18n/src/paraglide/**',
+      '**/routeTree.gen.ts',
+      '**/storybook-static/**',
+    ],
   },
   test: {
     setupFiles: ['./scripts/vitest-varlock-setup.ts'],
@@ -123,11 +129,13 @@ export default defineConfig({
       exclude: [
         '**/*.test.ts',
         '**/*.test.tsx',
+        '**/*.stories.tsx',
         '**/index.ts',
         'packages/db/src/schema/**',
         'packages/i18n/src/paraglide/**',
         'packages/runtime/src/bun.ts',
         'packages/runtime/src/types.ts',
+        'packages/ui/.storybook/**',
       ],
       thresholds: {
         lines: 80,

@@ -1,4 +1,4 @@
-import { Banner } from '@astryxdesign/core/Banner';
+import { Banner } from '@starter/ui';
 import { createFileRoute } from '@tanstack/react-router';
 import { AppLayout } from '#/components/AppLayout.tsx';
 import { AdminDashboard } from '#/features/admin/index.ts';

@@ -1,4 +1,4 @@
-import { Text } from '@astryxdesign/core/Text';
+import { Text } from '@starter/ui';
 import type { ChangeEvent } from 'react';
 import { useUploadBookCover } from '../hooks/useBooks.ts';
 

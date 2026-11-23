@@ -1,9 +1,4 @@
-import { Banner } from '@astryxdesign/core/Banner';
-import { Button } from '@astryxdesign/core/Button';
-import { Card } from '@astryxdesign/core/Card';
-import { Heading } from '@astryxdesign/core/Heading';
-import { TextInput } from '@astryxdesign/core/TextInput';
-import { VStack } from '@astryxdesign/core/VStack';
+import { Banner, Button, Card, Heading, TextInput, VStack } from '@starter/ui';
 import { useForm } from '@tanstack/react-form';
 import { useUpdateStore } from '../hooks/useStores.ts';
 

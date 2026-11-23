@@ -1,9 +1,9 @@
-# nodejs-fullstack-starter
+# ts-blueprint
 
-![CI](https://github.com/danielfsousa/nodejs-fullstack-starter/actions/workflows/ci.yaml/badge.svg?branch=main)
-![Release](https://github.com/danielfsousa/nodejs-fullstack-starter/actions/workflows/release.yaml/badge.svg?branch=main)
+![CI](https://github.com/danielfsousa/ts-blueprint/actions/workflows/ci.yaml/badge.svg?branch=main)
+![Release](https://github.com/danielfsousa/ts-blueprint/actions/workflows/release.yaml/badge.svg?branch=main)
 
-`nodejs-fullstack-starter` is a full-stack TypeScript monorepo starter built around a multi-tenant bookstore domain (`Store`, `Merchant`, `Customer`, `Book`, `Order`, `Subscription`). Every subsystem outside the core catalog and checkout loop is gated behind an environment flag and lives in its own directory so you can disable or delete what your application does not use.
+`ts-blueprint` is a full-stack TypeScript monorepo starter built around a multi-tenant bookstore domain (`Store`, `Merchant`, `Customer`, `Book`, `Order`, `Subscription`). Every subsystem outside the core catalog and checkout loop is gated behind an environment flag and lives in its own directory so you can disable or delete what your application does not use.
 
 ## Stack overview
 

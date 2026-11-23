@@ -1,5 +1,5 @@
 resource "neon_project" "bookstore" {
-  name       = "nodejs-fullstack-starter"
+  name       = "ts-blueprint"
   region_id  = var.neon_region
   pg_version = 17
 }

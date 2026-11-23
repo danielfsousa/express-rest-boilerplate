@@ -1,5 +1,4 @@
-import { Banner } from '@astryxdesign/core/Banner';
-import { Button } from '@astryxdesign/core/Button';
+import { Banner, Button } from '@starter/ui';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { AppLayout } from '#/components/AppLayout.tsx';
 import { BillingPanel } from '#/features/billing/index.ts';

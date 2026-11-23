@@ -1,5 +1,4 @@
-import { Banner } from '@astryxdesign/core/Banner';
-import { Spinner } from '@astryxdesign/core/Spinner';
+import { Banner, Spinner } from '@starter/ui';
 import { parseCatalogSearch } from '@starter/contracts';
 import { createFileRoute } from '@tanstack/react-router';
 import { StorefrontLayout } from '#/components/StorefrontLayout.tsx';
