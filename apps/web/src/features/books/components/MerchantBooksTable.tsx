@@ -48,7 +48,7 @@ export function MerchantBooksTable({ storeSlug }: { storeSlug: string }) {
                 variant="secondary"
                 size="sm"
                 onClick={() => {
-                  void updateBook.mutateAsync({
+                  updateBook.mutate({
                     bookId: book.id,
                     input: { published: !book.published },
                   });
@@ -59,7 +59,7 @@ export function MerchantBooksTable({ storeSlug }: { storeSlug: string }) {
                 variant="destructive"
                 size="sm"
                 onClick={() => {
-                  void deleteBook.mutateAsync(book.id);
+                  deleteBook.mutate(book.id);
                 }}
               />
             </>

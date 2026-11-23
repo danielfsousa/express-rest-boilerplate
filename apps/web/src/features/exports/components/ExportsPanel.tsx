@@ -16,7 +16,7 @@ export function ExportsPanel({ storeSlug }: { storeSlug: string }) {
           size="sm"
           isLoading={createExport.isPending}
           onClick={() => {
-            void createExport.mutateAsync();
+            createExport.mutate();
           }}
         />
       </HStack>

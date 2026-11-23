@@ -10,7 +10,7 @@ export function CoverUpload({ storeSlug, bookId }: { storeSlug: string; bookId: 
     if (!file) {
       return;
     }
-    void uploadCover.mutateAsync({ bookId, file });
+    uploadCover.mutate({ bookId, file });
   }
 
   return (

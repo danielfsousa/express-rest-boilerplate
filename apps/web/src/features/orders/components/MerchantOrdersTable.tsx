@@ -54,7 +54,7 @@ export function MerchantOrdersTable({ storeSlug }: { storeSlug: string }) {
                   variant="primary"
                   size="sm"
                   onClick={() => {
-                    void updateStatus.mutateAsync({
+                    updateStatus.mutate({
                       orderId: order.id,
                       input: { status: 'fulfilled' },
                     });
@@ -65,7 +65,7 @@ export function MerchantOrdersTable({ storeSlug }: { storeSlug: string }) {
                   variant="destructive"
                   size="sm"
                   onClick={() => {
-                    void updateStatus.mutateAsync({
+                    updateStatus.mutate({
                       orderId: order.id,
                       input: { status: 'cancelled' },
                     });

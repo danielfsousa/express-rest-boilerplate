@@ -24,10 +24,21 @@ describe('@starter/ui/email', () => {
           <Section spacing="lg">
             <Eyebrow>Acme Books</Eyebrow>
             <Heading as="h1">Thank you</Heading>
+            <Heading as="h2">Order summary</Heading>
           </Section>
           <Text tone="secondary" spacing="md">
             Your order is ready.
           </Text>
+          <Callout tone="muted">
+            <Text tone="primary" size="sm">
+              Item 1
+            </Text>
+          </Callout>
+          <Callout tone="success">
+            <Text tone="success" size="sm">
+              Paid
+            </Text>
+          </Callout>
           <Callout tone="warning">
             <Row>
               <Column>
@@ -42,9 +53,17 @@ describe('@starter/ui/email', () => {
               </Column>
             </Row>
           </Callout>
-          <Divider spacing="md" />
+          <Callout tone="error">
+            <Text tone="error" size="sm">
+              Action required
+            </Text>
+          </Callout>
+          <Divider tone="strong" spacing="md" />
           <Section spacing="md">
             <Button href="https://example.com/order/42">View Order</Button>
+            <Button href="https://example.com/help" variant="secondary">
+              Help
+            </Button>
           </Section>
           <Text tone="muted" size="xs" breakAll>
             <Link href="https://example.com/order/42">https://example.com/order/42</Link>
@@ -57,7 +76,10 @@ describe('@starter/ui/email', () => {
     expect(html).toContain(starterLightTokens.colors.surface);
     expect(html).toContain(starterLightTokens.colors.accent);
     expect(html).toContain(starterLightTokens.colors.warningBg);
+    expect(html).toContain(starterLightTokens.colors.successBg);
+    expect(html).toContain(starterLightTokens.colors.errorBg);
     expect(html).toContain('Acme Books');
     expect(html).toContain('View Order');
+    expect(html).toContain('Help');
   });
 });
