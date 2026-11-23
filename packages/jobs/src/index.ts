@@ -19,9 +19,12 @@ export {
 } from './cloudflare-queue.ts';
 export {
   createDefaultJobHandlers,
+  createExportStoreBooksCsvHandler,
+  createLowStockAlertHandler,
+  createOrderReceiptHandler,
   registerDefaultJobHandlers,
   type JobHandlersDeps,
-} from './handlers.ts';
+} from './handlers/index.ts';
 export { createInlineJobQueue } from './inline-queue.ts';
 export { createPgBossJobQueue, type CreatePgBossJobQueueOptions } from './pg-boss-queue.ts';
 export {

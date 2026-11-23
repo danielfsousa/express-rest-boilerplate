@@ -13,8 +13,8 @@
       "default": "./src/cloudflare-queue.ts"
     },
     "./handlers": {
-      "types": "./src/handlers.ts",
-      "default": "./src/handlers.ts"
+      "types": "./src/handlers/index.ts",
+      "default": "./src/handlers/index.ts"
     }
   },
   "dependencies": {
