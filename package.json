@@ -25,6 +25,7 @@
     "lint": "TSRS_FAST=1 oxlint --type-aware --type-check",
     "typecheck": "tsrs --noEmit --fast",
     "env:check": "varlock load",
+    "env:codegen": "varlock codegen",
     "env:scan": "varlock scan",
     "test": "vp test run",
     "test:cov": "vp test run --coverage",
@@ -38,13 +39,13 @@
     "@starter/runtime": "workspace:*",
     "@types/node": "^22.10.0",
     "@vitest/coverage-v8": "5.1.0",
-    "emulate": "^0.14.0",
+    "emulate": "catalog:",
     "lefthook": "^2.2.2",
     "oxfmt": "^0.79.0",
     "oxlint": "^1.94.0",
     "tsrs": "7.1.0-beta.tsrs4",
     "typescript": "^5.8.0",
-    "varlock": "^1.25.0",
+    "varlock": "catalog:",
     "vite-plus": "^1.7.0"
   },
   "engines": {

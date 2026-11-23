@@ -1,5 +1,14 @@
 import { afterAll, beforeAll, describe, expect, test } from 'vite-plus/test';
-import { books, eq, organization, withStoreContext } from '../src/index.ts';
+import {
+  books,
+  createBooksRepository,
+  createOrdersRepository,
+  createSubscriptionsRepository,
+  eq,
+  organization,
+  withStoreContext,
+  withStoreTransaction,
+} from '../src/index.ts';
 import { startTestPostgres } from './harness.ts';
 import type { TestPostgresHarness } from './harness.ts';
 
@@ -71,5 +80,72 @@ describe('PostgreSQL RLS multi-tenancy (packages/db)', () => {
 
     const noContextBooks = await db.select().from(books);
     expect(noContextBooks).toHaveLength(0);
+  });
+
+  test('withStoreTransaction composes and rolls back atomically across multiple repositories', async () => {
+    const { db } = pg.drizzleHandle;
+    const storeTxId = 'store-tx-id';
+
+    await db.insert(organization).values({
+      id: storeTxId,
+      name: 'Tx Store',
+      slug: 'tx-store',
+    });
+
+    const booksRepo = createBooksRepository(db, storeTxId);
+    const ordersRepo = createOrdersRepository(db, storeTxId);
+    const subsRepo = createSubscriptionsRepository(db);
+
+    const seededBook = await booksRepo.create({
+      sku: 'SKU-TX-1',
+      title: 'Atomic Book',
+      author: 'Tx Author',
+      description: 'Rollback verification',
+      priceCents: 2500,
+      currency: 'USD',
+      stock: 5,
+      published: true,
+    });
+    expect(seededBook).not.toBeNull();
+    const bookId = seededBook?.id ?? '';
+
+    await expect(
+      withStoreTransaction(db, storeTxId, async (repos) => {
+        await repos.subscriptions.upsertForStore({
+          storeId: storeTxId,
+          plan: 'pro',
+          status: 'active',
+        });
+
+        const decremented = await repos.books.decrementPublishedStock(bookId, 3);
+        expect(decremented?.stock).toBe(2);
+
+        const customer = await repos.orders.upsertCustomer({
+          email: 'rollback@example.com',
+          name: 'Rollback Reader',
+          locale: 'en',
+        });
+        expect(customer).not.toBeNull();
+
+        await repos.orders.create({
+          customerId: customer?.id ?? '',
+          status: 'paid',
+          totalCents: 7500,
+          currency: 'USD',
+        });
+
+        throw new Error('simulated failure after multi-repository writes');
+      }),
+    ).rejects.toThrow('simulated failure after multi-repository writes');
+
+    const [bookAfterRollback, ordersAfterRollback, subAfterRollback] = await Promise.all([
+      booksRepo.findById(bookId),
+      ordersRepo.listWithCustomer(),
+      subsRepo.findByStoreId(storeTxId),
+    ]);
+
+    expect(bookAfterRollback?.stock).toBe(5);
+    expect(ordersAfterRollback).toHaveLength(0);
+    expect(subAfterRollback).toBeNull();
   });
 });

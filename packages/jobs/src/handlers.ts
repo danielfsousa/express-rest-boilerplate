@@ -1,11 +1,10 @@
-import { books, storeExports, withStoreContext } from '@starter/db';
+import { createBooksRepository, createExportsRepository } from '@starter/db';
 import type { Database } from '@starter/db';
 import { renderLowStockAlertEmail, renderOrderReceiptEmail } from '@starter/email';
 import type { Mailer } from '@starter/email';
 import { m } from '@starter/i18n';
 import type { ObjectStorage } from '@starter/runtime/storage';
 import type { RuntimeLogger } from '@starter/runtime/types';
-import { asc, eq } from 'drizzle-orm';
 import { JOB_NAMES } from './types.ts';
 import type { JobQueue } from './types.ts';
 
@@ -93,29 +92,16 @@ export async function registerDefaultJobHandlers(
       );
     },
     [JOB_NAMES.EXPORT_STORE_BOOKS_CSV]: async (payload) => {
-      await withStoreContext(deps.drizzleDb, payload.storeId, async (tx) => {
-        await tx
-          .update(storeExports)
-          .set({ status: 'processing' })
-          .where(eq(storeExports.id, payload.exportId));
+      const exportsRepo = createExportsRepository(deps.drizzleDb, payload.storeId);
+      const booksRepo = createBooksRepository(deps.drizzleDb, payload.storeId);
+
+      await exportsRepo.updateStatus({
+        exportId: payload.exportId,
+        status: 'processing',
       });
 
       try {
-        const storeBooks = await withStoreContext(deps.drizzleDb, payload.storeId, async (tx) =>
-          tx
-            .select({
-              id: books.id,
-              sku: books.sku,
-              title: books.title,
-              author: books.author,
-              priceCents: books.priceCents,
-              currency: books.currency,
-              stock: books.stock,
-              published: books.published,
-            })
-            .from(books)
-            .orderBy(asc(books.createdAt)),
-        );
+        const storeBooks = await booksRepo.listAllOrdered();
 
         const header = 'id,sku,title,author,priceCents,currency,stock,published';
         const rows = storeBooks.map((book) =>
@@ -139,15 +125,11 @@ export async function registerDefaultJobHandlers(
           contentType: 'text/csv; charset=utf-8',
         });
 
-        await withStoreContext(deps.drizzleDb, payload.storeId, async (tx) => {
-          await tx
-            .update(storeExports)
-            .set({
-              status: 'completed',
-              fileKey,
-              completedAt: new Date(),
-            })
-            .where(eq(storeExports.id, payload.exportId));
+        await exportsRepo.updateStatus({
+          exportId: payload.exportId,
+          status: 'completed',
+          fileKey,
+          completedAt: new Date(),
         });
 
         deps.logger.info(
@@ -155,11 +137,9 @@ export async function registerDefaultJobHandlers(
           'Completed store books CSV export',
         );
       } catch (error) {
-        await withStoreContext(deps.drizzleDb, payload.storeId, async (tx) => {
-          await tx
-            .update(storeExports)
-            .set({ status: 'failed' })
-            .where(eq(storeExports.id, payload.exportId));
+        await exportsRepo.updateStatus({
+          exportId: payload.exportId,
+          status: 'failed',
         });
         throw error;
       }

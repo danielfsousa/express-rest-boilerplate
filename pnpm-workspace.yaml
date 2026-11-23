@@ -1,6 +1,38 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+catalog:
+  '@astryxdesign/build': ^0.7.17
+  '@astryxdesign/cli': ^0.7.17
+  '@astryxdesign/core': ^0.7.17
+  '@astryxdesign/theme-neutral': ^0.7.17
+  '@better-auth/stripe': ^1.7.27
+  '@hono/node-server': ^2.1.11
+  '@hono/node-ws': ^1.3.2
+  '@hono/zod-openapi': ^1.6.3
+  '@stylexjs/babel-plugin': ^0.19.2
+  '@stylexjs/stylex': ^0.19.2
+  '@stylexjs/unplugin': ^0.19.2
+  '@tanstack/react-form': ^1.33.5
+  '@tanstack/react-query': ^5.108.3
+  '@tanstack/react-router': ^1.170.46
+  '@tanstack/react-start': ^1.169.7
+  '@tanstack/react-store': ^0.11.2
+  '@testcontainers/postgresql': ^12.2.2
+  '@types/react': ^19.1.0
+  '@types/react-dom': ^19.1.0
+  '@varlock/vite-integration': ^1.5.6
+  better-auth: ^1.7.27
+  drizzle-kit: 1.0.0-rc.6
+  drizzle-orm: 1.0.0-rc.6
+  emulate: ^0.14.0
+  hono: ^4.13.20
+  postgres: ^4.1.1
+  react: ^19.3.1
+  react-dom: ^19.3.1
+  testcontainers: ^12.2.2
+  varlock: ^1.25.0
+  zod: ^4.6.7
 allowBuilds:
   '@astryxdesign/cli': true
   '@astryxdesign/core': true

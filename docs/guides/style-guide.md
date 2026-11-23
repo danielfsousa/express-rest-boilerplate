@@ -43,15 +43,16 @@ Design deep modules: hide complex logic behind small, stable interfaces placed a
 
 ## 5. Frontend State and Forms (`apps/web`)
 
-Choose the right state tool in this order:
+Follow this decision tree to choose the right state tool:
 
-1. **Server state:** TanStack Query (`useQuery`, `useMutation`) for all API data.
+1. **Server data:** TanStack Query (`useQuery`, `useMutation`) for all API data (never TanStack Store, Zustand, or Redux).
 2. **URL state:** TanStack Router `validateSearch` with Zod schemas for search terms, filters, and pagination so links remain shareable and survive refresh.
 3. **Form state:** `@tanstack/react-form` (`useForm`) for all forms. Never manage multi-field forms with a cluster of `useState` hooks.
-4. **Shared client state:** `@tanstack/react-store` (`Store` and `useStore`) for global client preferences such as active locale or realtime connection status.
-5. **Local UI state:** Use `useReducer` whenever a single feature coordinates multiple UI states. Reserve `useState` for a single isolated toggle or transient value.
-6. **Event handlers:** Wrap async form and button handlers cleanly (`onSubmit={(event) => { event.preventDefault(); void form.handleSubmit(); }}`) to satisfy `no-misused-promises`.
-7. **Design system:** Follow [apps/web/AGENTS.md](../../apps/web/AGENTS.md) for Astryx components (no raw `<div>` layout wrappers, no `padding` prop on `Card`, pass `label` to `Button` and `Badge`).
+4. **Simple UI state (`< 3` values):** React `useState` or `useReducer`.
+5. **Complex single-component UI state:** React `useReducer`.
+6. **Complex cross-component client state:** `@tanstack/react-store` using `createStore(initialState, ({ setState, get }) => actions)` with colocated `store.actions` and `useSelector(store, selector)` (matching TanStack Store's `store-actions` pattern).
+7. **Event handlers:** Wrap async form and button handlers cleanly (`onSubmit={(event) => { event.preventDefault(); void form.handleSubmit(); }}`) to satisfy `no-misused-promises`.
+8. **Design system:** Follow [apps/web/AGENTS.md](../../apps/web/AGENTS.md) for Astryx components (no raw `<div>` layout wrappers, no `padding` prop on `Card`, pass `label` to `Button` and `Badge`).
 
 ## 6. Testing Without Heavy Mocks
 

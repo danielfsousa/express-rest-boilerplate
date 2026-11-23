@@ -32,11 +32,13 @@ RUN pnpm --filter @starter/i18n build
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm --filter @starter/worker --prod deploy --legacy /prod/worker
 
 FROM platformatic/node-caged:26-slim AS api
-WORKDIR /app
+WORKDIR /app/apps/api
+ENV APP_ENV=prod
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=3001
-COPY --from=deploy-api --chown=node:node /prod/api /app
+COPY --chown=node:node .env.schema .env.prod /app/
+COPY --from=deploy-api --chown=node:node /prod/api /app/apps/api
 USER node
 EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
@@ -44,8 +46,10 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 CMD ["node", "src/index.ts"]
 
 FROM platformatic/node-caged:26-slim AS worker
-WORKDIR /app
+WORKDIR /app/apps/worker
+ENV APP_ENV=prod
 ENV NODE_ENV=production
-COPY --from=deploy-worker --chown=node:node /prod/worker /app
+COPY --chown=node:node .env.schema .env.prod /app/
+COPY --from=deploy-worker --chown=node:node /prod/worker /app/apps/worker
 USER node
 CMD ["node", "src/index.ts"]

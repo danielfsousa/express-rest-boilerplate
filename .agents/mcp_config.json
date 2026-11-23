@@ -1,7 +1,7 @@
 {
   "mcpServers": {
-    "bird": {
-      "url": "https://mcp.bird.com"
+    "varlock": {
+      "url": "https://docs.mcp.varlock.dev/mcp"
     }
   }
 }

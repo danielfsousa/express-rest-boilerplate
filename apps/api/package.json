@@ -7,12 +7,12 @@
     "#/*": "./src/*"
   },
   "scripts": {
-    "dev": "node --env-file=../../.env --watch src/index.ts",
+    "dev": "node --watch src/index.ts",
     "start": "node src/index.ts"
   },
   "dependencies": {
-    "@better-auth/stripe": "^1.7.27",
-    "@hono/zod-openapi": "^1.6.3",
+    "@better-auth/stripe": "catalog:",
+    "@hono/zod-openapi": "catalog:",
     "@scalar/hono-api-reference": "^0.12.23",
     "@starter/contracts": "workspace:*",
     "@starter/db": "workspace:*",
@@ -20,17 +20,20 @@
     "@starter/i18n": "workspace:*",
     "@starter/jobs": "workspace:*",
     "@starter/runtime": "workspace:*",
-    "better-auth": "^1.7.27",
-    "hono": "^4.13.20",
+    "better-auth": "catalog:",
+    "hono": "catalog:",
     "stripe": "^23.2.0",
-    "varlock": "^1.25.0",
-    "zod": "^4.6.7"
+    "varlock": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "@testcontainers/postgresql": "^12.2.2",
+    "@testcontainers/postgresql": "catalog:",
     "@types/ws": "^8.18.2",
-    "emulate": "^0.14.0",
-    "testcontainers": "^12.2.2",
+    "emulate": "catalog:",
+    "testcontainers": "catalog:",
     "ws": "^8.23.0"
+  },
+  "varlock": {
+    "loadPath": "../../"
   }
 }

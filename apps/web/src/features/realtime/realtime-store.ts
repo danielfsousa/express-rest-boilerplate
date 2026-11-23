@@ -1,11 +1,21 @@
-import { Store } from '@tanstack/react-store';
+import { createStore } from '@tanstack/react-store';
 
 export type RealtimeConnectionStatus = 'idle' | 'connecting' | 'connected' | 'disconnected';
 
-export const realtimeStore = new Store<{ status: RealtimeConnectionStatus }>({
-  status: 'idle',
-});
+export const realtimeStore = createStore(
+  {
+    status: 'idle',
+  },
+  ({ setState }) => ({
+    setStatus: (status: RealtimeConnectionStatus) => {
+      setState((prev) => ({
+        ...prev,
+        status,
+      }));
+    },
+  }),
+);
 
 export function setRealtimeStatus(status: RealtimeConnectionStatus): void {
-  realtimeStore.setState(() => ({ status }));
+  realtimeStore.actions.setStatus(status);
 }

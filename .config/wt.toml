@@ -1,6 +1,6 @@
 [[pre-start]]
 install = "pnpm install --frozen-lockfile"
-env = "if [ ! -f .env ] && [ -f .env.example ]; then cp .env.example .env; fi"
+env = "pnpm run env:codegen"
 
 [[pre-start]]
 build = "pnpm run build"

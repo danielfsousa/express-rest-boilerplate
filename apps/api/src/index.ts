@@ -1,4 +1,5 @@
 import 'varlock/auto-load';
+import { ENV } from 'varlock/env';
 import { createDb, ensureDefaultStore } from '@starter/db';
 import { createBirdMailer } from '@starter/email';
 import {
@@ -6,7 +7,7 @@ import {
   createPgBossJobQueue,
   registerDefaultJobHandlers,
 } from '@starter/jobs';
-import { createLogger, createServer, onShutdown, readEnv } from '@starter/runtime';
+import { createLogger, createServer, onShutdown } from '@starter/runtime';
 import {
   createMemoryRealtimeBroker,
   createNoopRealtimeBroker,
@@ -16,70 +17,68 @@ import { createS3Storage } from '@starter/runtime/storage';
 import { initTelemetry } from '@starter/runtime/telemetry';
 import type { WebSocketAdapter } from '@starter/runtime/types';
 import { createApp } from './app.ts';
-import { parseEnv } from './config/env.ts';
 import { createAuth } from './features/auth/auth.service.ts';
 import { createStripeClient } from './features/billing/billing.service.ts';
 
 async function main(): Promise<void> {
-  const env = parseEnv(readEnv());
   const telemetry = initTelemetry({
-    serviceName: env.OTEL_SERVICE_NAME,
-    enabled: env.OTEL_ENABLED,
-    endpoint: env.OTEL_EXPORTER_OTLP_ENDPOINT,
-    headers: env.OTEL_EXPORTER_OTLP_HEADERS,
+    serviceName: ENV.OTEL_SERVICE_NAME,
+    enabled: ENV.OTEL_ENABLED,
+    endpoint: ENV.OTEL_EXPORTER_OTLP_ENDPOINT,
+    headers: ENV.OTEL_EXPORTER_OTLP_HEADERS,
   });
   const logger = createLogger({
-    level: env.LOG_LEVEL,
-    format: env.LOG_FORMAT,
-    otelEnabled: env.OTEL_ENABLED,
+    level: ENV.LOG_LEVEL,
+    format: ENV.LOG_FORMAT,
+    otelEnabled: ENV.OTEL_ENABLED,
   });
-  const drizzleHandle = createDb(env.DATABASE_URL);
+  const drizzleHandle = createDb(ENV.DATABASE_URL);
 
-  if (!env.FEATURE_MULTI_TENANCY_ENABLED) {
+  if (!ENV.FEATURE_MULTI_TENANCY_ENABLED) {
     await ensureDefaultStore(drizzleHandle.db);
   }
 
   const mailer = createBirdMailer({
-    apiBaseUrl: env.BIRD_API_BASE_URL,
-    apiKey: env.BIRD_API_KEY,
-    fromEmail: env.BIRD_FROM_EMAIL,
+    apiBaseUrl: ENV.BIRD_API_BASE_URL,
+    apiKey: ENV.BIRD_API_KEY,
+    fromEmail: ENV.BIRD_FROM_EMAIL,
   });
 
-  const stripeClient = env.FEATURE_BILLING_ENABLED
+  const stripeClient = ENV.FEATURE_BILLING_ENABLED
     ? createStripeClient({
-        secretKey: env.STRIPE_SECRET_KEY,
-        host: env.STRIPE_API_HOST,
-        port: env.STRIPE_API_PORT,
-        protocol: env.STRIPE_API_PROTOCOL,
+        secretKey: ENV.STRIPE_SECRET_KEY,
+        host: ENV.STRIPE_API_HOST,
+        port: ENV.STRIPE_API_PORT,
+        protocol: ENV.STRIPE_API_PROTOCOL,
       })
     : undefined;
 
-  const trustedOrigins = [env.WEB_ORIGIN, env.BETTER_AUTH_URL];
+  const trustedOrigins = [ENV.WEB_ORIGIN, ENV.BETTER_AUTH_URL];
   const auth = createAuth({
     db: drizzleHandle.db,
-    secret: env.BETTER_AUTH_SECRET,
-    baseURL: env.BETTER_AUTH_URL,
+    secret: ENV.BETTER_AUTH_SECRET,
+    baseURL: ENV.BETTER_AUTH_URL,
     trustedOrigins,
     mailer,
-    i18nEnabled: env.FEATURE_I18N_ENABLED,
-    adminEnabled: env.FEATURE_ADMIN_ENABLED,
-    billingEnabled: env.FEATURE_BILLING_ENABLED,
+    i18nEnabled: ENV.FEATURE_I18N_ENABLED,
+    adminEnabled: ENV.FEATURE_ADMIN_ENABLED,
+    billingEnabled: ENV.FEATURE_BILLING_ENABLED,
     stripeClient,
-    stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
-    proPriceId: env.STRIPE_PRO_PRICE_ID,
+    stripeWebhookSecret: ENV.STRIPE_WEBHOOK_SECRET,
+    proPriceId: ENV.STRIPE_PRO_PRICE_ID,
   });
 
   const storage = createS3Storage({
-    endpoint: env.S3_ENDPOINT,
-    region: env.S3_REGION,
-    accessKeyId: env.S3_ACCESS_KEY_ID,
-    secretAccessKey: env.S3_SECRET_ACCESS_KEY,
-    bucket: env.S3_BUCKET,
+    endpoint: ENV.S3_ENDPOINT,
+    region: ENV.S3_REGION,
+    accessKeyId: ENV.S3_ACCESS_KEY_ID,
+    secretAccessKey: ENV.S3_SECRET_ACCESS_KEY,
+    bucket: ENV.S3_BUCKET,
   });
 
-  const jobQueue = env.FEATURE_JOBS_ENABLED
+  const jobQueue = ENV.FEATURE_JOBS_ENABLED
     ? createPgBossJobQueue({
-        connectionString: env.DATABASE_DIRECT_URL ?? env.DATABASE_URL,
+        connectionString: ENV.DATABASE_DIRECT_URL ?? ENV.DATABASE_URL,
         schema: 'pgboss',
         retryLimit: 3,
         retryDelay: 30,
@@ -88,7 +87,7 @@ async function main(): Promise<void> {
     : createInlineJobQueue();
 
   await jobQueue.start();
-  if (!env.FEATURE_JOBS_ENABLED || env.WORKER_INLINE) {
+  if (!ENV.FEATURE_JOBS_ENABLED || ENV.WORKER_INLINE) {
     await registerDefaultJobHandlers(jobQueue, {
       drizzleDb: drizzleHandle.db,
       mailer,
@@ -97,11 +96,11 @@ async function main(): Promise<void> {
     });
   }
 
-  const realtimeBroker = !env.FEATURE_REALTIME_ENABLED
+  const realtimeBroker = !ENV.FEATURE_REALTIME_ENABLED
     ? createNoopRealtimeBroker()
-    : env.REALTIME_BROKER === 'postgres'
+    : ENV.REALTIME_BROKER === 'postgres'
       ? await createPostgresRealtimeBroker({
-          url: env.DATABASE_DIRECT_URL ?? env.DATABASE_URL,
+          url: ENV.DATABASE_DIRECT_URL ?? ENV.DATABASE_URL,
         })
       : createMemoryRealtimeBroker();
 
@@ -114,26 +113,26 @@ async function main(): Promise<void> {
     auth,
     storage,
     jobQueue,
-    realtimeEnabled: env.FEATURE_REALTIME_ENABLED,
+    realtimeEnabled: ENV.FEATURE_REALTIME_ENABLED,
     realtimeBroker,
     onWebSocketAdapter: (adapter) => {
       webSocketAdapter = adapter;
     },
-    multiTenancyEnabled: env.FEATURE_MULTI_TENANCY_ENABLED,
-    adminEnabled: env.FEATURE_ADMIN_ENABLED,
-    i18nEnabled: env.FEATURE_I18N_ENABLED,
-    billingEnabled: env.FEATURE_BILLING_ENABLED,
+    multiTenancyEnabled: ENV.FEATURE_MULTI_TENANCY_ENABLED,
+    adminEnabled: ENV.FEATURE_ADMIN_ENABLED,
+    i18nEnabled: ENV.FEATURE_I18N_ENABLED,
+    billingEnabled: ENV.FEATURE_BILLING_ENABLED,
     stripeClient,
-    stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
-    stripeProPriceId: env.STRIPE_PRO_PRICE_ID,
-    webOrigin: env.WEB_ORIGIN,
+    stripeWebhookSecret: ENV.STRIPE_WEBHOOK_SECRET,
+    stripeProPriceId: ENV.STRIPE_PRO_PRICE_ID,
+    webOrigin: ENV.WEB_ORIGIN,
     trustedOrigins,
   });
 
   const server = await createServer({
     fetch: app.fetch,
-    port: env.PORT,
-    hostname: env.HOST,
+    port: ENV.PORT,
+    hostname: ENV.HOST,
     webSocketAdapter,
   });
 

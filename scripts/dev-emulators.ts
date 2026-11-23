@@ -1,22 +1,22 @@
 import 'varlock/auto-load';
+import { ENV } from 'varlock/env';
 import { createBirdEmulatorFetch } from '@starter/email';
-import { createLogger, createServer, onShutdown, readEnv } from '@starter/runtime';
+import { createLogger, createServer, onShutdown } from '@starter/runtime';
 import { createEmulator } from 'emulate';
 
-const env = readEnv();
-const logger = createLogger({ level: env['LOG_LEVEL'] ?? 'info' });
-const birdPort = Number.parseInt(env['BIRD_EMULATOR_PORT'] ?? '4010', 10);
-const stripePort = Number.parseInt(env['STRIPE_API_PORT'] ?? '4009', 10);
+const logger = createLogger({ level: ENV.LOG_LEVEL });
+const birdPort = ENV.BIRD_EMULATOR_PORT;
+const stripePort = ENV.STRIPE_API_PORT ?? 4009;
 
 const [birdServer, stripeEmulator] = await Promise.all([
   createServer({
-    port: Number.isNaN(birdPort) ? 4010 : birdPort,
+    port: birdPort,
     hostname: '127.0.0.1',
     fetch: createBirdEmulatorFetch(),
   }),
   createEmulator({
     service: 'stripe',
-    port: Number.isNaN(stripePort) ? 4009 : stripePort,
+    port: stripePort,
     hostname: '127.0.0.1',
   }),
 ]);

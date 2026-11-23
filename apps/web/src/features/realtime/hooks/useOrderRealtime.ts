@@ -3,7 +3,7 @@ import type { Order } from '@starter/contracts';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { getApiBaseUrl, isRealtimeEnabled } from '#/lib/env.ts';
-import { setRealtimeStatus } from '../realtime-store.ts';
+import { realtimeStore } from '../realtime-store.ts';
 
 function toWebSocketUrl(httpBaseUrl: string, path: string): string {
   const parsed = new URL(path, httpBaseUrl);
@@ -30,11 +30,11 @@ export function useOrderRealtime({ storeSlug, orderId }: UseOrderRealtimeParams)
       `/api/v1/stores/${encodeURIComponent(storeSlug)}/ws${querySuffix}`,
     );
 
-    setRealtimeStatus('connecting');
+    realtimeStore.actions.setStatus('connecting');
     const socket = new WebSocket(wsUrl);
 
     socket.addEventListener('open', () => {
-      setRealtimeStatus('connected');
+      realtimeStore.actions.setStatus('connected');
     });
 
     socket.addEventListener('message', (event) => {
@@ -60,16 +60,16 @@ export function useOrderRealtime({ storeSlug, orderId }: UseOrderRealtimeParams)
     });
 
     socket.addEventListener('close', () => {
-      setRealtimeStatus('disconnected');
+      realtimeStore.actions.setStatus('disconnected');
     });
 
     socket.addEventListener('error', () => {
-      setRealtimeStatus('disconnected');
+      realtimeStore.actions.setStatus('disconnected');
     });
 
     return () => {
       socket.close();
-      setRealtimeStatus('idle');
+      realtimeStore.actions.setStatus('idle');
     };
   }, [queryClient, storeSlug, orderId]);
 }

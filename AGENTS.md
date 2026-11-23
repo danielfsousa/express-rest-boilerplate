@@ -17,6 +17,10 @@ Workspace instructions for AI agents and contributors working in `nodejs-fullsta
   - `pnpm run check` (`vp check`)
   - `pnpm run lint` (`TSRS_FAST=1 oxlint --type-aware --type-check`)
   - `pnpm run typecheck` (`tsrs --noEmit --fast`)
+- **Environment schema, codegen, and secret scanning (Varlock):**
+  - `pnpm run env:codegen` (`varlock codegen` — regenerates `env.d.ts` from `.env.schema`)
+  - `pnpm exec varlock load --agent` (validates config with `@sensitive` values redacted)
+  - `pnpm run env:scan` (`varlock scan` — scans for leaked secrets)
 - **Tests:** `pnpm run test`
 - **Web build (regenerates `apps/web/src/routeTree.gen.ts`):** Run `pnpm --filter @starter/web build` BEFORE `vp check` or `tsrs` whenever adding or renaming files under `apps/web/src/routes/`.
 
@@ -29,3 +33,5 @@ Workspace instructions for AI agents and contributors working in `nodejs-fullsta
 5. **Sequential `pg-boss` queue creation:** Call `boss.createQueue(...)` sequentially during startup, never in parallel via `Promise.all`, to avoid PostgreSQL partition-attach deadlocks.
 6. **Stripe `emulate@0.14.0`:** Checkout Sessions require `line_items: [{ price: priceId, quantity }]` rather than inline `price_data` without `price`.
 7. **Low-mock testing:** Prefer real seams (`createMemoryStorage`, `createBirdEmulator`, `createInlineJobQueue`, `createMemoryPaymentGateway`, real TanStack Router memory history) over `vi.mock`.
+8. **Varlock environment & secret hygiene:** This project has only two environments: `local` and `prod` (`APP_ENV` in `.env.schema` and `.env.prod`). Never read gitignored `.env` or `.env*.local` files directly; use `pnpm exec varlock load --agent` to inspect/validate configuration and mark all credentials/keys with `# @sensitive`.
+9. **Cross-repository transactions:** Use `withStoreTransaction(db, storeId, async (repos) => ...)` or `withTransaction(db, async (repos) => ...)` from `@starter/db` when an operation spans multiple repository calls or multiple repositories.

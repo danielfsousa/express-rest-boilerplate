@@ -33,6 +33,7 @@ export function createDb(url: string, maxConnections = 10) {
 
 export type Database = ReturnType<typeof createDb>['db'];
 export type DatabaseTransaction = Parameters<Parameters<Database['transaction']>[0]>[0];
+export type DbExecutor = Database | DatabaseTransaction;
 
 export async function migrateDb(adminUrl: string, migrationsFolder: string): Promise<void> {
   const client = postgres(adminUrl, { max: 1, connect_timeout: 10 });

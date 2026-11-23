@@ -162,6 +162,102 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@astryxdesign/build':
+      specifier: ^0.7.17
+      version: 0.7.17
+    '@astryxdesign/cli':
+      specifier: ^0.7.17
+      version: 0.7.17
+    '@astryxdesign/core':
+      specifier: ^0.7.17
+      version: 0.7.17
+    '@astryxdesign/theme-neutral':
+      specifier: ^0.7.17
+      version: 0.7.17
+    '@better-auth/stripe':
+      specifier: ^1.7.27
+      version: 1.7.27
+    '@hono/node-server':
+      specifier: ^2.1.11
+      version: 2.1.11
+    '@hono/node-ws':
+      specifier: ^1.3.2
+      version: 1.3.2
+    '@hono/zod-openapi':
+      specifier: ^1.6.3
+      version: 1.6.3
+    '@stylexjs/babel-plugin':
+      specifier: ^0.19.2
+      version: 0.19.2
+    '@stylexjs/stylex':
+      specifier: ^0.19.2
+      version: 0.19.2
+    '@stylexjs/unplugin':
+      specifier: ^0.19.2
+      version: 0.19.2
+    '@tanstack/react-form':
+      specifier: ^1.33.5
+      version: 1.33.5
+    '@tanstack/react-query':
+      specifier: ^5.108.3
+      version: 5.108.3
+    '@tanstack/react-router':
+      specifier: ^1.170.46
+      version: 1.170.46
+    '@tanstack/react-start':
+      specifier: ^1.169.7
+      version: 1.169.7
+    '@tanstack/react-store':
+      specifier: ^0.11.2
+      version: 0.11.2
+    '@testcontainers/postgresql':
+      specifier: ^12.2.2
+      version: 12.2.2
+    '@types/react':
+      specifier: ^19.1.0
+      version: 19.3.0
+    '@types/react-dom':
+      specifier: ^19.1.0
+      version: 19.3.0
+    '@varlock/vite-integration':
+      specifier: ^1.5.6
+      version: 1.5.6
+    better-auth:
+      specifier: ^1.7.27
+      version: 1.7.27
+    drizzle-kit:
+      specifier: 1.0.0-rc.6
+      version: 1.0.0-rc.6
+    drizzle-orm:
+      specifier: 1.0.0-rc.6
+      version: 1.0.0-rc.6
+    emulate:
+      specifier: ^0.14.0
+      version: 0.14.0
+    hono:
+      specifier: ^4.13.20
+      version: 4.13.20
+    postgres:
+      specifier: ^4.1.1
+      version: 4.1.1
+    react:
+      specifier: ^19.3.1
+      version: 19.3.1
+    react-dom:
+      specifier: ^19.3.1
+      version: 19.3.1
+    testcontainers:
+      specifier: ^12.2.2
+      version: 12.2.2
+    varlock:
+      specifier: ^1.25.0
+      version: 1.25.0
+    zod:
+      specifier: ^4.6.7
+      version: 4.6.7
+
 importers:
 
   .:
@@ -185,7 +281,7 @@ importers:
         specifier: 5.1.0
         version: 5.1.0(@vitest/browser@5.1.0)(vitest@5.1.0)
       emulate:
-        specifier: ^0.14.0
+        specifier: 'catalog:'
         version: 0.14.0
       lefthook:
         specifier: ^2.2.2
@@ -203,7 +299,7 @@ importers:
         specifier: ^5.8.0
         version: 5.9.3
       varlock:
-        specifier: ^1.25.0
+        specifier: 'catalog:'
         version: 1.25.0
       vite-plus:
         specifier: ^1.7.0
@@ -212,10 +308,10 @@ importers:
   apps/api:
     dependencies:
       '@better-auth/stripe':
-        specifier: ^1.7.27
+        specifier: 'catalog:'
         version: 1.7.27(@better-auth/core@1.7.27(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(@opentelemetry/api@1.10.0)(better-call@1.4.6(zod@4.6.7))(jose@6.2.18)(kysely@0.29.9)(nanostores@1.5.5))(better-auth@1.7.27(@opentelemetry/api@1.10.0)(@tanstack/react-start@1.169.7(esbuild@0.28.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(rolldown@1.2.19)(rollup@4.68.8)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))(drizzle-kit@1.0.0-rc.6(drizzle-orm@1.0.0-rc.6(@opentelemetry/api@1.10.0)(pg@8.23.1)(postgres@4.1.1)(valibot@1.5.0(typescript@5.9.3))(zod@4.6.7)))(drizzle-orm@1.0.0-rc.6(@opentelemetry/api@1.10.0)(pg@8.23.1)(postgres@4.1.1)(valibot@1.5.0(typescript@5.9.3))(zod@4.6.7))(pg@8.23.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vitest@5.1.0))(better-call@1.4.6(zod@4.6.7))(stripe@23.2.0(@types/node@22.20.5))
       '@hono/zod-openapi':
-        specifier: ^1.6.3
+        specifier: 'catalog:'
         version: 1.6.3(hono@4.13.20)(zod@4.6.7)
       '@scalar/hono-api-reference':
         specifier: ^0.12.23
@@ -239,32 +335,32 @@ importers:
         specifier: workspace:*
         version: link:../../packages/runtime
       better-auth:
-        specifier: ^1.7.27
+        specifier: 'catalog:'
         version: 1.7.27(@opentelemetry/api@1.10.0)(@tanstack/react-start@1.169.7(esbuild@0.28.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(rolldown@1.2.19)(rollup@4.68.8)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))(drizzle-kit@1.0.0-rc.6(drizzle-orm@1.0.0-rc.6(@opentelemetry/api@1.10.0)(pg@8.23.1)(postgres@4.1.1)(valibot@1.5.0(typescript@5.9.3))(zod@4.6.7)))(drizzle-orm@1.0.0-rc.6(@opentelemetry/api@1.10.0)(pg@8.23.1)(postgres@4.1.1)(valibot@1.5.0(typescript@5.9.3))(zod@4.6.7))(pg@8.23.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vitest@5.1.0)
       hono:
-        specifier: ^4.13.20
+        specifier: 'catalog:'
         version: 4.13.20
       stripe:
         specifier: ^23.2.0
         version: 23.2.0(@types/node@22.20.5)
       varlock:
-        specifier: ^1.25.0
+        specifier: 'catalog:'
         version: 1.25.0
       zod:
-        specifier: ^4.6.7
+        specifier: 'catalog:'
         version: 4.6.7
     devDependencies:
       '@testcontainers/postgresql':
-        specifier: ^12.2.2
+        specifier: 'catalog:'
         version: 12.2.2(bare-buffer@3.7.3)
       '@types/ws':
         specifier: ^8.18.2
         version: 8.18.2
       emulate:
-        specifier: ^0.14.0
+        specifier: 'catalog:'
         version: 0.14.0
       testcontainers:
-        specifier: ^12.2.2
+        specifier: 'catalog:'
         version: 12.2.2(bare-buffer@3.7.3)
       ws:
         specifier: ^8.23.0
@@ -273,10 +369,10 @@ importers:
   apps/web:
     dependencies:
       '@astryxdesign/core':
-        specifier: ^0.7.17
+        specifier: 'catalog:'
         version: 0.7.17(@stylexjs/stylex@0.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@astryxdesign/theme-neutral':
-        specifier: ^0.7.17
+        specifier: 'catalog:'
         version: 0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(react@19.3.1)
       '@starter/contracts':
         specifier: workspace:*
@@ -285,47 +381,56 @@ importers:
         specifier: workspace:*
         version: link:../../packages/i18n
       '@stylexjs/stylex':
-        specifier: ^0.19.2
+        specifier: 'catalog:'
         version: 0.19.2
       '@tanstack/react-form':
-        specifier: ^1.33.5
+        specifier: 'catalog:'
         version: 1.33.5(@tanstack/react-start@1.169.7(esbuild@0.28.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(rolldown@1.2.19)(rollup@4.68.8)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@tanstack/react-query':
-        specifier: ^5.108.3
+        specifier: 'catalog:'
         version: 5.108.3(@types/react@19.3.0)(react@19.3.1)
       '@tanstack/react-router':
-        specifier: ^1.170.46
+        specifier: 'catalog:'
         version: 1.170.46(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@tanstack/react-start':
-        specifier: ^1.169.7
+        specifier: 'catalog:'
         version: 1.169.7(esbuild@0.28.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(rolldown@1.2.19)(rollup@4.68.8)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
       '@tanstack/react-store':
-        specifier: ^0.11.2
+        specifier: 'catalog:'
         version: 0.11.2(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@varlock/vite-integration':
+        specifier: 'catalog:'
+        version: 1.5.6(varlock@1.25.0)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
       better-auth:
-        specifier: ^1.7.27
+        specifier: 'catalog:'
         version: 1.7.27(@opentelemetry/api@1.10.0)(@tanstack/react-start@1.169.7(esbuild@0.28.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(rolldown@1.2.19)(rollup@4.68.8)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)))(drizzle-kit@1.0.0-rc.6(drizzle-orm@1.0.0-rc.6(@opentelemetry/api@1.10.0)(pg@8.23.1)(postgres@4.1.1)(valibot@1.5.0(typescript@5.9.3))(zod@4.6.7)))(drizzle-orm@1.0.0-rc.6(@opentelemetry/api@1.10.0)(pg@8.23.1)(postgres@4.1.1)(valibot@1.5.0(typescript@5.9.3))(zod@4.6.7))(pg@8.23.1)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vitest@5.1.0)
       react:
-        specifier: ^19.3.1
+        specifier: 'catalog:'
         version: 19.3.1
       react-dom:
-        specifier: ^19.3.1
+        specifier: 'catalog:'
         version: 19.3.1(react@19.3.1)
+      varlock:
+        specifier: 'catalog:'
+        version: 1.25.0
+      zod:
+        specifier: 'catalog:'
+        version: 4.6.7
     devDependencies:
       '@astryxdesign/build':
-        specifier: ^0.7.17
+        specifier: 'catalog:'
         version: 0.7.17(@babel/core@7.29.13)(@stylexjs/babel-plugin@0.19.2)(@stylexjs/unplugin@0.19.2(unplugin@2.3.11))(postcss@8.5.33)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
       '@astryxdesign/cli':
-        specifier: ^0.7.17
+        specifier: 'catalog:'
         version: 0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))
       '@babel/core':
         specifier: ^7.29.13
         version: 7.29.13
       '@stylexjs/babel-plugin':
-        specifier: ^0.19.2
+        specifier: 'catalog:'
         version: 0.19.2
       '@stylexjs/unplugin':
-        specifier: ^0.19.2
+        specifier: 'catalog:'
         version: 0.19.2(unplugin@2.3.11)
       '@testing-library/jest-dom':
         specifier: ^6.6.3
@@ -334,10 +439,10 @@ importers:
         specifier: ^16.3.0
         version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@types/react':
-        specifier: ^19.1.0
+        specifier: 'catalog:'
         version: 19.3.0
       '@types/react-dom':
-        specifier: ^19.1.0
+        specifier: 'catalog:'
         version: 19.3.0(@types/react@19.3.0)
       '@vitejs/plugin-react':
         specifier: ^6.3.0
@@ -367,10 +472,10 @@ importers:
         specifier: workspace:*
         version: link:../../packages/runtime
       varlock:
-        specifier: ^1.25.0
+        specifier: 'catalog:'
         version: 1.25.0
       zod:
-        specifier: ^4.6.7
+        specifier: 'catalog:'
         version: 4.6.7
     devDependencies:
       '@starter/api':
@@ -380,38 +485,41 @@ importers:
         specifier: workspace:*
         version: link:../../packages/contracts
       '@testcontainers/postgresql':
-        specifier: ^12.2.2
+        specifier: 'catalog:'
         version: 12.2.2(bare-buffer@3.7.3)
       testcontainers:
-        specifier: ^12.2.2
+        specifier: 'catalog:'
         version: 12.2.2(bare-buffer@3.7.3)
 
   packages/contracts:
     dependencies:
       zod:
-        specifier: ^4.6.7
+        specifier: 'catalog:'
         version: 4.6.7
 
   packages/db:
     dependencies:
       drizzle-orm:
-        specifier: 1.0.0-rc.6
+        specifier: 'catalog:'
         version: 1.0.0-rc.6(@opentelemetry/api@1.10.0)(pg@8.23.1)(postgres@4.1.1)(valibot@1.5.0(typescript@5.9.3))(zod@4.6.7)
       postgres:
-        specifier: ^4.1.1
+        specifier: 'catalog:'
         version: 4.1.1
       uuidv7:
         specifier: ^1.2.1
         version: 1.2.1
+      zod:
+        specifier: 'catalog:'
+        version: 4.6.7
     devDependencies:
       '@testcontainers/postgresql':
-        specifier: ^12.2.2
+        specifier: 'catalog:'
         version: 12.2.2(bare-buffer@3.7.3)
       drizzle-kit:
-        specifier: 1.0.0-rc.6
+        specifier: 'catalog:'
         version: 1.0.0-rc.6(drizzle-orm@1.0.0-rc.6(@opentelemetry/api@1.10.0)(pg@8.23.1)(postgres@4.1.1)(valibot@1.5.0(typescript@5.9.3))(zod@4.6.7))
       testcontainers:
-        specifier: ^12.2.2
+        specifier: 'catalog:'
         version: 12.2.2(bare-buffer@3.7.3)
 
   packages/email:
@@ -429,14 +537,14 @@ importers:
         specifier: workspace:*
         version: link:../runtime
       react:
-        specifier: ^19.3.1
+        specifier: 'catalog:'
         version: 19.3.1
       zod:
-        specifier: ^4.6.7
+        specifier: 'catalog:'
         version: 4.6.7
     devDependencies:
       '@types/react':
-        specifier: ^19.1.0
+        specifier: 'catalog:'
         version: 19.3.0
 
   packages/i18n:
@@ -460,13 +568,13 @@ importers:
         specifier: workspace:*
         version: link:../runtime
       drizzle-orm:
-        specifier: ^1.0.0-rc.6
+        specifier: 'catalog:'
         version: 1.0.0-rc.6(@opentelemetry/api@1.10.0)(pg@8.23.1)(postgres@4.1.1)(valibot@1.5.0(typescript@5.9.3))(zod@4.6.7)
       pg-boss:
         specifier: ^10.4.2
         version: 10.4.2
       zod:
-        specifier: ^4.6.7
+        specifier: 'catalog:'
         version: 4.6.7
 
   packages/runtime:
@@ -475,10 +583,10 @@ importers:
         specifier: ^3.1175.0
         version: 3.1175.0
       '@hono/node-server':
-        specifier: ^2.1.11
+        specifier: 'catalog:'
         version: 2.1.11(hono@4.13.20)
       '@hono/node-ws':
-        specifier: ^1.3.2
+        specifier: 'catalog:'
         version: 1.3.2(@hono/node-server@2.1.11(hono@4.13.20))(hono@4.13.20)
       '@opentelemetry/api':
         specifier: ^1.10.0
@@ -508,7 +616,7 @@ importers:
         specifier: ^1.45.0
         version: 1.45.0
       hono:
-        specifier: ^4.13.20
+        specifier: 'catalog:'
         version: 4.13.20
       pino:
         specifier: ^10.4.0
@@ -517,7 +625,7 @@ importers:
         specifier: ^13.2.0
         version: 13.2.0
       postgres:
-        specifier: ^4.1.1
+        specifier: 'catalog:'
         version: 4.1.1
 
 packages:
@@ -3011,6 +3119,13 @@ packages:
   '@varlock/native-helper-win32-x64@1.24.0':
     resolution: {integrity: sha512-qudkH54KfX8dBmsQyAlC8BYlPwrxF0Drg6q4MHHVC7l7taTClYNqf6M6xRdIoNynyPDKTTPNjpOvoHwvRanEpg==}
     os: [win32, linux]
+
+  '@varlock/vite-integration@1.5.6':
+    resolution: {integrity: sha512-+qHnpHrI1jPDbRZZQdACv9wDJ5wUe+v8uKE9RtJV3MXX5GoPDP24WBbgtDOZ4Zk2phMR4Wa8rcyyf9cymgY4ZQ==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      varlock: ^1.25.0
+      vite: '>=5'
 
   '@vitejs/plugin-react@6.3.0':
     resolution: {integrity: sha512-H9E955aVvD2F4zNHCw4eIZbIfF6xKldlh7MNu+hSU7xwQzh65lI/N+CJWqmfhi0PEjDXIt/H7T7J/4wU63KJiw==}
@@ -8162,6 +8277,11 @@ snapshots:
 
   '@varlock/native-helper-win32-x64@1.24.0':
     optional: true
+
+  '@varlock/vite-integration@1.5.6(varlock@1.25.0)(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))':
+    dependencies:
+      varlock: 1.25.0
+      vite: 8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
 
   '@vitejs/plugin-react@6.3.0(vite@8.3.8(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))':
     dependencies:

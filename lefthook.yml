@@ -2,6 +2,8 @@ pre-commit:
   commands:
     check:
       run: pnpm exec vp check --no-error-on-unmatched-pattern {staged_files}
+    varlock-scan:
+      run: pnpm exec varlock scan --staged
 
 pre-push:
   commands:

@@ -12,8 +12,10 @@ export default defineConfig({
   fmt: {
     singleQuote: true,
     semi: true,
+    ignorePatterns: ['env.d.ts', 'packages/i18n/src/paraglide/**', '**/routeTree.gen.ts'],
   },
   test: {
+    setupFiles: ['./scripts/vitest-varlock-setup.ts'],
     include: [
       'packages/*/src/**/*.test.ts',
       'packages/*/test/**/*.test.ts',

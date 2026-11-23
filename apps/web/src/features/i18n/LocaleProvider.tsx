@@ -1,17 +1,27 @@
 import { resolveLocale } from '@starter/i18n';
 import type { Locale } from '@starter/i18n';
-import { Store, useStore } from '@tanstack/react-store';
+import { createStore, useSelector } from '@tanstack/react-store';
 import { createContext, use } from 'react';
 import type { ReactNode } from 'react';
 import { isI18nEnabled } from '#/lib/env.ts';
 
-export const localeStore = new Store<{ locale: Locale }>({
-  locale: 'en',
-});
+export const localeStore = createStore(
+  {
+    locale: 'en',
+  },
+  ({ setState }) => ({
+    setLocale: (next: Locale, enabled: boolean = isI18nEnabled()) => {
+      const resolved = resolveLocale(next, enabled);
+      setState((prev) => ({
+        ...prev,
+        locale: resolved,
+      }));
+    },
+  }),
+);
 
 export function setActiveLocale(next: Locale, enabled = isI18nEnabled()): void {
-  const resolved = resolveLocale(next, enabled);
-  localeStore.setState(() => ({ locale: resolved }));
+  localeStore.actions.setLocale(next, enabled);
 }
 
 interface LocaleContextValue {
@@ -29,11 +39,11 @@ export function LocaleProvider({
   children: ReactNode;
   enabled?: boolean;
 }) {
-  const rawLocale = useStore(localeStore, (state) => state.locale);
+  const rawLocale = useSelector(localeStore, (state) => state.locale);
   const locale = resolveLocale(rawLocale, enabled);
 
   function setLocale(next: Locale) {
-    setActiveLocale(next, enabled);
+    localeStore.actions.setLocale(next, enabled);
   }
 
   return <LocaleContext value={{ locale, setLocale, enabled }}>{children}</LocaleContext>;
@@ -41,7 +51,7 @@ export function LocaleProvider({
 
 export function useLocale(): LocaleContextValue {
   const ctx = use(LocaleContext);
-  const rawLocale = useStore(localeStore, (state) => state.locale);
+  const rawLocale = useSelector(localeStore, (state) => state.locale);
   if (ctx) {
     return ctx;
   }
@@ -49,7 +59,7 @@ export function useLocale(): LocaleContextValue {
   return {
     locale: resolveLocale(rawLocale, enabled),
     setLocale: (next) => {
-      setActiveLocale(next, enabled);
+      localeStore.actions.setLocale(next, enabled);
     },
     enabled,
   };

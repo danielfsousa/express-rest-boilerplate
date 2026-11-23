@@ -14,10 +14,10 @@
     "@react-email/render": "^2.3.1",
     "@starter/i18n": "workspace:*",
     "@starter/runtime": "workspace:*",
-    "react": "^19.3.1",
-    "zod": "^4.6.7"
+    "react": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "@types/react": "^19.1.0"
+    "@types/react": "catalog:"
   }
 }

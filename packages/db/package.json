@@ -18,13 +18,14 @@
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
-    "drizzle-orm": "1.0.0-rc.6",
-    "postgres": "^4.1.1",
-    "uuidv7": "^1.2.1"
+    "drizzle-orm": "catalog:",
+    "postgres": "catalog:",
+    "uuidv7": "^1.2.1",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "@testcontainers/postgresql": "^12.2.2",
-    "drizzle-kit": "1.0.0-rc.6",
-    "testcontainers": "^12.2.2"
+    "@testcontainers/postgresql": "catalog:",
+    "drizzle-kit": "catalog:",
+    "testcontainers": "catalog:"
   }
 }

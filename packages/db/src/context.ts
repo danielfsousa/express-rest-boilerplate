@@ -1,8 +1,8 @@
 import { sql } from 'drizzle-orm';
-import type { Database, DatabaseTransaction } from './client.ts';
+import type { DatabaseTransaction, DbExecutor } from './client.ts';
 
 export async function withStoreContext<T>(
-  db: Database,
+  db: DbExecutor,
   storeId: string,
   fn: (tx: DatabaseTransaction) => Promise<T>,
 ): Promise<T> {

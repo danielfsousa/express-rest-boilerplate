@@ -9,8 +9,8 @@ apps/web/src/routeTree.gen.ts
 .env
 .env.local
 .env.*.local
-.env.production
 !.env.schema
+!.env.prod
 logs/
 *.log
 playwright-report/

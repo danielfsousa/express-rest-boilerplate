@@ -1,6 +1,10 @@
 import type { Order, StoreBillingSummary, UpgradeStoreResponse } from '@starter/contracts';
-import { createBooksRepository, createSubscriptionsRepository } from '@starter/db';
-import type { Database } from '@starter/db';
+import {
+  createBooksRepository,
+  createSubscriptionsRepository,
+  withStoreTransaction,
+} from '@starter/db';
+import type { Database, DbExecutor } from '@starter/db';
 import type { JobQueue } from '@starter/jobs';
 import type { RealtimeBroker } from '@starter/runtime/realtime';
 import Stripe from 'stripe';
@@ -64,11 +68,30 @@ function resolvePlan(sub: { plan: string; status: string } | null) {
 }
 
 export async function getStoreBillingSummary(
-  db: Database,
+  db: DbExecutor,
   storeId: string,
+  inStoreContext = false,
 ): Promise<StoreBillingSummary> {
+  if (!inStoreContext) {
+    return await withStoreTransaction(db, storeId, async (repos) => {
+      const [sub, publishedBookCount] = await Promise.all([
+        repos.subscriptions.findByStoreId(storeId),
+        repos.books.countPublished(),
+      ]);
+      const { plan, status } = resolvePlan(sub);
+      return {
+        plan,
+        status,
+        publishedBookCount,
+        bookLimit: plan === 'free' ? FREE_PLAN_PUBLISHED_BOOK_LIMIT : null,
+        stripeCustomerId: sub?.stripeCustomerId ?? null,
+        stripeSubscriptionId: sub?.stripeSubscriptionId ?? null,
+      };
+    });
+  }
+
   const subsRepo = createSubscriptionsRepository(db);
-  const booksRepo = createBooksRepository(db, storeId);
+  const booksRepo = createBooksRepository(db, storeId, { inStoreContext: true });
   const [sub, publishedBookCount] = await Promise.all([
     subsRepo.findByStoreId(storeId),
     booksRepo.countPublished(),
@@ -85,16 +108,41 @@ export async function getStoreBillingSummary(
   };
 }
 
+export interface AssertCanPublishBookParams {
+  db: DbExecutor;
+  storeId: string;
+  billingEnabled: boolean;
+  inStoreContext?: boolean | undefined;
+}
+
+function isAssertCanPublishParams(
+  value: DbExecutor | AssertCanPublishBookParams,
+): value is AssertCanPublishBookParams {
+  return 'storeId' in value && 'billingEnabled' in value;
+}
+
 export async function assertCanPublishBook(
-  db: Database,
-  storeId: string,
-  billingEnabled: boolean,
+  dbOrParams: DbExecutor | AssertCanPublishBookParams,
+  storeId?: string,
+  billingEnabled?: boolean,
 ): Promise<{ allowed: true } | { allowed: false; error: string }> {
-  if (!billingEnabled) {
+  const params: AssertCanPublishBookParams = isAssertCanPublishParams(dbOrParams)
+    ? dbOrParams
+    : {
+        db: dbOrParams,
+        storeId: storeId ?? '',
+        billingEnabled: billingEnabled ?? false,
+      };
+
+  if (!params.billingEnabled) {
     return { allowed: true };
   }
 
-  const summary = await getStoreBillingSummary(db, storeId);
+  const summary = await getStoreBillingSummary(
+    params.db,
+    params.storeId,
+    params.inStoreContext ?? false,
+  );
   if (summary.bookLimit !== null && summary.publishedBookCount >= summary.bookLimit) {
     return {
       allowed: false,

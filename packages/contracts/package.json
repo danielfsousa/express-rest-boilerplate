@@ -10,6 +10,6 @@
     }
   },
   "dependencies": {
-    "zod": "^4.6.7"
+    "zod": "catalog:"
   }
 }

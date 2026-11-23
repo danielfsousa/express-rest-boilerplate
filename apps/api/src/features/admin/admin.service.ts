@@ -8,9 +8,6 @@ import type {
 import {
   and,
   books,
-  createStoresRepository,
-  createSubscriptionsRepository,
-  createUsersRepository,
   desc,
   eq,
   member,
@@ -20,6 +17,7 @@ import {
   subscription,
   user,
   withStoreContext,
+  withTransaction,
 } from '@starter/db';
 import type { Database } from '@starter/db';
 
@@ -131,18 +129,24 @@ export async function updateAdminStorePlan({
   storeSlug,
   input,
 }: UpdateAdminStorePlanParams): Promise<AdminStoreSummary | null> {
-  const storesRepo = createStoresRepository(db);
-  const storeRow = await storesRepo.findBySlug(storeSlug);
+  const storeRow = await withTransaction(db, async (repos) => {
+    const found = await repos.stores.findBySlug(storeSlug);
+    if (!found) {
+      return null;
+    }
+
+    await repos.subscriptions.upsertForStore({
+      storeId: found.id,
+      plan: input.plan,
+      status: input.status,
+    });
+
+    return found;
+  });
+
   if (!storeRow) {
     return null;
   }
-
-  const subsRepo = createSubscriptionsRepository(db);
-  await subsRepo.upsertForStore({
-    storeId: storeRow.id,
-    plan: input.plan,
-    status: input.status,
-  });
 
   return await buildAdminStoreSummary(db, storeRow);
 }
@@ -172,36 +176,43 @@ export async function updateAdminUser({
     };
   }
 
-  const usersRepo = createUsersRepository(db);
-  const existing = await usersRepo.findById(userId);
-  if (!existing) {
-    return { ok: false, status: 404, error: 'User not found' };
-  }
-
-  const patch: Partial<typeof user.$inferInsert> = {
-    updatedAt: new Date(),
-  };
-  if (input.role !== undefined) {
-    patch.role = input.role;
-  }
-  if (input.banned !== undefined) {
-    patch.banned = input.banned;
-    if (!input.banned) {
-      patch.banReason = null;
-      patch.banExpires = null;
+  const updated = await withTransaction(db, async (repos) => {
+    const existing = await repos.users.findById(userId);
+    if (!existing) {
+      return null;
     }
-  }
-  if (input.banReason !== undefined) {
-    patch.banReason = input.banReason;
-  }
 
-  const updated = await usersRepo.updateById(userId, patch);
+    const patch: Partial<typeof user.$inferInsert> = {
+      updatedAt: new Date(),
+    };
+    if (input.role !== undefined) {
+      patch.role = input.role;
+    }
+    if (input.banned !== undefined) {
+      patch.banned = input.banned;
+      if (!input.banned) {
+        patch.banReason = null;
+        patch.banExpires = null;
+      }
+    }
+    if (input.banReason !== undefined) {
+      patch.banReason = input.banReason;
+    }
+
+    const row = await repos.users.updateById(userId, patch);
+    if (!row) {
+      return null;
+    }
+
+    if (input.banned === true) {
+      await repos.users.deleteSessionsForUser(userId);
+    }
+
+    return row;
+  });
+
   if (!updated) {
     return { ok: false, status: 404, error: 'User not found' };
-  }
-
-  if (input.banned === true) {
-    await usersRepo.deleteSessionsForUser(userId);
   }
 
   return { ok: true, user: await buildAdminUserSummary(db, updated) };

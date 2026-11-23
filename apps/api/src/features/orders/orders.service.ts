@@ -1,22 +1,7 @@
 import type { CreateOrderInput, Order, OrderItem, OrderStatus } from '@starter/contracts';
 import { orderStatusSchema } from '@starter/contracts';
-import {
-  and,
-  books,
-  customers,
-  desc,
-  eq,
-  gte,
-  inArray,
-  member,
-  orderItems,
-  orders,
-  organization,
-  sql,
-  user,
-  withStoreContext,
-} from '@starter/db';
-import type { Database } from '@starter/db';
+import { createOrdersRepository, createStoresRepository, withStoreTransaction } from '@starter/db';
+import type { Database, orderItems, orders } from '@starter/db';
 import type { Locale } from '@starter/i18n';
 import { JOB_NAMES } from '@starter/jobs';
 import type { JobQueue } from '@starter/jobs';
@@ -145,32 +130,14 @@ export async function createOrderForStore({
     | { ok: false; status: 404 | 409; error: string };
 
   try {
-    result = await withStoreContext(db, store.id, async (tx) => {
+    result = await withStoreTransaction(db, store.id, async (repos) => {
       const resolvedLines: Array<ResolvedOrderLine> = [];
 
       for (const [bookId, quantity] of sortedItems) {
-        const [decremented] = await tx
-          .update(books)
-          .set({
-            stock: sql`${books.stock} - ${quantity}`,
-            updatedAt: new Date(),
-          })
-          .where(
-            and(
-              eq(books.id, bookId),
-              eq(books.storeId, store.id),
-              eq(books.published, true),
-              gte(books.stock, quantity),
-            ),
-          )
-          .returning();
+        const decremented = await repos.books.decrementPublishedStock(bookId, quantity);
 
         if (!decremented) {
-          const [existing] = await tx
-            .select({ id: books.id, published: books.published, title: books.title })
-            .from(books)
-            .where(and(eq(books.id, bookId), eq(books.storeId, store.id)))
-            .limit(1);
+          const existing = await repos.books.findById(bookId);
 
           if (!existing || !existing.published) {
             throw new OrderTxAbort(404, `Book ${bookId} not found`);
@@ -189,22 +156,11 @@ export async function createOrderForStore({
         });
       }
 
-      const [customerRow] = await tx
-        .insert(customers)
-        .values({
-          storeId: store.id,
-          email: input.customerEmail,
-          name: input.customerName,
-          locale: input.customerLocale,
-        })
-        .onConflictDoUpdate({
-          target: [customers.storeId, customers.email],
-          set: {
-            name: input.customerName,
-            locale: input.customerLocale,
-          },
-        })
-        .returning();
+      const customerRow = await repos.orders.upsertCustomer({
+        email: input.customerEmail,
+        name: input.customerName,
+        locale: input.customerLocale,
+      });
 
       if (!customerRow) {
         throw new OrderTxAbort(409, 'Unable to record customer');
@@ -218,33 +174,25 @@ export async function createOrderForStore({
       const totalCents = calculateOrderTotalCents(resolvedLines);
       const currency = resolvedLines[0]?.currency ?? 'USD';
 
-      const [orderRow] = await tx
-        .insert(orders)
-        .values({
-          storeId: store.id,
-          customerId: customerRow.id,
-          status: billing?.enabled ? 'pending_payment' : 'paid',
-          totalCents,
-          currency,
-        })
-        .returning();
+      const orderRow = await repos.orders.create({
+        customerId: customerRow.id,
+        status: billing?.enabled ? 'pending_payment' : 'paid',
+        totalCents,
+        currency,
+      });
 
       if (!orderRow) {
         throw new OrderTxAbort(409, 'Unable to create order');
       }
 
-      const insertedItemRows = await tx
-        .insert(orderItems)
-        .values(
-          resolvedLines.map((line) => ({
-            storeId: store.id,
-            orderId: orderRow.id,
-            bookId: line.bookId,
-            quantity: line.quantity,
-            unitPriceCents: line.unitPriceCents,
-          })),
-        )
-        .returning();
+      const insertedItemRows = await repos.orders.insertItems(
+        resolvedLines.map((line) => ({
+          orderId: orderRow.id,
+          bookId: line.bookId,
+          quantity: line.quantity,
+          unitPriceCents: line.unitPriceCents,
+        })),
+      );
 
       const lineMetaByBookId = new Map(
         resolvedLines.map((line) => [line.bookId, { title: line.title, sku: line.sku }]),
@@ -272,12 +220,8 @@ export async function createOrderForStore({
       order: result.order,
       webOrigin: billing.webOrigin,
     });
-    await withStoreContext(db, store.id, async (tx) =>
-      tx
-        .update(orders)
-        .set({ stripeCheckoutSessionId: session.sessionId, updatedAt: new Date() })
-        .where(and(eq(orders.id, result.order.id), eq(orders.storeId, store.id))),
-    );
+    const ordersRepo = createOrdersRepository(db, store.id);
+    await ordersRepo.updateCheckoutSession(result.order.id, session.sessionId);
     result.order.stripeCheckoutSessionId = session.sessionId;
     result.order.checkoutUrl = session.url;
   }
@@ -313,11 +257,8 @@ export async function createOrderForStore({
       (line) => line.newStock <= store.lowStockThreshold,
     );
     if (lowStockLines.length > 0) {
-      const owners = await db
-        .select({ email: user.email })
-        .from(member)
-        .innerJoin(user, eq(member.userId, user.id))
-        .where(and(eq(member.organizationId, store.id), eq(member.role, 'owner')));
+      const storesRepo = createStoresRepository(db);
+      const owners = await storesRepo.listOwnerEmails(store.id);
 
       for (const line of lowStockLines) {
         for (const owner of owners) {
@@ -366,47 +307,35 @@ export async function settlePaidOrder({
   jobQueue,
   realtimeBroker,
 }: SettlePaidOrderParams): Promise<boolean> {
-  const settled = await withStoreContext(db, storeId, async (tx) => {
-    const [orderRow] = await tx
-      .select({
-        id: orders.id,
-        status: orders.status,
-        totalCents: orders.totalCents,
-        currency: orders.currency,
-        customerEmail: customers.email,
-        customerName: customers.name,
-        customerLocale: customers.locale,
-      })
-      .from(orders)
-      .innerJoin(customers, eq(orders.customerId, customers.id))
-      .where(and(eq(orders.id, orderId), eq(orders.storeId, storeId)))
-      .limit(1);
-
-    if (!orderRow) {
+  const settled = await withStoreTransaction(db, storeId, async (repos) => {
+    const existing = await repos.orders.findWithCustomerById(orderId);
+    if (!existing) {
       return null;
     }
 
-    const currentStatus = orderStatusSchema.parse(orderRow.status);
+    const currentStatus = orderStatusSchema.parse(existing.order.status);
     if (!canTransitionOrderStatus(currentStatus, 'paid')) {
       return null;
     }
 
-    await tx
-      .update(orders)
-      .set({ status: 'paid', updatedAt: new Date() })
-      .where(and(eq(orders.id, orderId), eq(orders.storeId, storeId)));
+    await repos.orders.updateStatus(orderId, 'paid');
+    const [itemRows, storeRow] = await Promise.all([
+      repos.orders.listItemsWithBooks(orderId),
+      repos.stores.findById(storeId),
+    ]);
 
-    const items = await tx
-      .select({
-        title: books.title,
-        quantity: orderItems.quantity,
-        unitPriceCents: orderItems.unitPriceCents,
-      })
-      .from(orderItems)
-      .innerJoin(books, eq(orderItems.bookId, books.id))
-      .where(and(eq(orderItems.orderId, orderId), eq(orderItems.storeId, storeId)));
-
-    return { orderRow, items };
+    return {
+      orderRow: existing.order,
+      customerEmail: existing.customerEmail,
+      customerName: existing.customerName,
+      customerLocale: existing.customerLocale,
+      storeName: storeRow?.name ?? storeId,
+      items: itemRows.map((entry) => ({
+        title: entry.title,
+        quantity: entry.item.quantity,
+        unitPriceCents: entry.item.unitPriceCents,
+      })),
+    };
   });
 
   if (!settled) {
@@ -414,21 +343,15 @@ export async function settlePaidOrder({
   }
 
   if (jobQueue) {
-    const [storeRow] = await db
-      .select({ name: organization.name })
-      .from(organization)
-      .where(eq(organization.id, storeId))
-      .limit(1);
-
     await jobQueue.enqueue({
       name: JOB_NAMES.ORDER_RECEIPT,
       payload: {
         storeId,
-        storeName: storeRow?.name ?? storeId,
+        storeName: settled.storeName,
         orderId: settled.orderRow.id,
-        customerEmail: settled.orderRow.customerEmail,
-        customerName: settled.orderRow.customerName,
-        locale: normalizeLocale(settled.orderRow.customerLocale),
+        customerEmail: settled.customerEmail,
+        customerName: settled.customerName,
+        locale: normalizeLocale(settled.customerLocale),
         totalCents: settled.orderRow.totalCents,
         currency: settled.orderRow.currency,
         items: settled.items,
@@ -450,32 +373,15 @@ export async function listOrdersForStore(
   db: Database,
   store: ResolvedStoreContext,
 ): Promise<Array<Order>> {
-  return await withStoreContext(db, store.id, async (tx) => {
-    const orderRows = await tx
-      .select({
-        order: orders,
-        customerEmail: customers.email,
-        customerName: customers.name,
-      })
-      .from(orders)
-      .innerJoin(customers, eq(orders.customerId, customers.id))
-      .where(eq(orders.storeId, store.id))
-      .orderBy(desc(orders.createdAt));
+  return await withStoreTransaction(db, store.id, async (repos) => {
+    const orderRows = await repos.orders.listWithCustomer();
 
     if (orderRows.length === 0) {
       return [];
     }
 
     const orderIds = orderRows.map((row) => row.order.id);
-    const allItemRows = await tx
-      .select({
-        item: orderItems,
-        title: books.title,
-        sku: books.sku,
-      })
-      .from(orderItems)
-      .innerJoin(books, eq(orderItems.bookId, books.id))
-      .where(inArray(orderItems.orderId, orderIds));
+    const allItemRows = await repos.orders.listItemsWithBooksForOrders(orderIds);
 
     const itemsByOrderId = new Map<string, Array<OrderItem>>();
     for (const entry of allItemRows) {
@@ -505,31 +411,13 @@ export async function getOrderForStore({
   store,
   orderId,
 }: GetOrderParams): Promise<Order | null> {
-  return await withStoreContext(db, store.id, async (tx) => {
-    const [row] = await tx
-      .select({
-        order: orders,
-        customerEmail: customers.email,
-        customerName: customers.name,
-      })
-      .from(orders)
-      .innerJoin(customers, eq(orders.customerId, customers.id))
-      .where(and(eq(orders.id, orderId), eq(orders.storeId, store.id)))
-      .limit(1);
-
+  return await withStoreTransaction(db, store.id, async (repos) => {
+    const row = await repos.orders.findWithCustomerById(orderId);
     if (!row) {
       return null;
     }
 
-    const itemRows = await tx
-      .select({
-        item: orderItems,
-        title: books.title,
-        sku: books.sku,
-      })
-      .from(orderItems)
-      .innerJoin(books, eq(orderItems.bookId, books.id))
-      .where(eq(orderItems.orderId, row.order.id));
+    const itemRows = await repos.orders.listItemsWithBooks(row.order.id);
 
     return toOrder(
       row.order,
@@ -558,69 +446,44 @@ export async function updateOrderStatusForStore({
   nextStatus,
   realtimeBroker,
 }: UpdateOrderStatusParams): Promise<UpdateOrderStatusResult> {
-  const result: UpdateOrderStatusResult = await withStoreContext(db, store.id, async (tx) => {
-    const [existing] = await tx
-      .select({
-        order: orders,
-        customerEmail: customers.email,
-        customerName: customers.name,
-      })
-      .from(orders)
-      .innerJoin(customers, eq(orders.customerId, customers.id))
-      .where(and(eq(orders.id, orderId), eq(orders.storeId, store.id)))
-      .limit(1);
-
-    if (!existing) {
-      return { ok: false, status: 404, error: 'Order not found' };
-    }
-
-    const prevStatus = orderStatusSchema.parse(existing.order.status);
-    if (!canTransitionOrderStatus(prevStatus, nextStatus)) {
-      return {
-        ok: false,
-        status: 409,
-        error: `Cannot transition order from ${prevStatus} to ${nextStatus}`,
-      };
-    }
-
-    const [updated] = await tx
-      .update(orders)
-      .set({ status: nextStatus, updatedAt: new Date() })
-      .where(eq(orders.id, orderId))
-      .returning();
-
-    const itemRows = await tx
-      .select({
-        item: orderItems,
-        title: books.title,
-        sku: books.sku,
-      })
-      .from(orderItems)
-      .innerJoin(books, eq(orderItems.bookId, books.id))
-      .where(eq(orderItems.orderId, orderId));
-
-    if (shouldRestoreStockOnTransition(prevStatus, nextStatus)) {
-      for (const entry of itemRows) {
-        await tx
-          .update(books)
-          .set({
-            stock: sql`${books.stock} + ${entry.item.quantity}`,
-            updatedAt: new Date(),
-          })
-          .where(and(eq(books.id, entry.item.bookId), eq(books.storeId, store.id)));
+  const result: UpdateOrderStatusResult = await withStoreTransaction(
+    db,
+    store.id,
+    async (repos) => {
+      const existing = await repos.orders.findWithCustomerById(orderId);
+      if (!existing) {
+        return { ok: false, status: 404, error: 'Order not found' };
       }
-    }
 
-    const finalRow = updated ?? existing.order;
-    return {
-      ok: true as const,
-      order: toOrder(
-        finalRow,
-        { email: existing.customerEmail, name: existing.customerName },
-        itemRows.map((entry) => toOrderItem(entry.item, { title: entry.title, sku: entry.sku })),
-      ),
-    };
-  });
+      const prevStatus = orderStatusSchema.parse(existing.order.status);
+      if (!canTransitionOrderStatus(prevStatus, nextStatus)) {
+        return {
+          ok: false,
+          status: 409,
+          error: `Cannot transition order from ${prevStatus} to ${nextStatus}`,
+        };
+      }
+
+      const updated = await repos.orders.updateStatus(orderId, nextStatus);
+      const itemRows = await repos.orders.listItemsWithBooks(orderId);
+
+      if (shouldRestoreStockOnTransition(prevStatus, nextStatus)) {
+        for (const entry of itemRows) {
+          await repos.books.incrementStock(entry.item.bookId, entry.item.quantity);
+        }
+      }
+
+      const finalRow = updated ?? existing.order;
+      return {
+        ok: true as const,
+        order: toOrder(
+          finalRow,
+          { email: existing.customerEmail, name: existing.customerName },
+          itemRows.map((entry) => toOrderItem(entry.item, { title: entry.title, sku: entry.sku })),
+        ),
+      };
+    },
+  );
 
   if (result.ok) {
     await publishOrderStatusChangedEvent({

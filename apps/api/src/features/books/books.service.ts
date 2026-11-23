@@ -14,6 +14,7 @@ import {
   or,
   sql,
   withStoreContext,
+  withStoreTransaction,
 } from '@starter/db';
 import type { Database } from '@starter/db';
 import type { ObjectStorage } from '@starter/runtime/storage';
@@ -130,30 +131,36 @@ export async function createBookForStore({
   input,
   billingEnabled = false,
 }: CreateBookParams): Promise<CreateBookResult> {
-  if (input.published) {
-    const check = await assertCanPublishBook(db, store.id, billingEnabled);
-    if (!check.allowed) {
-      return { ok: false, status: 402, error: check.error };
-    }
-  }
-
   try {
-    const booksRepo = createBooksRepository(db, store.id);
-    const created = await booksRepo.create({
-      sku: input.sku,
-      title: input.title,
-      author: input.author,
-      description: input.description,
-      priceCents: input.priceCents,
-      currency: input.currency,
-      stock: input.stock,
-      published: input.published,
-    });
+    return await withStoreTransaction(db, store.id, async (repos) => {
+      if (input.published) {
+        const check = await assertCanPublishBook({
+          db: repos.tx,
+          storeId: store.id,
+          billingEnabled,
+          inStoreContext: true,
+        });
+        if (!check.allowed) {
+          return { ok: false, status: 402, error: check.error };
+        }
+      }
 
-    if (!created) {
-      return { ok: false, status: 409, error: 'Could not create book' };
-    }
-    return { ok: true, book: toBook(created, store.slug) };
+      const created = await repos.books.create({
+        sku: input.sku,
+        title: input.title,
+        author: input.author,
+        description: input.description,
+        priceCents: input.priceCents,
+        currency: input.currency,
+        stock: input.stock,
+        published: input.published,
+      });
+
+      if (!created) {
+        return { ok: false, status: 409, error: 'Could not create book' };
+      }
+      return { ok: true, book: toBook(created, store.slug) };
+    });
   } catch (error: unknown) {
     if (isUniqueViolation(error)) {
       return {
@@ -202,16 +209,6 @@ export async function updateBookForStore({
   input,
   billingEnabled = false,
 }: UpdateBookParams): Promise<UpdateBookResult> {
-  if (input.published === true) {
-    const existing = await getBookForStore({ db, store, bookId });
-    if (existing && !existing.published) {
-      const check = await assertCanPublishBook(db, store.id, billingEnabled);
-      if (!check.allowed) {
-        return { ok: false, status: 402, error: check.error };
-      }
-    }
-  }
-
   const patch: Partial<typeof books.$inferInsert> = {
     updatedAt: new Date(),
   };
@@ -241,13 +238,28 @@ export async function updateBookForStore({
   }
 
   try {
-    const booksRepo = createBooksRepository(db, store.id);
-    const updated = await booksRepo.updateById(bookId, patch);
+    return await withStoreTransaction(db, store.id, async (repos) => {
+      if (input.published === true) {
+        const existing = await repos.books.findById(bookId);
+        if (existing && !existing.published) {
+          const check = await assertCanPublishBook({
+            db: repos.tx,
+            storeId: store.id,
+            billingEnabled,
+            inStoreContext: true,
+          });
+          if (!check.allowed) {
+            return { ok: false, status: 402, error: check.error };
+          }
+        }
+      }
 
-    if (!updated) {
-      return { ok: false, status: 404, error: 'Book not found' };
-    }
-    return { ok: true, book: toBook(updated, store.slug) };
+      const updated = await repos.books.updateById(bookId, patch);
+      if (!updated) {
+        return { ok: false, status: 404, error: 'Book not found' };
+      }
+      return { ok: true, book: toBook(updated, store.slug) };
+    });
   } catch (error: unknown) {
     if (isUniqueViolation(error)) {
       return {

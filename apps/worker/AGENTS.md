@@ -10,4 +10,4 @@ See [../../docs/guides/style-guide.md](../../docs/guides/style-guide.md) and [..
   - `pollingIntervalSeconds` must be `>= 0.5` (`pg-boss` enforces a 500 ms floor).
   - Create queues sequentially on startup to avoid PostgreSQL partition-attach deadlocks.
   - Database role `app_user` must own the `pgboss` schema (`CREATE SCHEMA IF NOT EXISTS pgboss AUTHORIZATION app_user;`) and have `GRANT CONNECT, CREATE ON DATABASE`.
-- **Environment alignment:** Keep `LOG_LEVEL`, `BIRD_API_*`, and `S3_*` defaults aligned with `apps/api/src/config/env.ts`.
+- **Environment alignment:** All environment variables and defaults are defined in root `.env.schema` (loaded via Varlock). Keep `ENV.*` usage aligned across `@starter/api` and `@starter/worker`.

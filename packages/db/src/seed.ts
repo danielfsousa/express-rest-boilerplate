@@ -1,11 +1,11 @@
-import type { Database } from './client.ts';
+import type { DbExecutor } from './client.ts';
 import { organization } from './schema/index.ts';
 
 export const DEFAULT_STORE_ID = 'default-store';
 export const DEFAULT_STORE_SLUG = 'default';
 export const DEFAULT_STORE_NAME = 'Default Bookstore';
 
-export async function ensureDefaultStore(db: Database): Promise<void> {
+export async function ensureDefaultStore(db: DbExecutor): Promise<void> {
   await db
     .insert(organization)
     .values({
