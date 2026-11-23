@@ -3,8 +3,8 @@ import { astryxStylex } from '@astryxdesign/build/vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import { varlockVitePlugin } from '@varlock/vite-integration';
 import viteReact from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
 import type { Plugin, PluginOption } from 'vite';
+import { defineConfig } from 'vite-plus';
 
 const srcDir = fileURLToPath(new URL('./src', import.meta.url));
 

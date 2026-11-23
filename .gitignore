@@ -2,6 +2,7 @@ node_modules/
 dist/
 coverage/
 .vite/
+.vite-hooks/_
 .tanstack/
 .output/
 apps/web/src/routeTree.gen.ts

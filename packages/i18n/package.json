@@ -11,7 +11,7 @@
   },
   "scripts": {
     "compile": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations",
-    "build": "pnpm run compile"
+    "build": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations"
   },
   "devDependencies": {
     "@inlang/paraglide-js": "^3.2.2"

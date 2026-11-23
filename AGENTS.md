@@ -12,18 +12,24 @@ Workspace instructions for AI agents and contributors working in `nodejs-fullsta
 
 ## Toolchain and Commands
 
-- **Runtime and package manager:** Node.js 26 and pnpm 12 (pinned in `mise.toml`).
-- **Format, lint, and typecheck:**
-  - `pnpm run check:fix` (formats and checks via Vite+ `vp check --fix`)
-  - `pnpm run check` (`vp check`)
-  - `pnpm run lint` (`TSRS_FAST=1 oxlint --type-aware --type-check`)
-  - `pnpm run typecheck` (`tsrs --noEmit --fast`)
+- **Runtime and package manager:** Node.js 26 and pnpm 12 (pinned in `mise.toml`), unified under **Vite+** (`vite-plus` / `vp`, docs at `node_modules/vite-plus/docs/`).
+- **Format, lint, and typecheck (cached via Vite Task):**
+  - `pnpm run check:fix` (`vp check --fix` — formats and checks)
+  - `pnpm run check` (`vp run task:check` — cached `vp check`)
+  - `pnpm run fmt` / `pnpm run fmt:check` (`vp fmt` / `vp fmt --check`)
+  - `pnpm run lint` (`vp run task:lint` — cached `vp lint` with `typeAware` & `typeCheck`)
+  - `pnpm run typecheck` (`vp run task:typecheck` — cached `vp check --no-fmt --no-lint`)
+  - `pnpm run cache:clean` (`vp cache clean`)
+- **Build & Scripts:**
+  - `pnpm run build` (`vp run --cache -r build` — cached topological workspace build)
+  - `pnpm exec vpx <file.ts>` (run TypeScript scripts directly; never add `tsx` or `ts-node`)
 - **Environment schema, codegen, and secret scanning (Varlock):**
   - `pnpm run env:codegen` (`varlock codegen` — regenerates `env.d.ts` from `.env.schema`)
   - `pnpm exec varlock load --agent` (validates config with `@sensitive` values redacted)
   - `pnpm run env:scan` (`varlock scan` — scans for leaked secrets)
-- **Tests:** `pnpm run test`
-- **Web build (regenerates `apps/web/src/routeTree.gen.ts`):** Run `pnpm --filter @starter/web build` BEFORE `vp check` or `tsrs` whenever adding or renaming files under `apps/web/src/routes/`.
+- **Tests:** `pnpm run test` (`vp test run`) and `pnpm run test:cov` (`vp test run --coverage`)
+- **Git hooks:** Managed by Vite+ in `.vite-hooks/` (`vp hooks status`, `vp staged`).
+- **Web build (regenerates `apps/web/src/routeTree.gen.ts`):** Run `pnpm --filter @starter/web build` BEFORE `vp check` whenever adding or renaming files under `apps/web/src/routes/`.
 
 ## Critical Guardrails Observed in This Repository
 

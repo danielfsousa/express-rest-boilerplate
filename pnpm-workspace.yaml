@@ -25,6 +25,7 @@ catalog:
   '@types/react': ^19.1.0
   '@types/react-dom': ^19.1.0
   '@varlock/vite-integration': ^1.5.6
+  '@vitest/coverage-v8': 5.1.0
   better-auth: ^1.7.27
   csv-stringify: ^6.9.0
   drizzle-kit: 1.0.0-rc.6
@@ -36,13 +37,16 @@ catalog:
   react-dom: ^19.3.1
   testcontainers: ^12.2.2
   varlock: ^1.25.0
+  vite: npm:@voidzero-dev/vite-plus-core@8.3.8000
+  vite-plus: 1.7.0
   zod: ^4.6.7
+overrides:
+  'vite@*': 'catalog:'
 allowBuilds:
   '@astryxdesign/cli': true
   '@astryxdesign/core': true
   cpu-features: false
   esbuild: true
-  lefthook: true
   msw: false
   protobufjs: false
   ssh2: false

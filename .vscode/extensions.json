@@ -1,10 +1,8 @@
 {
   "recommendations": [
-    "oxc.oxc-vscode",
-    "vitest.explorer",
+    "VoidZero.vite-plus-extension-pack",
     "ms-playwright.playwright",
     "hashicorp.terraform",
-    "bradlc.vscode-tailwindcss",
     "inlang.vs-code-extension"
   ],
   "unwantedRecommendations": ["biomejs.biome", "dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]

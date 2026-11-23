@@ -6,7 +6,6 @@
   },
   "include": [
     "env.d.ts",
-    "oxlint.config.ts",
     "playwright.config.ts",
     "vite.config.ts",
     "e2e/**/*.ts",

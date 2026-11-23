@@ -1,0 +1,3 @@
+#!/bin/sh
+vp staged
+pnpm exec varlock scan --staged

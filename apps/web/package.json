@@ -7,8 +7,9 @@
     "#/*": "./src/*"
   },
   "scripts": {
-    "dev": "vite dev",
-    "build": "vite build"
+    "dev": "vp dev",
+    "build": "vp build",
+    "preview": "vp preview"
   },
   "dependencies": {
     "@astryxdesign/core": "catalog:",
@@ -41,7 +42,7 @@
     "@vitejs/plugin-react": "^6.3.0",
     "jsdom": "^26.1.0",
     "msw": "^2.10.2",
-    "vite": "^8.3.8"
+    "vite": "catalog:"
   },
   "varlock": {
     "loadPath": "../../"
