@@ -26,9 +26,9 @@ describe('Orders, atomic stock, and RLS integration (apps/api)', () => {
       trustedOrigins: ['http://localhost'],
     });
     const app = createApp({
-      db: pg.drizzleHandle,
+      dbHealth: pg.drizzleHandle,
       logger,
-      drizzleDb: pg.drizzleHandle.db,
+      db: pg.drizzleHandle.db,
       auth,
       multiTenancyEnabled: true,
     });

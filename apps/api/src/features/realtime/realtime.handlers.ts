@@ -63,7 +63,7 @@ export async function publishOrderStatusChangedEvent(params: {
 
 export interface RegisterRealtimeRouteParams {
   app: OpenAPIHono;
-  drizzleDb: Database;
+  db: Database;
   auth: AuthInstance;
   multiTenancyEnabled: boolean;
   broker: RealtimeBroker;
@@ -72,7 +72,7 @@ export interface RegisterRealtimeRouteParams {
 
 export function registerRealtimeRoute({
   app,
-  drizzleDb,
+  db,
   auth,
   multiTenancyEnabled,
   broker,
@@ -85,21 +85,21 @@ export function registerRealtimeRoute({
     let channel: string;
     if (orderId) {
       const store = await resolvePublicStore({
-        db: drizzleDb,
+        db,
         storeSlug,
         multiTenancyEnabled,
       });
       if (!store) {
         return c.json({ error: 'Store not found' }, 404);
       }
-      const order = await getOrderForStore({ db: drizzleDb, store, orderId });
+      const order = await getOrderForStore({ db, store, orderId });
       if (!order) {
         return c.json({ error: 'Order not found' }, 404);
       }
       channel = orderChannel(order.id);
     } else {
       const ctx = await resolveMerchantStore({
-        db: drizzleDb,
+        db,
         auth,
         headers: c.req.raw.headers,
         storeSlug,

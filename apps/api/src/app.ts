@@ -21,9 +21,9 @@ import { registerRealtimeRoute } from './features/realtime/realtime.handlers.ts'
 import { createStoresRouter } from './features/stores/stores.handlers.ts';
 
 export interface CreateAppOptions {
-  db: DbClient;
+  dbHealth: DbClient;
   logger: RuntimeLogger;
-  drizzleDb?: Database;
+  db?: Database;
   auth?: AuthInstance;
   storage?: ObjectStorage;
   jobQueue?: JobQueue | undefined;
@@ -43,9 +43,9 @@ export interface CreateAppOptions {
 }
 
 export function createApp({
-  db,
+  dbHealth,
   logger,
-  drizzleDb,
+  db,
   auth,
   storage,
   jobQueue,
@@ -92,21 +92,21 @@ export function createApp({
     );
   });
 
-  app.route('/', createHealthRouter(db));
+  app.route('/', createHealthRouter(dbHealth));
 
   if (auth) {
     app.on(['POST', 'GET'], '/api/auth/*', (c) => auth.handler(c.req.raw));
   }
 
-  if (drizzleDb && auth) {
+  if (db && auth) {
     if (adminEnabled) {
-      app.route('/', createAdminRouter({ drizzleDb, auth }));
+      app.route('/', createAdminRouter({ db, auth }));
     }
-    app.route('/', createStoresRouter({ drizzleDb, auth, multiTenancyEnabled }));
+    app.route('/', createStoresRouter({ db, auth, multiTenancyEnabled }));
     app.route(
       '/',
       createBooksRouter({
-        drizzleDb,
+        db,
         auth,
         multiTenancyEnabled,
         billingEnabled,
@@ -124,7 +124,7 @@ export function createApp({
     app.route(
       '/',
       createOrdersRouter({
-        drizzleDb,
+        db,
         auth,
         multiTenancyEnabled,
         i18nEnabled,
@@ -137,7 +137,7 @@ export function createApp({
     app.route(
       '/',
       createExportsRouter({
-        drizzleDb,
+        db,
         auth,
         multiTenancyEnabled,
         storage,
@@ -150,7 +150,7 @@ export function createApp({
       onWebSocketAdapter?.(webSocketAdapter);
       registerRealtimeRoute({
         app,
-        drizzleDb,
+        db,
         auth,
         multiTenancyEnabled,
         broker: realtimeBroker,
@@ -162,7 +162,7 @@ export function createApp({
       app.route(
         '/',
         createBillingRouter({
-          drizzleDb,
+          db,
           auth,
           stripe: stripeClient,
           webhookSecret: stripeWebhookSecret,

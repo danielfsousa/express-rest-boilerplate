@@ -77,9 +77,9 @@ describe('Hono WebSockets and Postgres LISTEN/NOTIFY realtime integration (apps/
     });
 
     const app = createApp({
-      db: pg.drizzleHandle,
+      dbHealth: pg.drizzleHandle,
       logger,
-      drizzleDb: pg.drizzleHandle.db,
+      db: pg.drizzleHandle.db,
       auth,
       realtimeEnabled: true,
       realtimeBroker: broker,
@@ -265,9 +265,9 @@ describe('Hono WebSockets and Postgres LISTEN/NOTIFY realtime integration (apps/
     });
 
     const app = createApp({
-      db: pg.drizzleHandle,
+      dbHealth: pg.drizzleHandle,
       logger,
-      drizzleDb: pg.drizzleHandle.db,
+      db: pg.drizzleHandle.db,
       auth,
       realtimeEnabled: false,
       realtimeBroker: broker,

@@ -2,8 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, v2]
+    branches: [main, v2, fullstack]
   pull_request:
+  workflow_dispatch:
 
 jobs:
   verify:
@@ -24,6 +25,9 @@ jobs:
       - name: Build i18n and web app
         run: pnpm run build
 
+      - name: Validate React JSX email templates (dry-run)
+        run: pnpm run email:templates:dry-run
+
       - name: Format and lint check
         run: pnpm run check
 
@@ -35,6 +39,34 @@ jobs:
 
       - name: Unit, component, and integration tests with coverage
         run: pnpm run test:cov
+
+  upload-email-templates:
+    runs-on: ubuntu-latest
+    needs: verify
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/v2' || github.ref == 'refs/heads/fullstack') || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup mise
+        uses: jdx/mise-action@v2
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Compile i18n and email templates
+        run: pnpm --filter @starter/i18n build && pnpm --filter @starter/email build
+
+      - name: Upload email templates to Bird
+        env:
+          BIRD_API_KEY: ${{ secrets.BIRD_API_KEY }}
+        run: |
+          if [ -n "$BIRD_API_KEY" ]; then
+            APP_ENV=prod pnpm run email:templates:upload
+          else
+            echo "::notice::BIRD_API_KEY secret is not configured; running template compilation dry-run instead."
+            pnpm run email:templates:dry-run
+          fi
 
   terraform:
     runs-on: ubuntu-latest
@@ -67,8 +99,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Compile i18n messages
-        run: pnpm --filter @starter/i18n build
+      - name: Compile i18n and email templates
+        run: pnpm --filter @starter/i18n build && pnpm --filter @starter/email build
 
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
@@ -81,7 +113,7 @@ jobs:
           DATABASE_ADMIN_URL: postgres://postgres:postgres@127.0.0.1:5432/bookstore
         run: pnpm --filter @starter/db db:migrate
 
-      - name: Start emulators, API, and Web and run Playwright E2E
+      - name: Start emulators, upload email templates, start API and Web, and run Playwright E2E
         env:
           DATABASE_URL: postgres://app_user:app_password@127.0.0.1:5432/bookstore
           DATABASE_DIRECT_URL: postgres://app_user:app_password@127.0.0.1:5432/bookstore
@@ -92,6 +124,12 @@ jobs:
           E2E_BIRD_URL: http://127.0.0.1:4010
         run: |
           pnpm run dev:emulators &
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:4010/__messages >/dev/null; then break; fi
+            sleep 1
+          done
+          pnpm run email:templates:upload
+          curl -sf http://127.0.0.1:4010/__templates >/dev/null
           pnpm --filter @starter/api start &
           pnpm --filter @starter/web dev -- --host 127.0.0.1 --port 3000 &
           for i in $(seq 1 30); do

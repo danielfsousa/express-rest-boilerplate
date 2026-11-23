@@ -22,8 +22,12 @@
     "@starter/email": "workspace:*",
     "@starter/i18n": "workspace:*",
     "@starter/runtime": "workspace:*",
+    "csv-stringify": "catalog:",
     "drizzle-orm": "catalog:",
     "pg-boss": "^10.4.2",
     "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:"
   }
 }

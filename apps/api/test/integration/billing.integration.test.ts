@@ -55,9 +55,9 @@ describe('Stripe billing, subscriptions, and emulate integration (apps/api)', ()
     });
 
     const app = createApp({
-      db: pg.drizzleHandle,
+      dbHealth: pg.drizzleHandle,
       logger,
-      drizzleDb: pg.drizzleHandle.db,
+      db: pg.drizzleHandle.db,
       auth,
       multiTenancyEnabled: true,
       billingEnabled: true,
@@ -246,9 +246,9 @@ describe('Stripe billing, subscriptions, and emulate integration (apps/api)', ()
       billingEnabled: false,
     });
     const app = createApp({
-      db: pg.drizzleHandle,
+      dbHealth: pg.drizzleHandle,
       logger,
-      drizzleDb: pg.drizzleHandle.db,
+      db: pg.drizzleHandle.db,
       auth,
       multiTenancyEnabled: true,
       billingEnabled: false,

@@ -89,7 +89,7 @@ async function main(): Promise<void> {
   await jobQueue.start();
   if (!ENV.FEATURE_JOBS_ENABLED || ENV.WORKER_INLINE) {
     await registerDefaultJobHandlers(jobQueue, {
-      drizzleDb: drizzleHandle.db,
+      db: drizzleHandle.db,
       mailer,
       storage,
       logger,
@@ -107,9 +107,9 @@ async function main(): Promise<void> {
   let webSocketAdapter: WebSocketAdapter | undefined;
 
   const app = createApp({
-    db: drizzleHandle,
+    dbHealth: drizzleHandle,
     logger,
-    drizzleDb: drizzleHandle.db,
+    db: drizzleHandle.db,
     auth,
     storage,
     jobQueue,

@@ -10,11 +10,11 @@ import {
 import { getAdminOverview, updateAdminStorePlan, updateAdminUser } from './admin.service.ts';
 
 export interface CreateAdminRouterOptions {
-  drizzleDb: Database;
+  db: Database;
   auth: AuthInstance;
 }
 
-export function createAdminRouter({ drizzleDb, auth }: CreateAdminRouterOptions): OpenAPIHono {
+export function createAdminRouter({ db, auth }: CreateAdminRouterOptions): OpenAPIHono {
   const router = new OpenAPIHono();
 
   router.openapi(getAdminOverviewRoute, async (c) => {
@@ -23,7 +23,7 @@ export function createAdminRouter({ drizzleDb, auth }: CreateAdminRouterOptions)
       return c.json({ error: adminResult.error }, adminResult.status);
     }
 
-    const overview = await getAdminOverview(drizzleDb);
+    const overview = await getAdminOverview(db);
     return c.json(overview, 200);
   });
 
@@ -36,7 +36,7 @@ export function createAdminRouter({ drizzleDb, auth }: CreateAdminRouterOptions)
     const { storeSlug } = c.req.valid('param');
     const body = c.req.valid('json');
     const summary = await updateAdminStorePlan({
-      db: drizzleDb,
+      db,
       storeSlug,
       input: body,
     });
@@ -56,7 +56,7 @@ export function createAdminRouter({ drizzleDb, auth }: CreateAdminRouterOptions)
     const { userId } = c.req.valid('param');
     const body = c.req.valid('json');
     const result = await updateAdminUser({
-      db: drizzleDb,
+      db,
       actorUserId: adminResult.user.id,
       userId,
       input: body,

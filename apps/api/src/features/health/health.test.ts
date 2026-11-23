@@ -23,11 +23,11 @@ function createSilentLogger(): RuntimeLogger {
 
 describe('GET /health/live, /health/ready, /openapi.json, /docs', () => {
   test('GET /health/live returns 200 ok', async () => {
-    const db: DbClient = {
+    const dbHealth: DbClient = {
       ping: vi.fn().mockResolvedValue(true),
       close: vi.fn().mockResolvedValue(undefined),
     };
-    const app = createApp({ db, logger: createSilentLogger() });
+    const app = createApp({ dbHealth, logger: createSilentLogger() });
 
     const response = await app.fetch(new Request('http://localhost/health/live'));
     expect(response.status).toBe(200);
@@ -36,11 +36,11 @@ describe('GET /health/live, /health/ready, /openapi.json, /docs', () => {
 
   test('GET /health/ready returns 200 when database probe succeeds', async () => {
     const ping = vi.fn().mockResolvedValue(true);
-    const db: DbClient = {
+    const dbHealth: DbClient = {
       ping,
       close: vi.fn().mockResolvedValue(undefined),
     };
-    const app = createApp({ db, logger: createSilentLogger() });
+    const app = createApp({ dbHealth, logger: createSilentLogger() });
 
     const response = await app.fetch(new Request('http://localhost/health/ready'));
     expect(response.status).toBe(200);
@@ -52,11 +52,11 @@ describe('GET /health/live, /health/ready, /openapi.json, /docs', () => {
   });
 
   test('GET /health/ready returns 503 when database probe fails or rejects', async () => {
-    const db: DbClient = {
+    const dbHealth: DbClient = {
       ping: vi.fn().mockResolvedValue(false),
       close: vi.fn().mockResolvedValue(undefined),
     };
-    const app = createApp({ db, logger: createSilentLogger() });
+    const app = createApp({ dbHealth, logger: createSilentLogger() });
 
     const response = await app.fetch(new Request('http://localhost/health/ready'));
     expect(response.status).toBe(503);
@@ -67,11 +67,11 @@ describe('GET /health/live, /health/ready, /openapi.json, /docs', () => {
   });
 
   test('GET /openapi.json serves OpenAPI 3.1 document including health routes', async () => {
-    const db: DbClient = {
+    const dbHealth: DbClient = {
       ping: vi.fn().mockResolvedValue(true),
       close: vi.fn().mockResolvedValue(undefined),
     };
-    const app = createApp({ db, logger: createSilentLogger() });
+    const app = createApp({ dbHealth, logger: createSilentLogger() });
 
     const response = await app.fetch(new Request('http://localhost/openapi.json'));
     expect(response.status).toBe(200);
@@ -82,11 +82,11 @@ describe('GET /health/live, /health/ready, /openapi.json, /docs', () => {
   });
 
   test('GET /docs serves Scalar API reference HTML', async () => {
-    const db: DbClient = {
+    const dbHealth: DbClient = {
       ping: vi.fn().mockResolvedValue(true),
       close: vi.fn().mockResolvedValue(undefined),
     };
-    const app = createApp({ db, logger: createSilentLogger() });
+    const app = createApp({ dbHealth, logger: createSilentLogger() });
 
     const response = await app.fetch(new Request('http://localhost/docs'));
     expect(response.status).toBe(200);

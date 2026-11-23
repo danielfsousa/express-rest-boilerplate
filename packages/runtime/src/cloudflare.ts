@@ -1,19 +1,23 @@
+import type {
+  KVNamespacePutOptions,
+  R2HTTPMetadata,
+  R2ObjectBody,
+} from '@cloudflare/workers-types';
 import type { ObjectStorage, StoredObject } from './storage.ts';
 
 /**
  * Minimal structural interface matching Cloudflare Workers R2Bucket binding.
  * Cloudflare R2 Always Free tier: 10 GB storage, 1M Class A ops, 10M Class B ops/month.
  */
-export interface CloudflareR2ObjectBody {
-  arrayBuffer(): Promise<ArrayBuffer>;
-  httpMetadata?: { contentType?: string } | undefined;
-}
+export type CloudflareR2ObjectBody = Pick<R2ObjectBody, 'arrayBuffer'> & {
+  httpMetadata?: R2HTTPMetadata | undefined;
+};
 
 export interface CloudflareR2Bucket {
   put(
     key: string,
     value: ArrayBuffer | ArrayBufferView | string,
-    options?: { httpMetadata?: { contentType?: string } },
+    options?: { httpMetadata?: R2HTTPMetadata },
   ): Promise<void>;
   get(key: string): Promise<CloudflareR2ObjectBody | null>;
   delete(key: string): Promise<void>;
@@ -55,7 +59,7 @@ export interface KeyValueCache {
 
 export interface CloudflareKvNamespace {
   get(key: string): Promise<string | null>;
-  put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
+  put(key: string, value: string, options?: KVNamespacePutOptions): Promise<void>;
   delete(key: string): Promise<void>;
 }
 

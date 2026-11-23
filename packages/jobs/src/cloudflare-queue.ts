@@ -1,3 +1,11 @@
+import type {
+  Message,
+  MessageSendRequest,
+  Queue,
+  QueueContentType,
+  QueueRetryOptions,
+  QueueSendOptions,
+} from '@cloudflare/workers-types';
 import type { RuntimeLogger } from '@starter/runtime/types';
 import { z } from 'zod';
 import { JOB_NAMES } from './types.ts';
@@ -6,46 +14,21 @@ import type { JobHandlerMap, JobQueue, JobRequest } from './types.ts';
 const CLOUDFLARE_MAX_BATCH_SIZE = 100;
 const CLOUDFLARE_MAX_DELAY_SECONDS = 86_400;
 
-export type CloudflareQueueContentType = 'json' | 'text' | 'bytes' | 'v8';
-
-export interface CloudflareQueueSendOptions {
-  contentType?: CloudflareQueueContentType | undefined;
-  delaySeconds?: number | undefined;
-}
-
-export interface CloudflareQueueRetryOptions {
-  delaySeconds?: number | undefined;
-}
-
-export interface CloudflareQueueSendRequest<Body = unknown> {
-  body: Body;
-  contentType?: CloudflareQueueContentType | undefined;
-  delaySeconds?: number | undefined;
-}
-
-export interface CloudflareQueueBinding<Body = unknown> {
-  send(message: Body, options?: CloudflareQueueSendOptions): Promise<void>;
-  sendBatch(
-    messages: Iterable<CloudflareQueueSendRequest<Body>>,
-    options?: CloudflareQueueSendOptions,
-  ): Promise<void>;
-}
-
-export interface CloudflareQueueMessage<Body = unknown> {
-  readonly id: string;
-  readonly timestamp: Date;
-  readonly body: Body;
-  readonly attempts: number;
-  ack(): void;
-  retry(options?: CloudflareQueueRetryOptions): void;
-}
-
-export interface CloudflareQueueMessageBatch<Body = unknown> {
+export type CloudflareQueueContentType = QueueContentType;
+export type CloudflareQueueSendOptions = QueueSendOptions;
+export type CloudflareQueueRetryOptions = QueueRetryOptions;
+export type CloudflareQueueSendRequest<Body = unknown> = MessageSendRequest<Body>;
+export type CloudflareQueueBinding<Body = unknown> = Pick<Queue<Body>, 'send' | 'sendBatch'>;
+export type CloudflareQueueMessage<Body = unknown> = Pick<
+  Message<Body>,
+  'id' | 'timestamp' | 'body' | 'attempts' | 'ack' | 'retry'
+>;
+export type CloudflareQueueMessageBatch<Body = unknown> = {
   readonly queue: string;
   readonly messages: ReadonlyArray<CloudflareQueueMessage<Body>>;
   ackAll(): void;
-  retryAll(options?: CloudflareQueueRetryOptions): void;
-}
+  retryAll(options?: QueueRetryOptions): void;
+};
 
 export interface CloudflareJobEnvelope {
   jobId: string;
@@ -347,10 +330,13 @@ export function createCloudflareJobQueue({
           (job) => {
             const jobId = crypto.randomUUID();
             jobIds.push(jobId);
-            return {
+            const request: CloudflareQueueSendRequest<CloudflareJobEnvelope> = {
               body: { jobId, job },
-              contentType: sendOptions.contentType,
             };
+            if (sendOptions.contentType) {
+              request.contentType = sendOptions.contentType;
+            }
+            return request;
           },
         );
         await queue.sendBatch(requests, sendOptions);

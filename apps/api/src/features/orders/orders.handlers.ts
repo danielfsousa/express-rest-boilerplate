@@ -19,7 +19,7 @@ import {
 } from './orders.service.ts';
 
 export interface CreateOrdersRouterOptions {
-  drizzleDb: Database;
+  db: Database;
   auth: AuthInstance;
   multiTenancyEnabled: boolean;
   i18nEnabled?: boolean | undefined;
@@ -29,7 +29,7 @@ export interface CreateOrdersRouterOptions {
 }
 
 export function createOrdersRouter({
-  drizzleDb,
+  db,
   auth,
   multiTenancyEnabled,
   i18nEnabled = true,
@@ -42,7 +42,7 @@ export function createOrdersRouter({
   router.openapi(createOrderRoute, async (c) => {
     const { storeSlug } = c.req.valid('param');
     const store = await resolvePublicStore({
-      db: drizzleDb,
+      db,
       storeSlug,
       multiTenancyEnabled,
     });
@@ -52,7 +52,7 @@ export function createOrdersRouter({
 
     const body = c.req.valid('json');
     const result = await createOrderForStore({
-      db: drizzleDb,
+      db,
       store,
       input: body,
       billing,
@@ -70,7 +70,7 @@ export function createOrdersRouter({
   router.openapi(listOrdersRoute, async (c) => {
     const { storeSlug } = c.req.valid('param');
     const ctx = await resolveMerchantStore({
-      db: drizzleDb,
+      db,
       auth,
       headers: c.req.raw.headers,
       storeSlug,
@@ -80,14 +80,14 @@ export function createOrdersRouter({
       return c.json({ error: ctx.error }, ctx.status);
     }
 
-    const items = await listOrdersForStore(drizzleDb, ctx.store);
+    const items = await listOrdersForStore(db, ctx.store);
     return c.json({ orders: items }, 200);
   });
 
   router.openapi(getOrderRoute, async (c) => {
     const { storeSlug, orderId } = c.req.valid('param');
     const store = await resolvePublicStore({
-      db: drizzleDb,
+      db,
       storeSlug,
       multiTenancyEnabled,
     });
@@ -95,7 +95,7 @@ export function createOrdersRouter({
       return c.json({ error: 'Store not found' }, 404);
     }
 
-    const order = await getOrderForStore({ db: drizzleDb, store, orderId });
+    const order = await getOrderForStore({ db, store, orderId });
     if (!order) {
       return c.json({ error: 'Order not found' }, 404);
     }
@@ -106,7 +106,7 @@ export function createOrdersRouter({
   router.openapi(updateOrderStatusRoute, async (c) => {
     const { storeSlug, orderId } = c.req.valid('param');
     const ctx = await resolveMerchantStore({
-      db: drizzleDb,
+      db,
       auth,
       headers: c.req.raw.headers,
       storeSlug,
@@ -118,7 +118,7 @@ export function createOrdersRouter({
 
     const { status } = c.req.valid('json');
     const result = await updateOrderStatusForStore({
-      db: drizzleDb,
+      db,
       store: ctx.store,
       orderId,
       nextStatus: status,

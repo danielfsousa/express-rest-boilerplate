@@ -48,9 +48,9 @@ describe('Books and Floci cover upload integration (apps/api)', () => {
       trustedOrigins: ['http://localhost'],
     });
     const app = createApp({
-      db: pg.drizzleHandle,
+      dbHealth: pg.drizzleHandle,
       logger,
-      drizzleDb: pg.drizzleHandle.db,
+      db: pg.drizzleHandle.db,
       auth,
       storage,
       multiTenancyEnabled: true,

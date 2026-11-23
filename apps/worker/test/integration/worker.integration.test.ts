@@ -2,7 +2,8 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { bookSchema, orderSchema, storeExportSchema } from '@starter/contracts';
 import { extractSessionCookie, startTestPostgres } from '@starter/db/test-harness';
 import type { TestPostgresHarness } from '@starter/db/test-harness';
-import { createBirdEmulator } from '@starter/email';
+import { createBirdEmulator, EMAIL_TEMPLATES, syncBirdTemplates } from '@starter/email';
+import { compileBirdEmailTemplates } from '@starter/email/templates';
 import {
   createInlineJobQueue,
   createPgBossJobQueue,
@@ -64,6 +65,8 @@ describe('pg-boss worker, emails, and CSV exports integration (apps/worker)', ()
   test('processes pg-boss order receipt, low-stock alert, and CSV export jobs', async () => {
     const logger = createLogger({ level: 'silent' });
     const emulator = createBirdEmulator();
+    const templates = await compileBirdEmailTemplates();
+    await syncBirdTemplates({ client: emulator.createClient(), templates });
     const mailer = emulator.createMailer('noreply@bookstore.local');
     const storage = createS3Storage({
       endpoint: flociEndpoint,
@@ -93,7 +96,7 @@ describe('pg-boss worker, emails, and CSV exports integration (apps/worker)', ()
     await apiQueue.start();
     await workerQueue.start();
     await registerDefaultJobHandlers(workerQueue, {
-      drizzleDb: pg.drizzleHandle.db,
+      db: pg.drizzleHandle.db,
       mailer,
       storage,
       logger,
@@ -109,9 +112,9 @@ describe('pg-boss worker, emails, and CSV exports integration (apps/worker)', ()
     });
 
     const app = createApp({
-      db: pg.drizzleHandle,
+      dbHealth: pg.drizzleHandle,
       logger,
-      drizzleDb: pg.drizzleHandle.db,
+      db: pg.drizzleHandle.db,
       auth,
       storage,
       jobQueue: apiQueue,
@@ -181,6 +184,8 @@ describe('pg-boss worker, emails, and CSV exports integration (apps/worker)', ()
     });
 
     const receiptMsg = captured.find((msg) => msg.to.includes('joao@example.com'));
+    expect(receiptMsg?.templateSlug).toBe(EMAIL_TEMPLATES.ORDER_RECEIPT);
+    expect(receiptMsg?.templateLanguage).toBe('pt-BR');
     expect(receiptMsg?.subject).toContain('Worker Books');
     expect(receiptMsg?.html).toContain(order.id);
 
@@ -189,6 +194,8 @@ describe('pg-boss worker, emails, and CSV exports integration (apps/worker)', ()
         msg.to.includes('ada-worker@example.com') &&
         msg.subject.includes('Designing Event-Driven Systems'),
     );
+    expect(lowStockMsg?.templateSlug).toBe(EMAIL_TEMPLATES.LOW_STOCK_ALERT);
+    expect(lowStockMsg?.templateLanguage).toBe('pt-BR');
     expect(lowStockMsg?.subject).toContain('Designing Event-Driven Systems');
     expect(lowStockMsg?.text).toContain('4');
 
@@ -242,6 +249,8 @@ describe('pg-boss worker, emails, and CSV exports integration (apps/worker)', ()
   test('FEATURE_JOBS_ENABLED=false inline fallback completes CSV export synchronously', async () => {
     const logger = createLogger({ level: 'silent' });
     const emulator = createBirdEmulator();
+    const templates = await compileBirdEmailTemplates();
+    await syncBirdTemplates({ client: emulator.createClient(), templates });
     const mailer = emulator.createMailer('noreply@bookstore.local');
     const storage = createMemoryStorage();
 
@@ -249,7 +258,7 @@ describe('pg-boss worker, emails, and CSV exports integration (apps/worker)', ()
     openQueues.push(inlineQueue);
     await inlineQueue.start();
     await registerDefaultJobHandlers(inlineQueue, {
-      drizzleDb: pg.drizzleHandle.db,
+      db: pg.drizzleHandle.db,
       mailer,
       storage,
       logger,
@@ -263,9 +272,9 @@ describe('pg-boss worker, emails, and CSV exports integration (apps/worker)', ()
     });
 
     const app = createApp({
-      db: pg.drizzleHandle,
+      dbHealth: pg.drizzleHandle,
       logger,
-      drizzleDb: pg.drizzleHandle.db,
+      db: pg.drizzleHandle.db,
       auth,
       storage,
       jobQueue: inlineQueue,

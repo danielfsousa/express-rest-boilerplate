@@ -35,7 +35,7 @@ function isUploadedFile(value: unknown): value is File {
 }
 
 export interface CreateBooksRouterOptions {
-  drizzleDb: Database;
+  db: Database;
   auth: AuthInstance;
   multiTenancyEnabled: boolean;
   billingEnabled?: boolean | undefined;
@@ -43,7 +43,7 @@ export interface CreateBooksRouterOptions {
 }
 
 export function createBooksRouter({
-  drizzleDb,
+  db,
   auth,
   multiTenancyEnabled,
   billingEnabled = false,
@@ -54,7 +54,7 @@ export function createBooksRouter({
   router.openapi(listBooksRoute, async (c) => {
     const { storeSlug } = c.req.valid('param');
     const store = await resolvePublicStore({
-      db: drizzleDb,
+      db,
       auth,
       headers: c.req.raw.headers,
       storeSlug,
@@ -65,14 +65,14 @@ export function createBooksRouter({
     }
 
     const query = c.req.valid('query');
-    const result = await listBooksForStore({ db: drizzleDb, store, query });
+    const result = await listBooksForStore({ db, store, query });
     return c.json(result, 200);
   });
 
   router.openapi(createBookRoute, async (c) => {
     const { storeSlug } = c.req.valid('param');
     const ctx = await resolveMerchantStore({
-      db: drizzleDb,
+      db,
       auth,
       headers: c.req.raw.headers,
       storeSlug,
@@ -84,7 +84,7 @@ export function createBooksRouter({
 
     const body = c.req.valid('json');
     const result = await createBookForStore({
-      db: drizzleDb,
+      db,
       store: ctx.store,
       input: body,
       billingEnabled,
@@ -99,7 +99,7 @@ export function createBooksRouter({
   router.openapi(getBookRoute, async (c) => {
     const { storeSlug, bookId } = c.req.valid('param');
     const store = await resolvePublicStore({
-      db: drizzleDb,
+      db,
       auth,
       headers: c.req.raw.headers,
       storeSlug,
@@ -109,7 +109,7 @@ export function createBooksRouter({
       return c.json({ error: 'Store not found' }, 404);
     }
 
-    const book = await getBookForStore({ db: drizzleDb, store, bookId });
+    const book = await getBookForStore({ db, store, bookId });
     if (!book) {
       return c.json({ error: 'Book not found' }, 404);
     }
@@ -120,7 +120,7 @@ export function createBooksRouter({
   router.openapi(updateBookRoute, async (c) => {
     const { storeSlug, bookId } = c.req.valid('param');
     const ctx = await resolveMerchantStore({
-      db: drizzleDb,
+      db,
       auth,
       headers: c.req.raw.headers,
       storeSlug,
@@ -132,7 +132,7 @@ export function createBooksRouter({
 
     const body = c.req.valid('json');
     const result = await updateBookForStore({
-      db: drizzleDb,
+      db,
       store: ctx.store,
       bookId,
       input: body,
@@ -148,7 +148,7 @@ export function createBooksRouter({
   router.openapi(deleteBookRoute, async (c) => {
     const { storeSlug, bookId } = c.req.valid('param');
     const ctx = await resolveMerchantStore({
-      db: drizzleDb,
+      db,
       auth,
       headers: c.req.raw.headers,
       storeSlug,
@@ -158,7 +158,7 @@ export function createBooksRouter({
       return c.json({ error: ctx.error }, ctx.status);
     }
 
-    const deleted = await deleteBookForStore({ db: drizzleDb, store: ctx.store, bookId, storage });
+    const deleted = await deleteBookForStore({ db, store: ctx.store, bookId, storage });
     if (!deleted) {
       return c.json({ error: 'Book not found' }, 404);
     }
@@ -169,7 +169,7 @@ export function createBooksRouter({
   router.openapi(uploadBookCoverRoute, async (c) => {
     const { storeSlug, bookId } = c.req.valid('param');
     const ctx = await resolveMerchantStore({
-      db: drizzleDb,
+      db,
       auth,
       headers: c.req.raw.headers,
       storeSlug,
@@ -186,7 +186,7 @@ export function createBooksRouter({
     }
 
     const result = await uploadBookCover({
-      db: drizzleDb,
+      db,
       store: ctx.store,
       bookId,
       file: fileEntry,
@@ -201,7 +201,7 @@ export function createBooksRouter({
 
   router.get('/api/v1/stores/:storeSlug/books/:bookId/cover', async (c) => {
     const store = await resolvePublicStore({
-      db: drizzleDb,
+      db,
       auth,
       headers: c.req.raw.headers,
       storeSlug: c.req.param('storeSlug'),
@@ -212,7 +212,7 @@ export function createBooksRouter({
     }
 
     const cover = await getBookCover({
-      db: drizzleDb,
+      db,
       store,
       bookId: c.req.param('bookId'),
       storage,

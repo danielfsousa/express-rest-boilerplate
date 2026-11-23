@@ -1,3 +1,7 @@
+import { BirdClient } from '@messagebird/sdk';
+import type { BirdClientOptions } from '@messagebird/sdk';
+import type { TemplateEmailMessage } from './template-catalog.ts';
+
 export interface EmailMessage {
   to: string;
   subject: string;
@@ -11,63 +15,82 @@ export interface SendEmailResult {
 
 export interface Mailer {
   send(message: EmailMessage): Promise<SendEmailResult>;
+  sendTemplate(message: TemplateEmailMessage): Promise<SendEmailResult>;
+}
+
+export interface CreateBirdClientOptions {
+  apiKey: string;
+  apiBaseUrl?: string | undefined;
+  fetchImpl?: typeof fetch | undefined;
+  maxRetries?: number | undefined;
+}
+
+export function createBirdClient({
+  apiKey,
+  apiBaseUrl,
+  fetchImpl,
+  maxRetries,
+}: CreateBirdClientOptions): BirdClient {
+  const options: BirdClientOptions = { apiKey };
+  if (apiBaseUrl && apiBaseUrl.trim().length > 0) {
+    options.baseUrl = apiBaseUrl.replace(/\/+$/, '');
+  }
+  if (fetchImpl) {
+    options.fetch = fetchImpl;
+  }
+  if (typeof maxRetries === 'number') {
+    options.maxRetries = maxRetries;
+  }
+  return new BirdClient(options);
 }
 
 export interface CreateBirdMailerOptions {
-  apiBaseUrl: string;
+  apiBaseUrl?: string | undefined;
   apiKey: string;
   fromEmail: string;
-  fetchImpl?: (request: Request) => Promise<Response>;
+  fetchImpl?: typeof fetch | undefined;
+  maxRetries?: number | undefined;
 }
 
 export function createBirdMailer({
   apiBaseUrl,
   apiKey,
   fromEmail,
-  fetchImpl = (request) => fetch(request),
+  fetchImpl,
+  maxRetries,
 }: CreateBirdMailerOptions): Mailer {
-  const endpoint = `${apiBaseUrl.replace(/\/+$/, '')}/v1/email/messages`;
+  const client = createBirdClient({
+    apiKey,
+    apiBaseUrl,
+    fetchImpl,
+    maxRetries,
+  });
 
   return {
     async send(message) {
-      const response = await fetchImpl(
-        new Request(endpoint, {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-            authorization: `AccessKey ${apiKey}`,
-          },
-          body: JSON.stringify({
-            recipients: [{ address: { email: message.to } }],
-            content: {
-              subject: message.subject,
-              html: message.html,
-              text: message.text,
-            },
-            sender: {
-              address: {
-                email: fromEmail,
-              },
-            },
-          }),
-        }),
-      );
+      const response = await client.email.send({
+        from: fromEmail,
+        to: [message.to],
+        category: 'transactional',
+        subject: message.subject,
+        html: message.html,
+        text: message.text,
+      });
+      return { messageId: response.id };
+    },
 
-      if (!response.ok) {
-        const body = await response.text();
-        throw new Error(`Bird email API failed (${String(response.status)}): ${body}`);
-      }
-
-      const payload: unknown = await response.json();
-      const id =
-        typeof payload === 'object' &&
-        payload !== null &&
-        'id' in payload &&
-        typeof payload.id === 'string'
-          ? payload.id
-          : crypto.randomUUID();
-
-      return { messageId: id };
+    async sendTemplate(message) {
+      const response = await client.email.send({
+        from: fromEmail,
+        to: [message.to],
+        category: 'transactional',
+        template: {
+          slug: message.slug,
+          language: message.language,
+          parameters: { ...message.parameters },
+        },
+      });
+      return { messageId: response.id };
     },
   };
 }
@@ -75,6 +98,9 @@ export function createBirdMailer({
 export function createNoopMailer(): Mailer {
   return {
     send() {
+      return Promise.resolve({ messageId: 'noop' });
+    },
+    sendTemplate() {
       return Promise.resolve({ messageId: 'noop' });
     },
   };

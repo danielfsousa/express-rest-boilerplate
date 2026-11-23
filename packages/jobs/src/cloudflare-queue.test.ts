@@ -25,9 +25,11 @@ function createMemoryQueueBinding() {
   const binding: CloudflareQueueBinding<CloudflareJobEnvelope> = {
     async send(body, options) {
       sent.push({ body, options });
+      return { metadata: { metrics: { backlogCount: sent.length, backlogBytes: 0 } } };
     },
     async sendBatch(messages, options) {
       sentBatches.push({ requests: [...messages], options });
+      return { metadata: { metrics: { backlogCount: sentBatches.length, backlogBytes: 0 } } };
     },
   };
 

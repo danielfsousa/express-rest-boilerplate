@@ -5,32 +5,29 @@ export {
   type CapturedBirdEmail,
 } from './emulator.ts';
 export {
+  createBirdClient,
   createBirdMailer,
   createNoopMailer,
+  type CreateBirdClientOptions,
   type CreateBirdMailerOptions,
   type EmailMessage,
   type Mailer,
   type SendEmailResult,
 } from './mailer.ts';
 export {
-  renderEmail,
-  renderLowStockAlertEmail,
-  renderOrderReceiptEmail,
-  renderPasswordResetEmail,
-  renderWelcomeEmail,
-  type RenderedEmail,
-} from './render.ts';
+  syncBirdTemplates,
+  type SyncBirdTemplatesOptions,
+  type SyncedBirdTemplateResult,
+} from './sync-templates.ts';
 export {
-  LowStockAlertEmail,
-  type LowStockAlertEmailProps,
-} from './templates/LowStockAlertEmail.ts';
-export {
-  OrderReceiptEmail,
-  type OrderReceiptEmailProps,
-  type OrderReceiptItem,
-} from './templates/OrderReceiptEmail.ts';
-export {
-  PasswordResetEmail,
-  type PasswordResetEmailProps,
-} from './templates/PasswordResetEmail.ts';
-export { WelcomeEmail, type WelcomeEmailProps } from './templates/WelcomeEmail.ts';
+  EMAIL_TEMPLATES,
+  type BirdTemplateDefinition,
+  type BirdTemplateLanguagePayload,
+  type EmailTemplateSlug,
+  type LowStockAlertTemplateParameters,
+  type OrderReceiptTemplateItem,
+  type OrderReceiptTemplateParameters,
+  type PasswordResetTemplateParameters,
+  type TemplateEmailMessage,
+  type WelcomeTemplateParameters,
+} from './template-catalog.ts';

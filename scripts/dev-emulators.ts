@@ -1,8 +1,9 @@
 import 'varlock/auto-load';
-import { ENV } from 'varlock/env';
-import { createBirdEmulatorFetch } from '@starter/email';
+import { createBirdClient, createBirdEmulatorFetch, syncBirdTemplates } from '@starter/email';
+import { compileBirdEmailTemplates } from '@starter/email/templates';
 import { createLogger, createServer, onShutdown } from '@starter/runtime';
 import { createEmulator } from 'emulate';
+import { ENV } from 'varlock/env';
 
 const logger = createLogger({ level: ENV.LOG_LEVEL });
 const birdPort = ENV.BIRD_EMULATOR_PORT;
@@ -21,7 +22,20 @@ const [birdServer, stripeEmulator] = await Promise.all([
   }),
 ]);
 
-logger.info({ url: birdServer.url }, 'Bird email emulator listening');
+const templates = await compileBirdEmailTemplates();
+const syncResults = await syncBirdTemplates({
+  client: createBirdClient({
+    apiKey: ENV.BIRD_API_KEY,
+    apiBaseUrl: birdServer.url,
+  }),
+  templates,
+  logger,
+});
+
+logger.info(
+  { url: birdServer.url, templates: syncResults.length },
+  'Bird email emulator listening',
+);
 logger.info({ url: stripeEmulator.url }, 'Stripe emulator listening');
 
 onShutdown(

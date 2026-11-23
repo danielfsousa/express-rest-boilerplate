@@ -10,9 +10,9 @@ import {
   verification,
 } from '@starter/db';
 import type { Database } from '@starter/db';
-import { renderPasswordResetEmail, renderWelcomeEmail } from '@starter/email';
+import { EMAIL_TEMPLATES } from '@starter/email';
 import type { Mailer } from '@starter/email';
-import { m, resolveLocale } from '@starter/i18n';
+import { resolveLocale } from '@starter/i18n';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { admin as adminPlugin, organization as organizationPlugin } from 'better-auth/plugins';
@@ -90,16 +90,14 @@ export function createAuth({
           return;
         }
         const locale = resolveLocale(undefined, i18nEnabled);
-        const rendered = await renderPasswordResetEmail({
-          name: targetUser.name,
-          resetUrl: url,
-          locale,
-        });
-        await mailer.send({
+        await mailer.sendTemplate({
           to: targetUser.email,
-          subject: m.email_reset_subject({}, { locale }),
-          html: rendered.html,
-          text: rendered.text,
+          slug: EMAIL_TEMPLATES.PASSWORD_RESET,
+          language: locale,
+          parameters: {
+            name: targetUser.name,
+            reset_url: url,
+          },
         });
       },
     },
@@ -111,12 +109,13 @@ export function createAuth({
               return;
             }
             const locale = resolveLocale(undefined, i18nEnabled);
-            const rendered = await renderWelcomeEmail({ name: createdUser.name, locale });
-            await mailer.send({
+            await mailer.sendTemplate({
               to: createdUser.email,
-              subject: m.email_welcome_subject({}, { locale }),
-              html: rendered.html,
-              text: rendered.text,
+              slug: EMAIL_TEMPLATES.WELCOME,
+              language: locale,
+              parameters: {
+                name: createdUser.name,
+              },
             });
           },
         },

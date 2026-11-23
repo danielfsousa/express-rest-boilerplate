@@ -44,7 +44,7 @@ async function main(): Promise<void> {
 
   await queue.start();
   await registerDefaultJobHandlers(queue, {
-    drizzleDb: drizzleHandle.db,
+    db: drizzleHandle.db,
     mailer,
     storage,
     logger,

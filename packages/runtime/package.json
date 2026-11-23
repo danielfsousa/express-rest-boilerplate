@@ -48,5 +48,9 @@
     "pino": "^10.4.0",
     "pino-pretty": "^13.2.0",
     "postgres": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "@types/bun": "catalog:"
   }
 }

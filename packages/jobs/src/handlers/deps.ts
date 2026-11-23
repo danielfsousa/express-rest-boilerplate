@@ -4,7 +4,7 @@ import type { ObjectStorage } from '@starter/runtime/storage';
 import type { RuntimeLogger } from '@starter/runtime/types';
 
 export interface JobHandlersDeps {
-  drizzleDb: Database;
+  db: Database;
   mailer: Mailer;
   storage: ObjectStorage;
   logger: RuntimeLogger;

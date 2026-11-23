@@ -27,9 +27,9 @@ describe('Auth and Stores integration (apps/api)', () => {
       trustedOrigins: ['http://localhost'],
     });
     const app = createApp({
-      db: pg.drizzleHandle,
+      dbHealth: pg.drizzleHandle,
       logger,
-      drizzleDb: pg.drizzleHandle.db,
+      db: pg.drizzleHandle.db,
       auth,
       multiTenancyEnabled: true,
     });
@@ -146,9 +146,9 @@ describe('Auth and Stores integration (apps/api)', () => {
       trustedOrigins: ['http://localhost'],
     });
     const app = createApp({
-      db: pg.drizzleHandle,
+      dbHealth: pg.drizzleHandle,
       logger,
-      drizzleDb: pg.drizzleHandle.db,
+      db: pg.drizzleHandle.db,
       auth,
       multiTenancyEnabled: false,
     });

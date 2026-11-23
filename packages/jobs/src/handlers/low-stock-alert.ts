@@ -1,32 +1,26 @@
-import { renderLowStockAlertEmail } from '@starter/email';
-import { m } from '@starter/i18n';
+import { EMAIL_TEMPLATES } from '@starter/email';
 import type { JOB_NAMES, JobHandler } from '../types.ts';
 import type { JobHandlersDeps } from './deps.ts';
 
-export function createLowStockAlertHandler(
-  deps: JobHandlersDeps,
-): JobHandler<typeof JOB_NAMES.LOW_STOCK_ALERT> {
+export function createLowStockAlertHandler({
+  mailer,
+  logger,
+}: JobHandlersDeps): JobHandler<typeof JOB_NAMES.LOW_STOCK_ALERT> {
   return async (payload) => {
-    const rendered = await renderLowStockAlertEmail({
-      storeName: payload.storeName,
-      bookTitle: payload.bookTitle,
-      sku: payload.sku,
-      stock: payload.stock,
-      threshold: payload.threshold,
-      locale: payload.locale,
-    });
-
-    await deps.mailer.send({
+    await mailer.sendTemplate({
       to: payload.ownerEmail,
-      subject: m.email_low_stock_subject(
-        { bookTitle: payload.bookTitle },
-        { locale: payload.locale },
-      ),
-      html: rendered.html,
-      text: rendered.text,
+      slug: EMAIL_TEMPLATES.LOW_STOCK_ALERT,
+      language: payload.locale,
+      parameters: {
+        store_name: payload.storeName,
+        book_title: payload.bookTitle,
+        sku: payload.sku,
+        stock: payload.stock,
+        threshold: payload.threshold,
+      },
     });
 
-    deps.logger.info(
+    logger.info(
       {
         bookId: payload.bookId,
         storeId: payload.storeId,

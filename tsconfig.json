@@ -15,6 +15,7 @@
     "apps/*/src/**/*.tsx",
     "apps/*/test/**/*.ts",
     "packages/*/src/**/*.ts",
+    "packages/*/src/**/*.tsx",
     "packages/*/test/**/*.ts"
   ],
   "exclude": ["**/node_modules/**", "**/dist/**", "**/coverage/**", "**/.output/**"]

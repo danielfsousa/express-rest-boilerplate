@@ -16,13 +16,13 @@ import {
 } from './stores.service.ts';
 
 export interface CreateStoresRouterOptions {
-  drizzleDb: Database;
+  db: Database;
   auth: AuthInstance;
   multiTenancyEnabled: boolean;
 }
 
 export function createStoresRouter({
-  drizzleDb,
+  db,
   auth,
   multiTenancyEnabled,
 }: CreateStoresRouterOptions): OpenAPIHono {
@@ -35,7 +35,7 @@ export function createStoresRouter({
     }
 
     const stores = await listStoresForUser({
-      db: drizzleDb,
+      db,
       userId: authResult.user.id,
       multiTenancyEnabled,
     });
@@ -50,7 +50,7 @@ export function createStoresRouter({
 
     const body = c.req.valid('json');
     const result = await createStoreForUser({
-      db: drizzleDb,
+      db,
       userId: authResult.user.id,
       input: body,
       multiTenancyEnabled,
@@ -66,7 +66,7 @@ export function createStoresRouter({
   router.openapi(getStoreRoute, async (c) => {
     const { storeSlug } = c.req.valid('param');
     const store = await getStoreBySlug({
-      db: drizzleDb,
+      db,
       slug: storeSlug,
       multiTenancyEnabled,
     });
@@ -85,7 +85,7 @@ export function createStoresRouter({
     const { storeSlug } = c.req.valid('param');
     const body = c.req.valid('json');
     const result = await updateStoreForUser({
-      db: drizzleDb,
+      db,
       userId: authResult.user.id,
       slug: storeSlug,
       input: body,

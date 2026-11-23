@@ -12,7 +12,7 @@ import {
 } from './exports.service.ts';
 
 export interface CreateExportsRouterOptions {
-  drizzleDb: Database;
+  db: Database;
   auth: AuthInstance;
   multiTenancyEnabled: boolean;
   storage?: ObjectStorage | undefined;
@@ -20,7 +20,7 @@ export interface CreateExportsRouterOptions {
 }
 
 export function createExportsRouter({
-  drizzleDb,
+  db,
   auth,
   multiTenancyEnabled,
   storage,
@@ -31,7 +31,7 @@ export function createExportsRouter({
   router.openapi(createBooksExportRoute, async (c) => {
     const { storeSlug } = c.req.valid('param');
     const ctx = await resolveMerchantStore({
-      db: drizzleDb,
+      db,
       auth,
       headers: c.req.raw.headers,
       storeSlug,
@@ -42,7 +42,7 @@ export function createExportsRouter({
     }
 
     const created = await createBooksExportForStore({
-      db: drizzleDb,
+      db,
       store: ctx.store,
       userId: ctx.user.id,
       jobQueue,
@@ -53,7 +53,7 @@ export function createExportsRouter({
   router.openapi(listExportsRoute, async (c) => {
     const { storeSlug } = c.req.valid('param');
     const ctx = await resolveMerchantStore({
-      db: drizzleDb,
+      db,
       auth,
       headers: c.req.raw.headers,
       storeSlug,
@@ -63,14 +63,14 @@ export function createExportsRouter({
       return c.json({ error: ctx.error }, ctx.status);
     }
 
-    const items = await listExportsForStore({ db: drizzleDb, store: ctx.store });
+    const items = await listExportsForStore({ db, store: ctx.store });
     return c.json({ items }, 200);
   });
 
   router.openapi(getExportRoute, async (c) => {
     const { storeSlug, exportId } = c.req.valid('param');
     const ctx = await resolveMerchantStore({
-      db: drizzleDb,
+      db,
       auth,
       headers: c.req.raw.headers,
       storeSlug,
@@ -80,7 +80,7 @@ export function createExportsRouter({
       return c.json({ error: ctx.error }, ctx.status);
     }
 
-    const exp = await getExportForStore({ db: drizzleDb, store: ctx.store, exportId });
+    const exp = await getExportForStore({ db, store: ctx.store, exportId });
     if (!exp) {
       return c.json({ error: 'Export not found' }, 404);
     }
@@ -89,7 +89,7 @@ export function createExportsRouter({
 
   router.get('/api/v1/stores/:storeSlug/exports/:exportId/download', async (c) => {
     const ctx = await resolveMerchantStore({
-      db: drizzleDb,
+      db,
       auth,
       headers: c.req.raw.headers,
       storeSlug: c.req.param('storeSlug'),
@@ -100,7 +100,7 @@ export function createExportsRouter({
     }
 
     const exp = await getExportForStore({
-      db: drizzleDb,
+      db,
       store: ctx.store,
       exportId: c.req.param('exportId'),
     });

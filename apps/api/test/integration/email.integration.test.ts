@@ -1,6 +1,7 @@
 import { startTestPostgres } from '@starter/db/test-harness';
 import type { TestPostgresHarness } from '@starter/db/test-harness';
-import { createBirdEmulator } from '@starter/email';
+import { createBirdEmulator, EMAIL_TEMPLATES, syncBirdTemplates } from '@starter/email';
+import { compileBirdEmailTemplates } from '@starter/email/templates';
 import { createLogger } from '@starter/runtime';
 import { afterAll, beforeAll, describe, expect, test } from 'vite-plus/test';
 import { createApp } from '../../src/app.ts';
@@ -17,9 +18,11 @@ describe('better-auth + Bird.com email integration (apps/api)', () => {
     await pg?.stop();
   });
 
-  test('merchant signup delivers localized WelcomeEmail to in-process Bird emulator', async () => {
+  test('merchant signup delivers stored WelcomeEmail template via Bird SDK emulator', async () => {
     const logger = createLogger({ level: 'silent' });
     const emulator = createBirdEmulator();
+    const templates = await compileBirdEmailTemplates();
+    await syncBirdTemplates({ client: emulator.createClient(), templates });
     const mailer = emulator.createMailer('noreply@bookstore.local');
 
     const auth = createAuth({
@@ -32,9 +35,9 @@ describe('better-auth + Bird.com email integration (apps/api)', () => {
     });
 
     const app = createApp({
-      db: pg.drizzleHandle,
+      dbHealth: pg.drizzleHandle,
       logger,
-      drizzleDb: pg.drizzleHandle.db,
+      db: pg.drizzleHandle.db,
       auth,
       multiTenancyEnabled: true,
     });
@@ -56,6 +59,7 @@ describe('better-auth + Bird.com email integration (apps/api)', () => {
     const messages = emulator.getMessages();
     expect(messages).toHaveLength(1);
     expect(messages[0]?.to).toEqual(['maria@example.com']);
+    expect(messages[0]?.templateSlug).toBe(EMAIL_TEMPLATES.WELCOME);
     expect(messages[0]?.subject).toBe('Welcome to Bookstore Platform');
     expect(messages[0]?.html).toContain('Welcome, Maria Silva!');
   });

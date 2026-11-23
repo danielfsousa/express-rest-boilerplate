@@ -13,7 +13,7 @@ import {
 } from './billing.service.ts';
 
 export interface CreateBillingRouterOptions {
-  drizzleDb: Database;
+  db: Database;
   auth: AuthInstance;
   stripe: Stripe;
   webhookSecret: string;
@@ -25,7 +25,7 @@ export interface CreateBillingRouterOptions {
 }
 
 export function createBillingRouter({
-  drizzleDb,
+  db,
   auth,
   stripe,
   webhookSecret,
@@ -40,7 +40,7 @@ export function createBillingRouter({
   router.openapi(getStoreBillingRoute, async (c) => {
     const { storeSlug } = c.req.valid('param');
     const ctx = await resolveMerchantStore({
-      db: drizzleDb,
+      db,
       auth,
       headers: c.req.raw.headers,
       storeSlug,
@@ -50,14 +50,14 @@ export function createBillingRouter({
       return c.json({ error: ctx.error }, ctx.status);
     }
 
-    const summary = await getStoreBillingSummary(drizzleDb, ctx.store.id);
+    const summary = await getStoreBillingSummary(db, ctx.store.id);
     return c.json(summary, 200);
   });
 
   router.openapi(upgradeStoreBillingRoute, async (c) => {
     const { storeSlug } = c.req.valid('param');
     const ctx = await resolveMerchantStore({
-      db: drizzleDb,
+      db,
       auth,
       headers: c.req.raw.headers,
       storeSlug,
@@ -68,7 +68,7 @@ export function createBillingRouter({
     }
 
     const result = await upgradeStoreSubscription({
-      db: drizzleDb,
+      db,
       stripe,
       storeId: ctx.store.id,
       storeName: ctx.store.name,
@@ -87,7 +87,7 @@ export function createBillingRouter({
       webhookSecret,
       rawBody,
       signature,
-      db: drizzleDb,
+      db,
       jobQueue,
       realtimeBroker,
     });

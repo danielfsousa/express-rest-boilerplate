@@ -26,7 +26,7 @@ describe('API health integration (@testcontainers/postgresql)', () => {
   test('returns 200 on /health/live, /health/ready, /openapi.json, and /docs against live Postgres', async () => {
     activeDb = createDbClient({ url: connectionUri });
     const logger = createLogger({ level: 'silent' });
-    const app = createApp({ db: activeDb, logger });
+    const app = createApp({ dbHealth: activeDb, logger });
 
     const liveRes = await app.fetch(new Request('http://localhost/health/live'));
     expect(liveRes.status).toBe(200);
@@ -49,7 +49,7 @@ describe('API health integration (@testcontainers/postgresql)', () => {
   test('returns 503 on /health/ready after database pool is closed', async () => {
     const db = createDbClient({ url: connectionUri });
     const logger = createLogger({ level: 'silent' });
-    const app = createApp({ db, logger });
+    const app = createApp({ dbHealth: db, logger });
 
     await db.close();
 
