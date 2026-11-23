@@ -35,8 +35,8 @@ export function BillingPanel({ storeSlug }: { storeSlug: string }) {
 
   return (
     <Card>
-      <VStack gap="md">
-        <HStack gap="sm" align="center" justify="between">
+      <VStack gap={4}>
+        <HStack gap={2} align="center" justify="between">
           <Heading level={3}>Store subscription</Heading>
           <Text weight="semibold">{billing.plan === 'pro' ? 'Pro' : 'Free'}</Text>
         </HStack>

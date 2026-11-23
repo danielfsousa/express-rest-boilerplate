@@ -5,6 +5,12 @@ const meta: Meta<typeof EmptyNotice> = {
   title: 'Web/EmptyNotice',
   component: EmptyNotice,
   tags: ['autodocs'],
+  argTypes: {
+    title: { control: 'text', description: 'Primary empty-state title.' },
+    description: { control: 'text', description: 'Supporting explanation.' },
+    isCompact: { control: 'boolean', description: 'Compact spacing for inline panels.' },
+    actions: { control: false, description: 'Optional CTA button.' },
+  },
 };
 
 export default meta;

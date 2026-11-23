@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
-import { TextInput } from '../index.ts';
+import { TextInput, VStack } from '../index.ts';
 
 function ControlledTextInput({
   label,
@@ -35,6 +35,17 @@ const meta: Meta<typeof ControlledTextInput> = {
   title: 'Primitives/TextInput',
   component: ControlledTextInput,
   tags: ['autodocs'],
+  argTypes: {
+    label: { control: 'text', description: 'Field label.' },
+    type: {
+      control: 'select',
+      options: ['text', 'email', 'search', 'password'],
+      description: 'HTML input type.',
+    },
+    description: { control: 'text', description: 'Optional helper text.' },
+    isRequired: { control: 'boolean', description: 'Marks the field required.' },
+    isDisabled: { control: 'boolean', description: 'Disables editing.' },
+  },
 };
 
 export default meta;
@@ -44,18 +55,22 @@ export const Interactive: Story = {
   args: { label: 'Book title', initialValue: 'Designing Data-Intensive Applications' },
 };
 
-export const Email: Story = {
-  args: { label: 'Customer email', type: 'email', description: 'Receipts are sent here.' },
-};
-
-export const Search: Story = {
-  args: { label: 'Search catalog', type: 'search' },
-};
-
-export const Required: Story = {
-  args: { label: 'SKU', isRequired: true },
-};
-
-export const Disabled: Story = {
-  args: { label: 'Store slug', initialValue: 'default', isDisabled: true },
+export const AllStates: Story = {
+  args: { label: 'Book title' },
+  render: () => (
+    <VStack gap={4} maxWidth={420}>
+      <ControlledTextInput
+        label="Book title"
+        initialValue="Designing Data-Intensive Applications"
+      />
+      <ControlledTextInput
+        label="Customer email"
+        type="email"
+        description="Order receipts are sent to this address."
+        isRequired
+      />
+      <ControlledTextInput label="Search catalog" type="search" />
+      <ControlledTextInput label="Store slug" initialValue="acme-books" isDisabled />
+    </VStack>
+  ),
 };

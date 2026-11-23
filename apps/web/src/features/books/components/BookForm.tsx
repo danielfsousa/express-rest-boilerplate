@@ -46,7 +46,7 @@ export function BookForm({ storeSlug }: { storeSlug: string }) {
           void form.handleSubmit();
         }}
       >
-        <VStack gap="md">
+        <VStack gap={4}>
           <Heading level={3}>Add book</Heading>
           {createBook.error ? (
             <Banner

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Banner, Button } from '../index.ts';
+import { Banner, Button, VStack } from '../index.ts';
 
 const meta: Meta<typeof Banner> = {
   title: 'Primitives/Banner',
@@ -9,16 +9,30 @@ const meta: Meta<typeof Banner> = {
     status: {
       control: 'select',
       options: ['info', 'warning', 'error', 'success'],
+      description: 'Semantic alert severity.',
     },
     container: {
       control: 'select',
       options: ['card', 'section'],
+      description: 'Surface framing style.',
     },
     elevation: {
       control: 'inline-radio',
       options: ['none', 'low', 'med', 'high'],
+      description: 'Resting shadow depth.',
     },
-    isDismissable: { control: 'boolean' },
+    title: {
+      control: 'text',
+      description: 'Primary alert headline.',
+    },
+    description: {
+      control: 'text',
+      description: 'Optional supporting detail text.',
+    },
+    isDismissable: {
+      control: 'boolean',
+      description: 'Displays a close button when true.',
+    },
   },
 };
 
@@ -58,10 +72,39 @@ export const WithAction: Story = {
   },
 };
 
-export const Dismissable: Story = {
-  args: {
-    status: 'info',
-    title: 'Storefront is live',
-    isDismissable: true,
+export const AllStatuses: Story = {
+  args: { status: 'info', title: 'Status overview' },
+  parameters: {
+    docs: {
+      description: {
+        story: 'All four semantic banner statuses stacked with consistent vertical spacing.',
+      },
+    },
   },
+  render: () => (
+    <VStack gap={4}>
+      <Banner
+        status="info"
+        title="Template sync ready"
+        description="React Email templates are compiled and synced with Bird."
+      />
+      <Banner
+        status="success"
+        title="Storefront published"
+        description="Customers can now browse your catalog and place orders."
+      />
+      <Banner
+        status="warning"
+        title="Impersonating merchant@example.com"
+        description="Actions you perform run as this user."
+      >
+        <Button label="Stop impersonating" variant="secondary" size="sm" />
+      </Banner>
+      <Banner
+        status="error"
+        title="Export failed to queue"
+        description="Background queue unavailable. Try again in a few moments."
+      />
+    </VStack>
+  ),
 };

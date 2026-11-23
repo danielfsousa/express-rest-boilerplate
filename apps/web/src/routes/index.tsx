@@ -19,7 +19,7 @@ function HomePage() {
           Build storefronts and merchant consoles with Hono, Drizzle ORM 1.0, PostgreSQL Row-Level
           Security, TanStack Start, and Meta Astryx.
         </Text>
-        <HStack gap="sm">
+        <HStack gap={2}>
           <Link to="/s/$storeSlug" params={{ storeSlug: 'default' }}>
             <Button label="Browse Default Storefront" variant="secondary" />
           </Link>

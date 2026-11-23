@@ -5,6 +5,12 @@ const meta: Meta<typeof SectionCard> = {
   title: 'Web/SectionCard',
   component: SectionCard,
   tags: ['autodocs'],
+  argTypes: {
+    title: { control: 'text', description: 'Card section heading.' },
+    description: { control: 'text', description: 'Supporting subtitle.' },
+    headerActions: { control: false, description: 'Trailing header slot for status or buttons.' },
+    children: { control: false, description: 'Main card body content.' },
+  },
 };
 
 export default meta;
@@ -15,7 +21,7 @@ export const Default: Story = {
   args: {
     title: 'Order #ord-42',
     description: 'Customer: Ada Lovelace (ada@example.com)',
-    headerActions: <StatusPill tone="success" label="fulfilled" />,
+    headerActions: <StatusPill tone="success" label="Fulfilled" />,
     children: <Text>2 items · Total: $39.98</Text>,
   },
 };

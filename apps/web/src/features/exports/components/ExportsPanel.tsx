@@ -7,8 +7,8 @@ export function ExportsPanel({ storeSlug }: { storeSlug: string }) {
   const createExport = useCreateBooksExport(storeSlug);
 
   return (
-    <VStack gap="md">
-      <HStack gap="sm" align="center" justify="between">
+    <VStack gap={4}>
+      <HStack gap={2} align="center" justify="between">
         <Heading level={3}>Catalog CSV exports</Heading>
         <Button
           label="Export books CSV"
@@ -42,12 +42,12 @@ export function ExportsPanel({ storeSlug }: { storeSlug: string }) {
 
       {data?.items.map((item) => (
         <Card key={item.id}>
-          <HStack gap="sm" align="center" justify="between">
-            <VStack gap="xs">
+          <HStack gap={2} align="center" justify="between">
+            <VStack gap={1}>
               <Text>Export {item.id.slice(0, 8)}</Text>
               <Text>Created: {item.createdAt}</Text>
             </VStack>
-            <HStack gap="sm" align="center">
+            <HStack gap={2} align="center">
               <Text weight="semibold">{item.status}</Text>
               {item.downloadUrl ? (
                 <a href={`${getApiBaseUrl()}${item.downloadUrl}`} target="_blank" rel="noreferrer">

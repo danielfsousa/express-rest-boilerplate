@@ -10,7 +10,7 @@ export function LocaleSwitcher() {
   }
 
   return (
-    <HStack gap="xs" align="center">
+    <HStack gap={1} align="center">
       {SUPPORTED_LOCALES.map((candidate) => (
         <Button
           key={candidate}

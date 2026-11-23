@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
-import { Switch } from '../index.ts';
+import { Switch, VStack } from '../index.ts';
 
 function ControlledSwitch({
   label,
@@ -32,6 +32,13 @@ const meta: Meta<typeof ControlledSwitch> = {
   title: 'Primitives/Switch',
   component: ControlledSwitch,
   tags: ['autodocs'],
+  argTypes: {
+    label: { control: 'text', description: 'Primary toggle label.' },
+    description: { control: 'text', description: 'Optional helper copy below the label.' },
+    initialValue: { control: 'boolean', description: 'Initial checked state.' },
+    isDisabled: { control: 'boolean', description: 'Prevents toggling.' },
+    isLoading: { control: 'boolean', description: 'Shows a loading indicator while saving.' },
+  },
 };
 
 export default meta;
@@ -49,10 +56,25 @@ export const WithDescription: Story = {
   },
 };
 
-export const Disabled: Story = {
-  args: { label: 'Read-only setting', initialValue: false, isDisabled: true },
-};
-
-export const Loading: Story = {
-  args: { label: 'Updating status', initialValue: true, isLoading: true },
+export const AllStates: Story = {
+  args: { label: 'Store setting' },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Interactive, described, disabled, and loading switch states.',
+      },
+    },
+  },
+  render: () => (
+    <VStack gap={4}>
+      <ControlledSwitch label="Published on storefront" initialValue />
+      <ControlledSwitch
+        label="Low-stock email alerts"
+        description="Notify store owners when inventory drops below 5 copies."
+        initialValue
+      />
+      <ControlledSwitch label="Read-only setting" initialValue={false} isDisabled />
+      <ControlledSwitch label="Saving preference" initialValue isLoading />
+    </VStack>
+  ),
 };

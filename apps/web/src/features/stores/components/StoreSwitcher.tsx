@@ -12,7 +12,7 @@ export function StoreSwitcher({ activeSlug }: { activeSlug?: string }) {
   }
 
   return (
-    <HStack gap="xs" align="center">
+    <HStack gap={1} align="center">
       <Text color="secondary">Stores:</Text>
       {data.stores.map((store) => (
         <Link key={store.id} to="/dashboard/$storeSlug" params={{ storeSlug: store.slug }}>

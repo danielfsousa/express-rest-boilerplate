@@ -43,7 +43,7 @@ export function CreateStoreForm() {
           void form.handleSubmit();
         }}
       >
-        <VStack gap="md">
+        <VStack gap={4}>
           <Heading level={3}>Create a store</Heading>
           {createStore.error ? (
             <Banner

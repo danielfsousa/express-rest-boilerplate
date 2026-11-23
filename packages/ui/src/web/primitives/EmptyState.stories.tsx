@@ -1,14 +1,23 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Button, EmptyState } from '../index.ts';
+import { Button, Card, EmptyState } from '../index.ts';
 
 const meta: Meta<typeof EmptyState> = {
   title: 'Primitives/EmptyState',
   component: EmptyState,
   tags: ['autodocs'],
   argTypes: {
-    title: { control: 'text' },
-    description: { control: 'text' },
-    isCompact: { control: 'boolean' },
+    title: {
+      control: 'text',
+      description: 'Primary empty-state heading.',
+    },
+    description: {
+      control: 'text',
+      description: 'Helpful next-step explanation.',
+    },
+    isCompact: {
+      control: 'boolean',
+      description: 'Reduces vertical padding for inline panels.',
+    },
   },
 };
 
@@ -28,6 +37,11 @@ export const WithActions: Story = {
     description: 'Add your first book to publish it to the storefront.',
     actions: <Button label="Add Book" variant="primary" size="sm" />,
   },
+  render: (args) => (
+    <Card>
+      <EmptyState {...args} />
+    </Card>
+  ),
 };
 
 export const Compact: Story = {

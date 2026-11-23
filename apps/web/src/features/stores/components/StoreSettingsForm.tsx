@@ -40,7 +40,7 @@ export function StoreSettingsForm({
           void form.handleSubmit();
         }}
       >
-        <VStack gap="md">
+        <VStack gap={4}>
           <Heading level={3}>Store settings</Heading>
           {updateStore.isSuccess ? <Banner status="success" title="Store settings saved" /> : null}
           {updateStore.error ? (

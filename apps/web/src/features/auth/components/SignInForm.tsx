@@ -40,7 +40,7 @@ export function SignInForm() {
           void form.handleSubmit();
         }}
       >
-        <VStack gap="md">
+        <VStack gap={4}>
           <Heading level={2}>Sign in</Heading>
           {errorMessage ? (
             <Banner status="error" title="Sign in failed" description={errorMessage} />

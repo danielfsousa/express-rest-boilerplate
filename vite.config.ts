@@ -130,6 +130,7 @@ export default defineConfig({
         '**/*.test.ts',
         '**/*.test.tsx',
         '**/*.stories.tsx',
+        '**/story-frame.tsx',
         '**/index.ts',
         'packages/db/src/schema/**',
         'packages/i18n/src/paraglide/**',

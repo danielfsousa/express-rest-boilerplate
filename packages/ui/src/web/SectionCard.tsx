@@ -19,16 +19,16 @@ export function SectionCard({ title, description, headerActions, children }: Sec
 
   return (
     <Card>
-      <VStack gap="md">
+      <VStack gap={4}>
         {hasHeader ? (
           <>
-            <HStack justify="between" align="center" gap="md">
-              <VStack gap="xs">
+            <HStack justify="between" align="center" gap={4}>
+              <VStack gap={1}>
                 {title ? <Heading level={3}>{title}</Heading> : null}
                 {description ? <Text color="secondary">{description}</Text> : null}
               </VStack>
               {headerActions ? (
-                <HStack align="center" gap="sm">
+                <HStack align="center" gap={2}>
                   {headerActions}
                 </HStack>
               ) : null}

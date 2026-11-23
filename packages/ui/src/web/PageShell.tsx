@@ -17,22 +17,22 @@ export function PageShell({ banner, title, subtitle, actions, children }: PageSh
   const hasHeader = Boolean(title || subtitle || actions);
 
   return (
-    <VStack gap="lg" padding="lg">
+    <VStack gap={6} padding={6}>
       {banner}
       {hasHeader ? (
-        <HStack justify="between" align="center" gap="md">
-          <VStack gap="xs">
+        <HStack justify="between" align="center" gap={4}>
+          <VStack gap={1}>
             {typeof title === 'string' ? <Heading level={2}>{title}</Heading> : title}
             {subtitle ? <Text color="secondary">{subtitle}</Text> : null}
           </VStack>
           {actions ? (
-            <HStack align="center" gap="sm">
+            <HStack align="center" gap={2}>
               {actions}
             </HStack>
           ) : null}
         </HStack>
       ) : null}
-      <VStack gap="lg">{children}</VStack>
+      <VStack gap={6}>{children}</VStack>
     </VStack>
   );
 }

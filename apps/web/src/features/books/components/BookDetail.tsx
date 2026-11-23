@@ -17,8 +17,8 @@ export function BookDetail({ storeSlug, bookId }: { storeSlug: string; bookId: s
 
   return (
     <Card>
-      <VStack gap="md">
-        <HStack gap="lg" align="start">
+      <VStack gap={4}>
+        <HStack gap={6} align="start">
           {book.coverUrl ? (
             <img
               src={`${getApiBaseUrl()}${book.coverUrl}`}
@@ -27,7 +27,7 @@ export function BookDetail({ storeSlug, bookId }: { storeSlug: string; bookId: s
               height={220}
             />
           ) : null}
-          <VStack gap="sm">
+          <VStack gap={2}>
             <Heading level={1}>{book.title}</Heading>
             <Text color="secondary">by {book.author}</Text>
             <Heading level={3}>{formatCurrency(book.priceCents, book.currency)}</Heading>

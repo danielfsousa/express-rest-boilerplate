@@ -76,7 +76,7 @@ export function BookCatalog({
   }
 
   return (
-    <VStack gap="md">
+    <VStack gap={4}>
       <TextInput
         type="search"
         label="Search books"
@@ -99,8 +99,8 @@ export function BookCatalog({
 
       {data?.books.map((book) => (
         <Card key={book.id}>
-          <HStack justify="between" align="center" gap="md">
-            <HStack align="center" gap="md">
+          <HStack justify="between" align="center" gap={4}>
+            <HStack align="center" gap={4}>
               {book.coverUrl ? (
                 <img
                   src={`${getApiBaseUrl()}${book.coverUrl}`}
@@ -109,7 +109,7 @@ export function BookCatalog({
                   height={76}
                 />
               ) : null}
-              <VStack gap="xs">
+              <VStack gap={1}>
                 <Heading level={3}>{book.title}</Heading>
                 <Text color="secondary">{book.author}</Text>
                 <Text>

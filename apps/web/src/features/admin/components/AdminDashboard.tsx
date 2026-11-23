@@ -68,28 +68,28 @@ export function AdminDashboard({ onImpersonated }: AdminDashboardProps) {
   }
 
   return (
-    <VStack gap="lg">
-      <HStack gap="md" wrap="wrap">
+    <VStack gap={6}>
+      <HStack gap={4} wrap="wrap">
         <Card>
-          <VStack gap="xs">
+          <VStack gap={1}>
             <Text>Total stores</Text>
             <Heading level={3}>{String(overview.totalStores)}</Heading>
           </VStack>
         </Card>
         <Card>
-          <VStack gap="xs">
+          <VStack gap={1}>
             <Text>Active Pro stores</Text>
             <Heading level={3}>{String(overview.activeProStores)}</Heading>
           </VStack>
         </Card>
         <Card>
-          <VStack gap="xs">
+          <VStack gap={1}>
             <Text>Total users</Text>
             <Heading level={3}>{String(overview.totalUsers)}</Heading>
           </VStack>
         </Card>
         <Card>
-          <VStack gap="xs">
+          <VStack gap={1}>
             <Text>Platform GMV</Text>
             <Heading level={3}>{formatCurrency(overview.totalRevenueCents, 'USD')}</Heading>
           </VStack>
@@ -101,12 +101,12 @@ export function AdminDashboard({ onImpersonated }: AdminDashboardProps) {
       ) : null}
 
       <Card>
-        <VStack gap="md">
+        <VStack gap={4}>
           <Heading level={3}>Tenant stores and billing</Heading>
           {overview.stores.map((store) => (
-            <HStack key={store.id} justify="between" align="center" gap="md">
-              <VStack gap="xs">
-                <HStack gap="sm" align="center">
+            <HStack key={store.id} justify="between" align="center" gap={4}>
+              <VStack gap={1}>
+                <HStack gap={2} align="center">
                   <Heading level={4}>{store.name}</Heading>
                   <Text color="secondary">({store.slug})</Text>
                   <Text weight="semibold">{store.plan === 'pro' ? 'Pro' : 'Free'}</Text>
@@ -116,7 +116,7 @@ export function AdminDashboard({ onImpersonated }: AdminDashboardProps) {
                   orders, {formatCurrency(store.revenueCents, 'USD')} revenue
                 </Text>
               </VStack>
-              <HStack gap="sm" align="center">
+              <HStack gap={2} align="center">
                 <Button
                   label={store.plan === 'pro' ? 'Downgrade to Free' : 'Grant Pro'}
                   variant={store.plan === 'pro' ? 'secondary' : 'primary'}
@@ -133,12 +133,12 @@ export function AdminDashboard({ onImpersonated }: AdminDashboardProps) {
       </Card>
 
       <Card>
-        <VStack gap="md">
+        <VStack gap={4}>
           <Heading level={3}>Users and impersonation</Heading>
           {overview.users.map((targetUser) => (
-            <HStack key={targetUser.id} justify="between" align="center" gap="md">
-              <VStack gap="xs">
-                <HStack gap="sm" align="center">
+            <HStack key={targetUser.id} justify="between" align="center" gap={4}>
+              <VStack gap={1}>
+                <HStack gap={2} align="center">
                   <Heading level={4}>{targetUser.name}</Heading>
                   <Text>{targetUser.email}</Text>
                   <Text color="secondary">({targetUser.role})</Text>
@@ -146,7 +146,7 @@ export function AdminDashboard({ onImpersonated }: AdminDashboardProps) {
                 </HStack>
                 <Text>{String(targetUser.storeCount)} store memberships</Text>
               </VStack>
-              <HStack gap="sm" align="center">
+              <HStack gap={2} align="center">
                 <Button
                   label={`Impersonate ${targetUser.name}`}
                   variant="secondary"

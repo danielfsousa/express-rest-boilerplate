@@ -16,7 +16,7 @@ function MerchantBooksPage() {
       title={`Books: ${storeSlug}`}
       headerActions={<StoreSwitcher activeSlug={storeSlug} />}
     >
-      <HStack gap="sm">
+      <HStack gap={2}>
         <Link to="/dashboard/$storeSlug" params={{ storeSlug }}>
           <Button label="Store Settings" variant="ghost" size="sm" />
         </Link>

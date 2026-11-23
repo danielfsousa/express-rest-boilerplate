@@ -22,7 +22,7 @@ const TONE_TO_DOT_VARIANT: Record<StatusPillTone, StatusDotVariant> = {
 /** Accessible status indicator pairing a StatusDot with a visible text label. */
 export function StatusPill({ tone = 'neutral', label, isPulsing = false }: StatusPillProps) {
   return (
-    <HStack align="center" gap="xs">
+    <HStack align="center" gap={1}>
       <StatusDot variant={TONE_TO_DOT_VARIANT[tone]} label={label} isPulsing={isPulsing} />
       <Text color="secondary">{label}</Text>
     </HStack>

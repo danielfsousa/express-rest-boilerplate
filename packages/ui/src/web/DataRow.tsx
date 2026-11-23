@@ -13,16 +13,16 @@ export interface DataRowProps {
 /** Consistent horizontal row for catalog items, orders, and entity lists. */
 export function DataRow({ title, subtitle, status, actions }: DataRowProps) {
   return (
-    <HStack justify="between" align="center" gap="md">
-      <VStack gap="xs">
-        <HStack align="center" gap="sm">
+    <HStack justify="between" align="center" gap={4}>
+      <VStack gap={1}>
+        <HStack align="center" gap={2}>
           <Text weight="semibold">{title}</Text>
           {status}
         </HStack>
         {subtitle ? <Text color="secondary">{subtitle}</Text> : null}
       </VStack>
       {actions ? (
-        <HStack gap="sm" align="center">
+        <HStack gap={2} align="center">
           {actions}
         </HStack>
       ) : null}

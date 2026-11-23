@@ -45,7 +45,7 @@ export function OrderTracker({ storeSlug, orderId }: { storeSlug: string; orderI
       description={`Customer: ${order.customerName} (${order.customerEmail})`}
       headerActions={<StatusPill tone={orderTone(order.status)} label={order.status} />}
     >
-      <VStack gap="xs">
+      <VStack gap={1}>
         {order.items.map((item) => (
           <HStack key={item.id} justify="between">
             <Text>

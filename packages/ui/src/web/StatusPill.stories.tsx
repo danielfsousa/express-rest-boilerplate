@@ -1,10 +1,25 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { HStack, StatusPill } from './index.ts';
+import { HStack, StatusPill, Text, VStack } from './index.ts';
 
 const meta: Meta<typeof StatusPill> = {
   title: 'Web/StatusPill',
   component: StatusPill,
   tags: ['autodocs'],
+  argTypes: {
+    tone: {
+      control: 'select',
+      options: ['neutral', 'info', 'success', 'warning', 'error'],
+      description: 'Semantic dot color.',
+    },
+    label: {
+      control: 'text',
+      description: 'Visible status label.',
+    },
+    isPulsing: {
+      control: 'boolean',
+      description: 'Pulses the indicator dot for active/live states.',
+    },
+  },
 };
 
 export default meta;
@@ -23,13 +38,25 @@ export const AllTones: Story = {
     tone: 'neutral',
     label: 'Draft',
   },
+  parameters: {
+    docs: {
+      description: {
+        story: 'All five semantic StatusPill tones arranged with generous horizontal spacing.',
+      },
+    },
+  },
   render: () => (
-    <HStack gap="lg">
-      <StatusPill tone="neutral" label="Draft" />
-      <StatusPill tone="info" label="Paid" isPulsing />
-      <StatusPill tone="success" label="Fulfilled" />
-      <StatusPill tone="warning" label="Low stock" />
-      <StatusPill tone="error" label="Cancelled" />
-    </HStack>
+    <VStack gap={4}>
+      <Text type="label" color="secondary">
+        Semantic tones
+      </Text>
+      <HStack gap={5} align="center" wrap="wrap">
+        <StatusPill tone="neutral" label="Draft" />
+        <StatusPill tone="info" label="Paid" isPulsing />
+        <StatusPill tone="success" label="Fulfilled" />
+        <StatusPill tone="warning" label="Low stock" />
+        <StatusPill tone="error" label="Cancelled" />
+      </HStack>
+    </VStack>
   ),
 };

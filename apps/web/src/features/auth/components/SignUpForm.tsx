@@ -42,7 +42,7 @@ export function SignUpForm() {
           void form.handleSubmit();
         }}
       >
-        <VStack gap="md">
+        <VStack gap={4}>
           <Heading level={2}>Create merchant account</Heading>
           {errorMessage ? (
             <Banner status="error" title="Sign up failed" description={errorMessage} />

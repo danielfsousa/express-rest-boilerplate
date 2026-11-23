@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
-import { TextArea } from '../index.ts';
+import { TextArea, VStack } from '../index.ts';
 
 function ControlledTextArea({
   label,
@@ -32,6 +32,12 @@ const meta: Meta<typeof ControlledTextArea> = {
   title: 'Primitives/TextArea',
   component: ControlledTextArea,
   tags: ['autodocs'],
+  argTypes: {
+    label: { control: 'text', description: 'Field label.' },
+    description: { control: 'text', description: 'Optional helper text.' },
+    isRequired: { control: 'boolean', description: 'Marks the field required.' },
+    isDisabled: { control: 'boolean', description: 'Disables editing.' },
+  },
 };
 
 export default meta;
@@ -44,24 +50,24 @@ export const Interactive: Story = {
   },
 };
 
-export const WithDescription: Story = {
-  args: {
-    label: 'Storefront announcement',
-    description: 'Shown at the top of the storefront catalog page.',
-  },
-};
-
-export const Required: Story = {
-  args: {
-    label: 'Order notes',
-    isRequired: true,
-  },
-};
-
-export const Disabled: Story = {
-  args: {
-    label: 'Archived notes',
-    initialValue: 'Read-only historical record.',
-    isDisabled: true,
-  },
+export const AllStates: Story = {
+  args: { label: 'Book synopsis' },
+  render: () => (
+    <VStack gap={4} maxWidth={480}>
+      <ControlledTextArea
+        label="Book synopsis"
+        initialValue="A practical guide to reliable, scalable, and maintainable data systems."
+      />
+      <ControlledTextArea
+        label="Storefront announcement"
+        description="Shown at the top of the storefront catalog page."
+        isRequired
+      />
+      <ControlledTextArea
+        label="Archived notes"
+        initialValue="Read-only historical record."
+        isDisabled
+      />
+    </VStack>
+  ),
 };

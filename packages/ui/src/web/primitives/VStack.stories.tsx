@@ -6,8 +6,16 @@ const meta: Meta<typeof VStack> = {
   component: VStack,
   tags: ['autodocs'],
   argTypes: {
-    gap: { control: 'select', options: ['none', 'xs', 'sm', 'md', 'lg', 'xl'] },
-    padding: { control: 'select', options: ['none', 'xs', 'sm', 'md', 'lg', 'xl'] },
+    gap: {
+      control: 'select',
+      options: [0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10],
+      description: 'Numeric Astryx SpacingStep between stacked items.',
+    },
+    padding: {
+      control: 'select',
+      options: [0, 1, 2, 3, 4, 5, 6, 8, 10],
+      description: 'Numeric Astryx SpacingStep for inner padding.',
+    },
   },
 };
 
@@ -16,14 +24,14 @@ type Story = StoryObj<typeof VStack>;
 
 export const Default: Story = {
   args: {
-    gap: 'sm',
+    gap: 4,
     children: (
       <>
         <Card>
-          <Text>First block</Text>
+          <Text>First card block</Text>
         </Card>
         <Card>
-          <Text>Second block</Text>
+          <Text>Second card block</Text>
         </Card>
       </>
     ),
@@ -32,8 +40,8 @@ export const Default: Story = {
 
 export const WithPadding: Story = {
   args: {
-    gap: 'md',
-    padding: 'lg',
+    gap: 3,
+    padding: 6,
     children: (
       <>
         <Text weight="semibold">Padded Vertical Stack</Text>

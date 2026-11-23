@@ -54,7 +54,7 @@ export function CheckoutForm({ storeSlug, bookId }: { storeSlug: string; bookId:
           void form.handleSubmit();
         }}
       >
-        <VStack gap="md">
+        <VStack gap={4}>
           <Heading level={3}>Checkout</Heading>
           {checkoutUrl ? (
             <Banner status="info" title="Complete your payment">

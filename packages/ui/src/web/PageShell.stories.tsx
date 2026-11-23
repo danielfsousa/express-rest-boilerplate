@@ -5,6 +5,13 @@ const meta: Meta<typeof PageShell> = {
   title: 'Web/PageShell',
   component: PageShell,
   tags: ['autodocs'],
+  argTypes: {
+    title: { control: 'text', description: 'Page heading.' },
+    subtitle: { control: 'text', description: 'Supporting subtitle under the heading.' },
+    banner: { control: false, description: 'Optional top alert Banner.' },
+    actions: { control: false, description: 'Header action buttons.' },
+    children: { control: false, description: 'Main page body sections.' },
+  },
 };
 
 export default meta;

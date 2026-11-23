@@ -1,14 +1,31 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Button, HStack, Text, VStack } from '../index.ts';
+import { Badge, Button, Card, HStack, Text, VStack } from '../index.ts';
 
 const meta: Meta<typeof HStack> = {
   title: 'Primitives/HStack',
   component: HStack,
   tags: ['autodocs'],
   argTypes: {
-    gap: { control: 'select', options: ['none', 'xs', 'sm', 'md', 'lg', 'xl'] },
-    justify: { control: 'select', options: ['start', 'center', 'end', 'between'] },
-    align: { control: 'select', options: ['start', 'center', 'end', 'stretch'] },
+    gap: {
+      control: 'select',
+      options: [0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10],
+      description: 'Numeric Astryx SpacingStep between horizontal items.',
+    },
+    justify: {
+      control: 'select',
+      options: ['start', 'center', 'end', 'between', 'around', 'evenly'],
+      description: 'Main-axis flex distribution.',
+    },
+    align: {
+      control: 'select',
+      options: ['start', 'center', 'end', 'stretch'],
+      description: 'Cross-axis vertical alignment.',
+    },
+    wrap: {
+      control: 'inline-radio',
+      options: ['nowrap', 'wrap', 'wrap-reverse'],
+      description: 'Whether items wrap onto multiple lines.',
+    },
   },
 };
 
@@ -17,33 +34,58 @@ type Story = StoryObj<typeof HStack>;
 
 export const Default: Story = {
   args: {
-    gap: 'sm',
+    gap: 3,
     align: 'center',
     children: (
       <>
-        <Button label="Save" variant="primary" size="sm" />
+        <Button label="Save changes" variant="primary" size="sm" />
         <Button label="Cancel" variant="secondary" size="sm" />
       </>
     ),
   },
 };
 
-export const Gaps: Story = {
-  args: { gap: 'md' },
+export const SpacingScale: Story = {
+  args: { gap: 4 },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Numeric SpacingStep gaps (`1` = 4px, `2` = 8px, `4` = 16px, `6` = 24px).',
+      },
+    },
+  },
   render: () => (
-    <VStack gap="md">
-      <HStack gap="xs">
-        <Text>xs</Text>
-        <Text>xs</Text>
-      </HStack>
-      <HStack gap="md">
-        <Text>md</Text>
-        <Text>md</Text>
-      </HStack>
-      <HStack gap="lg">
-        <Text>lg</Text>
-        <Text>lg</Text>
-      </HStack>
+    <VStack gap={5}>
+      <VStack gap={1}>
+        <Text type="label" color="secondary">
+          gap=&#123;1&#125; (4px)
+        </Text>
+        <HStack gap={1}>
+          <Badge label="One" variant="neutral" />
+          <Badge label="Two" variant="neutral" />
+          <Badge label="Three" variant="neutral" />
+        </HStack>
+      </VStack>
+      <VStack gap={1}>
+        <Text type="label" color="secondary">
+          gap=&#123;3&#125; (12px)
+        </Text>
+        <HStack gap={3}>
+          <Badge label="One" variant="info" />
+          <Badge label="Two" variant="info" />
+          <Badge label="Three" variant="info" />
+        </HStack>
+      </VStack>
+      <VStack gap={1}>
+        <Text type="label" color="secondary">
+          gap=&#123;6&#125; (24px)
+        </Text>
+        <HStack gap={6}>
+          <Badge label="One" variant="success" />
+          <Badge label="Two" variant="success" />
+          <Badge label="Three" variant="success" />
+        </HStack>
+      </VStack>
     </VStack>
   ),
 };
@@ -59,4 +101,9 @@ export const JustifyBetween: Story = {
       </>
     ),
   },
+  render: (args) => (
+    <Card>
+      <HStack {...args} />
+    </Card>
+  ),
 };

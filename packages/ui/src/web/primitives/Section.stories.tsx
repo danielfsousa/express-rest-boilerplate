@@ -9,6 +9,12 @@ const meta: Meta<typeof Section> = {
     variant: {
       control: 'select',
       options: ['section', 'transparent', 'muted'],
+      description: 'Section surface variant.',
+    },
+    padding: {
+      control: 'select',
+      options: [0, 1, 2, 3, 4, 5, 6, 8],
+      description: 'Numeric Astryx spacing step for inner padding.',
     },
   },
 };
@@ -19,8 +25,9 @@ type Story = StoryObj<typeof Section>;
 export const Default: Story = {
   args: {
     variant: 'section',
+    padding: 4,
     children: (
-      <VStack gap="xs">
+      <VStack gap={1}>
         <Heading level={4}>Section Surface</Heading>
         <Text color="secondary">Default section background.</Text>
       </VStack>
@@ -31,6 +38,7 @@ export const Default: Story = {
 export const Muted: Story = {
   args: {
     variant: 'muted',
+    padding: 4,
     children: <Text color="secondary">Muted section surface for grouping.</Text>,
   },
 };
@@ -38,6 +46,7 @@ export const Muted: Story = {
 export const WithDividers: Story = {
   args: {
     variant: 'section',
+    padding: 4,
     dividers: ['top', 'bottom'],
     children: <Text>Section bounded by top and bottom dividers.</Text>,
   },
