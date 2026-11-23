@@ -7,15 +7,17 @@ export interface LinkProps {
   children: ReactNode;
 }
 
-const { colors } = starterLightTokens;
+const { colors, typography } = starterLightTokens;
 
 export function Link({ href, children }: LinkProps): ReactElement {
   return (
     <ReactEmailLink
       href={href}
       style={{
-        color: colors.inkSecondary,
+        color: colors.ink,
+        fontFamily: typography.bodyFamily,
         textDecoration: 'underline',
+        textUnderlineOffset: '2px',
       }}
     >
       {children}

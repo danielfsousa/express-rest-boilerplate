@@ -29,17 +29,17 @@ describe('@starter/ui', () => {
     expect(light).toEqual(starterLightTokens);
     expect(dark).toEqual(starterDarkTokens);
 
-    expect(light.colors.canvas).toBe('#FAFAFA');
-    expect(light.colors.surface).toBe('#FFFFFF');
-    expect(light.colors.ink).toBe('#171717');
-    expect(light.colors.accent).toBe('#171717');
-    expect(light.colors.onAccent).toBe('#FFFFFF');
-    expect(light.colors.border).toBe('#EBEBEB');
-    expect(light.colors.success).toBe('#297A3A');
+    expect(light.colors.canvas).toBe('#f0f0f7');
+    expect(light.colors.surface).toBe('#ffffff');
+    expect(light.colors.ink).toBe('#25252a');
+    expect(light.colors.accent).toBe('#25252a');
+    expect(light.colors.onAccent).toBe('#ffffff');
+    expect(light.colors.border).toBe('#e2e2e8');
+    expect(light.colors.success).toBe('#354f31');
 
-    expect(dark.colors.canvas).toBe('#111110');
-    expect(dark.colors.surface).toBe('#191918');
-    expect(dark.colors.ink).toBe('#F5F5F4');
+    expect(dark.colors.canvas).toBe('#101018');
+    expect(dark.colors.surface).toBe('#1b1b21');
+    expect(dark.colors.ink).toBe('#f0f0f9');
 
     for (const value of Object.values(light.colors)) {
       expect(value).not.toContain('var(');

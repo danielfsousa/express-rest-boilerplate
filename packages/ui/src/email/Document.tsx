@@ -18,6 +18,16 @@ export function Document({ lang, title, preview, children }: DocumentProps): Rea
       <Head>
         <title>{title}</title>
         <Font
+          fontFamily="Montserrat"
+          fallbackFontFamily={['Helvetica', 'Arial', 'sans-serif']}
+          webFont={{
+            url: 'https://fonts.gstatic.com/s/montserrat/v29/JTUHjIg1_i6t8kCHKm4532VJOt5-QNFgpCu173w5aXo.woff2',
+            format: 'woff2',
+          }}
+          fontWeight={600}
+          fontStyle="normal"
+        />
+        <Font
           fontFamily="Figtree"
           fallbackFontFamily={['Helvetica', 'Arial', 'sans-serif']}
           webFont={{
@@ -31,6 +41,7 @@ export function Document({ lang, title, preview, children }: DocumentProps): Rea
       <Preview>{preview}</Preview>
       <Body
         style={{
+          WebkitFontSmoothing: 'antialiased',
           backgroundColor: colors.canvas,
           color: colors.ink,
           fontFamily: typography.bodyFamily,

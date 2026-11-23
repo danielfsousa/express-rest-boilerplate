@@ -12,8 +12,8 @@ const meta: Meta<typeof Callout> = {
   argTypes: {
     tone: {
       control: 'select',
-      options: ['muted', 'success', 'warning', 'error'],
-      description: 'Semantic surface and border color token for the callout box.',
+      options: ['muted', 'info', 'success', 'warning', 'error'],
+      description: 'Semantic surface and border color token from Astryx Stone.',
     },
     children: {
       control: false,

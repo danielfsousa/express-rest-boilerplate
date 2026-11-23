@@ -1,5 +1,5 @@
 {
-  "$schema": "https://portless.sh/schema.json",
+  "$schema": "./schemas/portless.schema.json",
   "turbo": false,
   "apps": {
     "apps/api": {

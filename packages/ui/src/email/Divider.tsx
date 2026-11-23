@@ -9,13 +9,15 @@ export interface DividerProps {
   spacing?: EmailSpacing;
 }
 
-const { colors } = starterLightTokens;
+const { colors, borders } = starterLightTokens;
 
 export function Divider({ tone = 'subtle', spacing = 'md' }: DividerProps): ReactElement {
   return (
     <Hr
       style={{
-        borderColor: tone === 'strong' ? colors.borderStrong : colors.border,
+        border: 'none',
+        borderTop: `${borders.width} solid ${tone === 'strong' ? colors.borderStrong : colors.border}`,
+        height: '0',
         margin: `${EMAIL_SPACE[spacing]} ${EMAIL_SPACE.none}`,
       }}
     />

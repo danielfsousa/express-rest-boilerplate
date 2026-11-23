@@ -3,12 +3,12 @@ version: 'alpha'
 name: 'Starter Stone'
 description: 'Editorial monochrome stone and ink design system for multi-tenant bookstore storefronts, merchant consoles, and transactional email.'
 colors:
-  background: '#FAFAFA'
-  surface: '#FFFFFF'
-  primary: '#171717'
-  secondary: '#4D4D4D'
-  accent: '#297A3A'
-  border: '#EBEBEB'
+  background: '#f0f0f7'
+  surface: '#ffffff'
+  primary: '#25252a'
+  secondary: '#5f5f64'
+  accent: '#354f31'
+  border: '#e2e2e8'
 typography:
   heading:
     fontFamily: 'Montserrat, Figtree, sans-serif'
@@ -42,14 +42,14 @@ spacing:
 
 ## Overview
 
-Starter Stone pairs Meta Astryx's Stone theme (`@astryxdesign/theme-stone`) with a crisp monochrome editorial palette (`#FAFAFA` canvas, `#FFFFFF` card surfaces, `#171717` ink primary/accent, and `#297A3A` forest-green positive accents).
+Starter Stone uses Meta Astryx's official pre-built Stone theme (`@astryxdesign/theme-stone/built`, `@astryxdesign/theme-stone/theme.css`, and `@astryxdesign/theme-stone/fonts.css`), pairing warm stone neutrals (`#f0f0f7` light canvas, `#ffffff` surfaces, `#25252a` ink) with forest-green positive accents (`#354f31`).
 
 ### Token Architecture
 
 Design tokens live in [`packages/ui`](./packages/ui/package.json) (`@starter/ui`) rather than a separate `@starter/tokens` package:
 
-- **Web (`apps/web`)**: Consumes Astryx semantic CSS custom properties (`--color-*`, `--spacing-*`, `--radius-*`, `--font-family-*`, `--text-*`) compiled from `starterTheme` via `<StarterThemeProvider>`.
-- **Transactional Email (`packages/email`)**: Consumes concrete resolved values from `@starter/ui/tokens` (`starterLightTokens`, produced by Astryx's React-free `resolveThemeToken(starterTheme, ...)`), ensuring 100% visual parity across web and email clients without duplicating hex or px literals.
+- **Web (`apps/web`)**: Consumes Astryx semantic CSS custom properties (`--color-*`, `--spacing-*`, `--radius-*`, `--font-family-*`, `--text-*`) from `@astryxdesign/theme-stone/theme.css` and `stoneTheme` via `<StarterThemeProvider>`, plus Astryx-themed `@base-ui/react` compound components (`Accordion`, `Fieldset`, `InputOTP`, `Meter`, `ToggleGroup`) when an Astryx primitive does not exist.
+- **Transactional Email (`packages/email`)**: Consumes concrete resolved values from `@starter/ui/tokens` (`starterLightTokens`, produced by Astryx's React-free `resolveThemeToken(stoneTheme, ...)`), with email-safe pixel radii (`toEmailPx`) and explicit Montserrat + Figtree `<Font>` declarations.
 
 ## Colors
 
@@ -133,8 +133,8 @@ Built with tokenized primitives in `@starter/ui/email` (`Document`, `Card`, `Eye
 
 ### Storybook & Storybook MCP
 
-- Run `pnpm run storybook` (`http://localhost:6006`) to preview web kit components, Astryx primitives, and email kit components in light and dark modes, or `pnpm run storybook:build` to build static docs.
-- `@storybook/addon-mcp` exposes component manifests and stories at `http://localhost:6006/mcp` (configured in `.mcp.json` and `.agents/mcp_config.json`).
+- Run `pnpm run storybook` (served via `portless storybook`, e.g. `https://storybook.<worktree>.localhost`) or `pnpm run storybook:direct` (`http://localhost:6006`), or `pnpm run storybook:build` to build static docs.
+- `@storybook/addon-mcp` exposes component manifests and stories at `/mcp` (configured in `.mcp.json` and `.agents/mcp_config.json`).
 
 ## Do's and Don'ts
 

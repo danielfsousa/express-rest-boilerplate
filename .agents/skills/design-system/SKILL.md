@@ -12,18 +12,19 @@ This repository implements the **Starter Stone** design system documented in [`D
 
 ## Package & Token Architecture
 
-- **No separate `@starter/tokens` package:** `@starter/ui` owns the Astryx theme, web UI kit, email UI kit, and resolved token bridge:
-  - `@starter/ui` & `@starter/ui/web` (`packages/ui/src/web/index.ts`): exports `<StarterThemeProvider>`, kit components (`PageShell`, `SectionCard`, `DataRow`, `StatusPill`, `EmptyNotice`), and curated Astryx primitives (`Banner`, `Button`, `Card`, `Divider`, `Heading`, `HStack`, `Spinner`, `Switch`, `Text`, `TextInput`, `VStack`, etc.).
-  - `@starter/ui/email` (`packages/ui/src/email/index.ts`): exports tokenized React Email primitives (`Document`, `Card`, `Eyebrow`, `Heading`, `Text`, `Button`, `Link`, `Divider`, `Callout`, `Section`, `Row`, `Column`).
-  - `@starter/ui/theme` (`packages/ui/src/theme.ts`): `starterTheme` extending `@astryxdesign/theme-stone` via `defineTheme` with monochrome `#FAFAFA` / `#FFFFFF` / `#171717` / `#EBEBEB` / `#297A3A` tokens.
+- **No separate `@starter/tokens` package:** `@starter/ui` owns the Astryx theme, web UI kit, Base UI fallback components, email UI kit, and resolved token bridge:
+  - `@starter/ui` & `@starter/ui/web` (`packages/ui/src/web/index.ts`): exports `<StarterThemeProvider>`, kit components (`PageShell`, `SectionCard`, `DataRow`, `StatusPill`, `EmptyNotice`), curated Astryx primitives (`Banner`, `Button`, `Card`, `Divider`, `Heading`, `HStack`, `Spinner`, `Switch`, `Text`, `TextInput`, `VStack`, etc.), and Astryx-themed Base UI components (`Accordion`, `Fieldset`, `InputOTP`, `Meter`, `ToggleGroup`) when an Astryx primitive does not exist.
+  - `@starter/ui/email` (`packages/ui/src/email/index.ts`): exports Stone-aligned React Email primitives (`Document`, `Card`, `Eyebrow`, `Heading`, `Text`, `Button`, `Link`, `Divider`, `Callout`, `Section`, `Row`, `Column`) hardened with email-safe pixel radii (`toEmailPx`) and explicit Montserrat/Figtree fonts.
+  - `@starter/ui/theme` (`packages/ui/src/theme.ts`): re-exports the official pre-built `@astryxdesign/theme-stone/built` (`stoneTheme`, aliased as `starterTheme`).
   - `@starter/ui/tokens` (`packages/ui/src/tokens.ts`): pure TypeScript, React-free `resolveStarterTokens(mode)` / `starterLightTokens` / `starterDarkTokens` backed by `@astryxdesign/core/theme/tokens` (`resolveThemeToken`).
-  - `@starter/ui/styles.css` (`packages/ui/src/styles.css`): Astryx CSS layers + `@astryxdesign/theme-stone/fonts.css` (Montserrat, Figtree, JetBrains Mono).
+  - `@starter/ui/styles.css` (`packages/ui/src/styles.css`): Astryx CSS layers + `@astryxdesign/theme-stone/theme.css` + `@astryxdesign/theme-stone/fonts.css` + `base-ui.css`.
 
 ## Web (`apps/web`) Guardrails
 
-1. Import UI components and Astryx primitives from `@starter/ui` (or `@starter/ui/web`), never directly from `@astryxdesign/core/*`.
-2. Never use raw `<div>` elements or hardcoded hex/px values in components; use Astryx layout primitives (`VStack`, `HStack`, `Section`, `Card`, `Divider`) and semantic tokens.
-3. Pair `StatusDot` with visible text via `<StatusPill>` so status never relies on color alone.
+1. Import UI components, Astryx primitives, and Base UI fallback components from `@starter/ui` (or `@starter/ui/web`), never directly from `@astryxdesign/core/*` or `@base-ui/react/*`.
+2. When adding a missing component not provided by `@astryxdesign/core`, build it in `packages/ui/src/web/base/` on `@base-ui/react` with a shadcn/ui-inspired compound API and style it strictly with Astryx Stone CSS variables (`--color-*`, `--spacing-*`, `--radius-*`, `--font-family-*`) in `packages/ui/src/web/base-ui.css`.
+3. Never use raw `<div>` elements or hardcoded hex/px values in components; use Astryx layout primitives (`VStack`, `HStack`, `Section`, `Card`, `Divider`) with numeric `SpacingStep` values (`1`, `2`, `3`, `4`, `6`, etc.) and semantic tokens.
+4. Pair `StatusDot` with visible text via `<StatusPill>` so status never relies on color alone.
 
 ## Email (`packages/email`) Guardrails
 
@@ -33,5 +34,5 @@ This repository implements the **Starter Stone** design system documented in [`D
 
 ## Storybook & Storybook MCP
 
-- Run `pnpm run storybook` (`http://localhost:6006`) or `pnpm run storybook:build`.
-- `@storybook/addon-mcp` serves component manifests and story docs at `http://localhost:6006/mcp` (registered in `.mcp.json` and `.agents/mcp_config.json`).
+- Run `pnpm run storybook` (`portless storybook`, e.g. `https://storybook.<worktree>.localhost`) or `pnpm run storybook:direct` (`http://localhost:6006`), or `pnpm run storybook:build`.
+- `@storybook/addon-mcp` serves component manifests and story docs at `/mcp` (registered in `.mcp.json` and `.agents/mcp_config.json`).

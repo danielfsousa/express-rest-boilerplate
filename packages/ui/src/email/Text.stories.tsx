@@ -11,7 +11,7 @@ const meta: Meta<typeof Text> = {
   argTypes: {
     tone: {
       control: 'select',
-      options: ['primary', 'secondary', 'muted', 'success', 'warning', 'error'],
+      options: ['primary', 'secondary', 'muted', 'info', 'success', 'warning', 'error'],
       description: 'Semantic Stone ink color token.',
     },
     size: {

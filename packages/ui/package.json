@@ -27,13 +27,15 @@
     "./styles.css": "./src/styles.css"
   },
   "scripts": {
-    "storybook": "storybook dev -p 6006",
+    "storybook": "node scripts/storybook-dev.mjs",
     "storybook:build": "storybook build"
   },
   "dependencies": {
     "@astryxdesign/core": "catalog:",
     "@astryxdesign/theme-stone": "catalog:",
+    "@base-ui/react": "catalog:",
     "@react-email/components": "catalog:",
+    "lucide-react": "catalog:",
     "react": "catalog:"
   },
   "devDependencies": {

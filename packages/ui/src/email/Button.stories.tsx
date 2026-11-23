@@ -20,8 +20,8 @@ const meta: Meta<typeof Button> = {
     },
     variant: {
       control: 'inline-radio',
-      options: ['primary', 'secondary'],
-      description: 'Visual emphasis of the email CTA button.',
+      options: ['primary', 'secondary', 'destructive'],
+      description: 'Visual emphasis of the email CTA button (pill-shaped like Astryx Stone).',
     },
     children: {
       control: 'text',
@@ -74,6 +74,9 @@ export const AllVariants: Story = {
             </Button>
             <Button href="https://example.com/settings" variant="secondary">
               Manage inventory
+            </Button>
+            <Button href="https://example.com/cancel" variant="destructive">
+              Cancel order
             </Button>
           </EmailStoryRow>
         </EmailStoryGroup>

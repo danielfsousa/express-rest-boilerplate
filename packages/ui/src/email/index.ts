@@ -17,8 +17,10 @@ export { Link, type LinkProps } from './Link.tsx';
 export {
   EMAIL_CONTAINER_MAX_WIDTH,
   EMAIL_LINE_HEIGHT,
+  EMAIL_RADII,
   EMAIL_SPACE,
   EMAIL_TEXT_SIZE,
+  toEmailPx,
   type EmailSpacing,
   type EmailTextSize,
 } from './scale.ts';

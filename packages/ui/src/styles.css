@@ -2,4 +2,6 @@
 
 @import '@astryxdesign/core/reset.css' layer(reset);
 @import '@astryxdesign/core/astryx.css';
+@import '@astryxdesign/theme-stone/theme.css';
 @import '@astryxdesign/theme-stone/fonts.css';
+@import './web/base-ui.css' layer(components);

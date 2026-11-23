@@ -1,16 +1,16 @@
 import { Theme } from '@astryxdesign/core/theme';
 import type { ReactNode } from 'react';
-import { starterTheme } from '../theme.ts';
+import { stoneTheme } from '../theme.ts';
 
 export interface StarterThemeProviderProps {
   mode?: 'system' | 'light' | 'dark';
   children: ReactNode;
 }
 
-/** Wraps an application subtree in the Starter Stone Astryx theme. */
+/** Wraps an application subtree in the official Astryx Stone theme. */
 export function StarterThemeProvider({ mode = 'system', children }: StarterThemeProviderProps) {
   return (
-    <Theme theme={starterTheme} mode={mode}>
+    <Theme theme={stoneTheme} mode={mode}>
       {children}
     </Theme>
   );

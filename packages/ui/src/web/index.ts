@@ -19,6 +19,47 @@ export { TextArea, type TextAreaProps } from '@astryxdesign/core/TextArea';
 export { TextInput, type TextInputProps } from '@astryxdesign/core/TextInput';
 export { Theme, useTheme } from '@astryxdesign/core/theme';
 export { VStack, type VStackProps } from '@astryxdesign/core/VStack';
+export {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  Fieldset,
+  FieldsetDescription,
+  FieldsetLegend,
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+  Meter,
+  MeterIndicator,
+  MeterLabel,
+  MeterTrack,
+  MeterValue,
+  ToggleGroup,
+  ToggleGroupItem,
+  type AccordionContentProps,
+  type AccordionItemProps,
+  type AccordionProps,
+  type AccordionTriggerProps,
+  type FieldsetDescriptionProps,
+  type FieldsetLegendProps,
+  type FieldsetProps,
+  type InputOTPGroupProps,
+  type InputOTPProps,
+  type InputOTPSeparatorProps,
+  type InputOTPSlotProps,
+  type MeterIndicatorProps,
+  type MeterLabelProps,
+  type MeterProps,
+  type MeterTone,
+  type MeterTrackProps,
+  type MeterValueProps,
+  type ToggleGroupItemProps,
+  type ToggleGroupProps,
+  type ToggleGroupSize,
+  type ToggleGroupVariant,
+} from './base/index.ts';
 export { DataRow, type DataRowProps } from './DataRow.tsx';
 export { EmptyNotice, type EmptyNoticeProps } from './EmptyNotice.tsx';
 export { PageShell, type PageShellProps } from './PageShell.tsx';

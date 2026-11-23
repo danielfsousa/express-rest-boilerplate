@@ -6,6 +6,7 @@ catalog:
   '@astryxdesign/cli': ^0.7.17
   '@astryxdesign/core': ^0.7.17
   '@astryxdesign/theme-stone': ^0.7.17
+  '@base-ui/react': ^1.9.0
   '@better-auth/stripe': ^1.7.27
   '@cloudflare/workers-types': ^5.20261122.2
   '@hono/node-server': ^2.1.11
@@ -38,6 +39,7 @@ catalog:
   drizzle-orm: 1.0.0-rc.6
   emulate: ^0.14.0
   hono: ^4.13.20
+  lucide-react: ^1.77.0
   postgres: ^4.1.1
   react: ^19.3.1
   react-dom: ^19.3.1
