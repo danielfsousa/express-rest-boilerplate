@@ -1,8 +1,6 @@
 // @vitest-environment jsdom
-import { Text } from '@astryxdesign/core/Text';
-import { Theme } from '@astryxdesign/core/theme';
-import { neutralTheme } from '@astryxdesign/theme-neutral';
 import { m } from '@starter/i18n';
+import { StarterThemeProvider, Text } from '@starter/ui';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, test } from 'vite-plus/test';
 import { LocaleProvider, useLocale } from '../LocaleProvider.tsx';
@@ -20,12 +18,12 @@ function Probe() {
 describe('LocaleSwitcher', () => {
   test('switches between en and pt-BR when enabled', () => {
     render(
-      <Theme theme={neutralTheme}>
+      <StarterThemeProvider>
         <LocaleProvider enabled>
           <LocaleSwitcher />
           <Probe />
         </LocaleProvider>
-      </Theme>,
+      </StarterThemeProvider>,
     );
 
     expect(screen.getByText('Bookstore Platform')).toBeTruthy();
@@ -35,12 +33,12 @@ describe('LocaleSwitcher', () => {
 
   test('hides switcher and forces en when disabled', () => {
     render(
-      <Theme theme={neutralTheme}>
+      <StarterThemeProvider>
         <LocaleProvider enabled={false}>
           <LocaleSwitcher />
           <Probe />
         </LocaleProvider>
-      </Theme>,
+      </StarterThemeProvider>,
     );
 
     expect(screen.getByText('Bookstore Platform')).toBeTruthy();

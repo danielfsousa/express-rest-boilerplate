@@ -40,7 +40,7 @@ To remove this block, run `astryx init --remove-agents`, which removes it from t
 
 ## Application State, Forms, and Testing
 
-See [../../docs/guides/style-guide.md](../../docs/guides/style-guide.md) for the full frontend style guide.
+See [../../DESIGN.md](../../DESIGN.md) for the Starter Stone design system and [../../docs/guides/style-guide.md](../../docs/guides/style-guide.md) for the full frontend style guide.
 
 - **Server data:** TanStack Query (`useQuery`, `useMutation`) via `ApiClientProvider` (never TanStack Store, Zustand, or Redux).
 - **URL state:** TanStack Router `validateSearch` with Zod for filters, search queries, and pagination.

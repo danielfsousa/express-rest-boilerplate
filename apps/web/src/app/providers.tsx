@@ -1,5 +1,4 @@
-import { Theme } from '@astryxdesign/core/theme';
-import { neutralTheme } from '@astryxdesign/theme-neutral';
+import { StarterThemeProvider } from '@starter/ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
@@ -20,9 +19,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Theme theme={neutralTheme}>
+      <StarterThemeProvider>
         <LocaleProvider>{children}</LocaleProvider>
-      </Theme>
+      </StarterThemeProvider>
     </QueryClientProvider>
   );
 }

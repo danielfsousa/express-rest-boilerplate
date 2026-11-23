@@ -5,7 +5,7 @@ catalog:
   '@astryxdesign/build': ^0.7.17
   '@astryxdesign/cli': ^0.7.17
   '@astryxdesign/core': ^0.7.17
-  '@astryxdesign/theme-neutral': ^0.7.17
+  '@astryxdesign/theme-stone': ^0.7.17
   '@better-auth/stripe': ^1.7.27
   '@cloudflare/workers-types': ^5.20261122.2
   '@hono/node-server': ^2.1.11

@@ -1,5 +1,4 @@
-import { Theme } from '@astryxdesign/core/theme';
-import { neutralTheme } from '@astryxdesign/theme-neutral';
+import { StarterThemeProvider } from '@starter/ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   createMemoryHistory,
@@ -54,11 +53,11 @@ export async function renderWithAppProviders(ui: ReactNode, options?: RenderWith
 
   const view = render(
     <QueryClientProvider client={queryClient}>
-      <Theme theme={neutralTheme}>
+      <StarterThemeProvider>
         <LocaleProvider>
           <RouterProvider router={router} />
         </LocaleProvider>
-      </Theme>
+      </StarterThemeProvider>
     </QueryClientProvider>,
   );
 

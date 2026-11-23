@@ -1,3 +1,4 @@
+import { starterLightTokens } from '@starter/ui/tokens';
 import { describe, expect, test } from 'vite-plus/test';
 import {
   createBirdEmulator,
@@ -19,6 +20,7 @@ describe('packages/email', () => {
   test('renders localized React JSX templates in en and pt-BR', async () => {
     const welcomeEn = await renderEmail(WelcomeEmail({ name: 'Alice', locale: 'en' }));
     expect(welcomeEn.html).toContain('Welcome, Alice!');
+    expect(welcomeEn.html).toContain(starterLightTokens.colors.canvas);
     expect(welcomeEn.text).toContain('WELCOME, ALICE!');
 
     const welcomePt = await renderEmail(WelcomeEmail({ name: 'Alice', locale: 'pt-BR' }));
@@ -32,6 +34,7 @@ describe('packages/email', () => {
       }),
     );
     expect(resetPt.html).toContain('Redefinir senha');
+    expect(resetPt.html).toContain(starterLightTokens.colors.accent);
 
     const receiptEn = await renderEmail(
       OrderReceiptEmail({

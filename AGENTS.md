@@ -5,6 +5,7 @@ Workspace instructions for AI agents and contributors working in `nodejs-fullsta
 ## Required Reading
 
 - [docs/guides/style-guide.md](./docs/guides/style-guide.md): Function parameter rules, TypeScript and Oxc lint rules, frontend state hierarchy, and low-mock testing standards.
+- [DESIGN.md](./DESIGN.md): Starter Stone visual design system, `@starter/ui` token bridge, and email/web component conventions.
 - [GLOSSARY.md](./GLOSSARY.md): Canonical domain terms (**Store**, **Merchant**, **Customer**, **Book**, **Order**, **Subscription**).
 - [docs/adr/](./docs/adr/): Architecture Decision Records (do not contradict without explicit approval).
 - App-specific guides: [apps/api/AGENTS.md](./apps/api/AGENTS.md), [apps/web/AGENTS.md](./apps/web/AGENTS.md), [apps/worker/AGENTS.md](./apps/worker/AGENTS.md).

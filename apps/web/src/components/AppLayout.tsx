@@ -1,8 +1,4 @@
-import { Banner } from '@astryxdesign/core/Banner';
-import { Button } from '@astryxdesign/core/Button';
-import { Heading } from '@astryxdesign/core/Heading';
-import { HStack } from '@astryxdesign/core/HStack';
-import { VStack } from '@astryxdesign/core/VStack';
+import { Banner, Button, Heading, PageShell } from '@starter/ui';
 import { m } from '@starter/i18n';
 import { Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
@@ -34,30 +30,32 @@ export function AppLayout({ title, headerActions, children }: AppLayoutProps) {
   const isAdminUser = userRecord?.role === 'admin';
 
   return (
-    <VStack gap="lg" padding="lg">
-      {impersonatedBy ? (
-        <Banner
-          status="warning"
-          title={`Impersonating ${sessionData?.user.email ?? 'user'}`}
-          description="Actions you perform run as this user."
-        >
-          <Button
-            label="Stop impersonating"
-            variant="secondary"
-            size="sm"
-            onClick={() => {
-              void handleStopImpersonating();
-            }}
-          />
-        </Banner>
-      ) : null}
-      <HStack justify="between" align="center" gap="md">
-        <HStack align="center" gap="md">
-          <Link to="/">
-            <Heading level={2}>{resolvedTitle}</Heading>
-          </Link>
-        </HStack>
-        <HStack align="center" gap="sm">
+    <PageShell
+      banner={
+        impersonatedBy ? (
+          <Banner
+            status="warning"
+            title={`Impersonating ${sessionData?.user.email ?? 'user'}`}
+            description="Actions you perform run as this user."
+          >
+            <Button
+              label="Stop impersonating"
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                void handleStopImpersonating();
+              }}
+            />
+          </Banner>
+        ) : undefined
+      }
+      title={
+        <Link to="/">
+          <Heading level={2}>{resolvedTitle}</Heading>
+        </Link>
+      }
+      actions={
+        <>
           {headerActions}
           {isAdminEnabled() && (isAdminUser || impersonatedBy) ? (
             <Link to="/admin">
@@ -71,9 +69,10 @@ export function AppLayout({ title, headerActions, children }: AppLayoutProps) {
           <Link to="/auth/sign-up">
             <Button label={m.nav_get_started({}, { locale })} variant="primary" size="sm" />
           </Link>
-        </HStack>
-      </HStack>
-      <VStack gap="lg">{children}</VStack>
-    </VStack>
+        </>
+      }
+    >
+      {children}
+    </PageShell>
   );
 }

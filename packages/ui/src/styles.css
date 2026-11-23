@@ -1,0 +1,5 @@
+@layer reset, astryx-base, astryx-theme, components, utilities;
+
+@import '@astryxdesign/core/reset.css' layer(reset);
+@import '@astryxdesign/core/astryx.css';
+@import '@astryxdesign/theme-stone/fonts.css';

@@ -1,15 +1,31 @@
-import { Banner } from '@astryxdesign/core/Banner';
-import { Button } from '@astryxdesign/core/Button';
-import { Card } from '@astryxdesign/core/Card';
-import { Heading } from '@astryxdesign/core/Heading';
-import { HStack } from '@astryxdesign/core/HStack';
-import { Spinner } from '@astryxdesign/core/Spinner';
-import { Text } from '@astryxdesign/core/Text';
-import { VStack } from '@astryxdesign/core/VStack';
+import {
+  Banner,
+  Button,
+  Heading,
+  HStack,
+  SectionCard,
+  Spinner,
+  StatusPill,
+  Text,
+  VStack,
+} from '@starter/ui';
 import { Link } from '@tanstack/react-router';
 import { formatCurrency } from '#/lib/format.ts';
 import { useOrderRealtime } from '#/features/realtime/index.ts';
 import { useOrder } from '../hooks/useOrders.ts';
+
+function orderTone(status: string): 'neutral' | 'info' | 'success' | 'warning' | 'error' {
+  if (status === 'fulfilled') {
+    return 'success';
+  }
+  if (status === 'paid') {
+    return 'info';
+  }
+  if (status === 'cancelled') {
+    return 'error';
+  }
+  return 'neutral';
+}
 
 export function OrderTracker({ storeSlug, orderId }: { storeSlug: string; orderId: string }) {
   useOrderRealtime({ storeSlug, orderId });
@@ -24,28 +40,25 @@ export function OrderTracker({ storeSlug, orderId }: { storeSlug: string; orderI
   }
 
   return (
-    <Card>
-      <VStack gap="md">
-        <Heading level={2}>Order {order.id}</Heading>
-        <Text>Status: {order.status}</Text>
-        <Text color="secondary">
-          Customer: {order.customerName} ({order.customerEmail})
-        </Text>
-        <VStack gap="xs">
-          {order.items.map((item) => (
-            <HStack key={item.id} justify="between">
-              <Text>
-                {item.title} × {String(item.quantity)}
-              </Text>
-              <Text>{formatCurrency(item.unitPriceCents * item.quantity, order.currency)}</Text>
-            </HStack>
-          ))}
-        </VStack>
-        <Heading level={3}>Total: {formatCurrency(order.totalCents, order.currency)}</Heading>
-        <Link to="/s/$storeSlug" params={{ storeSlug }}>
-          <Button label="Continue shopping" variant="secondary" size="sm" />
-        </Link>
+    <SectionCard
+      title={`Order ${order.id}`}
+      description={`Customer: ${order.customerName} (${order.customerEmail})`}
+      headerActions={<StatusPill tone={orderTone(order.status)} label={order.status} />}
+    >
+      <VStack gap="xs">
+        {order.items.map((item) => (
+          <HStack key={item.id} justify="between">
+            <Text>
+              {item.title} × {String(item.quantity)}
+            </Text>
+            <Text>{formatCurrency(item.unitPriceCents * item.quantity, order.currency)}</Text>
+          </HStack>
+        ))}
       </VStack>
-    </Card>
+      <Heading level={3}>Total: {formatCurrency(order.totalCents, order.currency)}</Heading>
+      <Link to="/s/$storeSlug" params={{ storeSlug }}>
+        <Button label="Continue shopping" variant="secondary" size="sm" />
+      </Link>
+    </SectionCard>
   );
 }

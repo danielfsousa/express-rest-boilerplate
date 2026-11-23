@@ -18,6 +18,7 @@ export default defineConfig({
     setupFiles: ['./scripts/vitest-varlock-setup.ts'],
     include: [
       'packages/*/src/**/*.test.ts',
+      'packages/*/src/**/*.test.tsx',
       'packages/*/test/**/*.test.ts',
       'apps/*/src/**/*.test.ts',
       'apps/*/src/**/*.test.tsx',

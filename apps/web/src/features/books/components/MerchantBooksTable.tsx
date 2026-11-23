@@ -1,11 +1,12 @@
-import { Banner } from '@astryxdesign/core/Banner';
-import { Button } from '@astryxdesign/core/Button';
-import { Card } from '@astryxdesign/core/Card';
-import { Heading } from '@astryxdesign/core/Heading';
-import { HStack } from '@astryxdesign/core/HStack';
-import { Spinner } from '@astryxdesign/core/Spinner';
-import { Text } from '@astryxdesign/core/Text';
-import { VStack } from '@astryxdesign/core/VStack';
+import {
+  Banner,
+  Button,
+  DataRow,
+  EmptyNotice,
+  SectionCard,
+  Spinner,
+  StatusPill,
+} from '@starter/ui';
 import { formatCurrency } from '#/lib/format.ts';
 import { useBooks, useDeleteBook, useUpdateBook } from '../hooks/useBooks.ts';
 import { CoverUpload } from './CoverUpload.tsx';
@@ -24,24 +25,23 @@ export function MerchantBooksTable({ storeSlug }: { storeSlug: string }) {
   }
 
   return (
-    <Card>
-      <VStack gap="md">
-        <Heading level={3}>Catalog ({String(data?.total ?? 0)})</Heading>
-        {data?.books.length === 0 ? (
-          <Text color="secondary">No books in this store yet.</Text>
-        ) : null}
-        {data?.books.map((book) => (
-          <HStack key={book.id} justify="between" align="center" gap="md">
-            <VStack gap="xs">
-              <Text weight="semibold">
-                {book.title} ({book.sku})
-              </Text>
-              <Text color="secondary">
-                {book.author} · {formatCurrency(book.priceCents, book.currency)} · Stock:{' '}
-                {String(book.stock)} · {book.published ? 'Published' : 'Draft'}
-              </Text>
-            </VStack>
-            <HStack gap="sm" align="center">
+    <SectionCard title={`Catalog (${String(data?.total ?? 0)})`}>
+      {data?.books.length === 0 ? (
+        <EmptyNotice title="No books in this store yet." isCompact />
+      ) : null}
+      {data?.books.map((book) => (
+        <DataRow
+          key={book.id}
+          title={`${book.title} (${book.sku})`}
+          subtitle={`${book.author} · ${formatCurrency(book.priceCents, book.currency)} · Stock: ${String(book.stock)}`}
+          status={
+            <StatusPill
+              tone={book.published ? 'success' : 'neutral'}
+              label={book.published ? 'Published' : 'Draft'}
+            />
+          }
+          actions={
+            <>
               <CoverUpload storeSlug={storeSlug} bookId={book.id} />
               <Button
                 label={book.published ? 'Unpublish' : 'Publish'}
@@ -62,10 +62,10 @@ export function MerchantBooksTable({ storeSlug }: { storeSlug: string }) {
                   void deleteBook.mutateAsync(book.id);
                 }}
               />
-            </HStack>
-          </HStack>
-        ))}
-      </VStack>
-    </Card>
+            </>
+          }
+        />
+      ))}
+    </SectionCard>
   );
 }

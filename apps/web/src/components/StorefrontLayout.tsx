@@ -1,8 +1,4 @@
-import { Button } from '@astryxdesign/core/Button';
-import { Heading } from '@astryxdesign/core/Heading';
-import { HStack } from '@astryxdesign/core/HStack';
-import { Text } from '@astryxdesign/core/Text';
-import { VStack } from '@astryxdesign/core/VStack';
+import { Button, Heading, PageShell } from '@starter/ui';
 import { Link } from '@tanstack/react-router';
 import type { ReactNode } from 'react';
 import { LocaleSwitcher } from '../features/i18n/index.ts';
@@ -15,13 +11,11 @@ export interface StorefrontLayoutProps {
 
 export function StorefrontLayout({ storeName, storeSlug, children }: StorefrontLayoutProps) {
   return (
-    <VStack gap="lg" padding="lg">
-      <HStack justify="between" align="center" gap="md">
-        <VStack gap="xs">
-          <Heading level={1}>{storeName}</Heading>
-          <Text color="secondary">Storefront /{storeSlug}</Text>
-        </VStack>
-        <HStack gap="sm">
+    <PageShell
+      title={<Heading level={1}>{storeName}</Heading>}
+      subtitle={`Storefront /${storeSlug}`}
+      actions={
+        <>
           <LocaleSwitcher />
           <Link to="/dashboard/$storeSlug" params={{ storeSlug }}>
             <Button label="Merchant Console" variant="secondary" size="sm" />
@@ -29,9 +23,10 @@ export function StorefrontLayout({ storeName, storeSlug, children }: StorefrontL
           <Link to="/">
             <Button label="All Stores" variant="ghost" size="sm" />
           </Link>
-        </HStack>
-      </HStack>
-      <VStack gap="lg">{children}</VStack>
-    </VStack>
+        </>
+      }
+    >
+      {children}
+    </PageShell>
   );
 }

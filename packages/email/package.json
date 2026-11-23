@@ -25,6 +25,7 @@
     "@react-email/render": "^2.3.1",
     "@starter/i18n": "workspace:*",
     "@starter/runtime": "workspace:*",
+    "@starter/ui": "workspace:*",
     "react": "catalog:",
     "zod": "catalog:"
   },

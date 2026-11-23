@@ -12,9 +12,9 @@
   },
   "dependencies": {
     "@astryxdesign/core": "catalog:",
-    "@astryxdesign/theme-neutral": "catalog:",
     "@starter/contracts": "workspace:*",
     "@starter/i18n": "workspace:*",
+    "@starter/ui": "workspace:*",
     "@stylexjs/stylex": "catalog:",
     "@tanstack/react-form": "catalog:",
     "@tanstack/react-query": "catalog:",

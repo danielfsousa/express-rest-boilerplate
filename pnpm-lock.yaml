@@ -173,7 +173,7 @@ catalogs:
     '@astryxdesign/core':
       specifier: ^0.7.17
       version: 0.7.17
-    '@astryxdesign/theme-neutral':
+    '@astryxdesign/theme-stone':
       specifier: ^0.7.17
       version: 0.7.17
     '@better-auth/stripe':
@@ -383,15 +383,15 @@ importers:
       '@astryxdesign/core':
         specifier: 'catalog:'
         version: 0.7.17(@stylexjs/stylex@0.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
-      '@astryxdesign/theme-neutral':
-        specifier: 'catalog:'
-        version: 0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(react@19.3.1)
       '@starter/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
       '@starter/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@starter/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@stylexjs/stylex':
         specifier: 'catalog:'
         version: 0.19.2
@@ -551,6 +551,9 @@ importers:
       '@starter/runtime':
         specifier: workspace:*
         version: link:../runtime
+      '@starter/ui':
+        specifier: workspace:*
+        version: link:../ui
       react:
         specifier: 'catalog:'
         version: 19.3.1
@@ -657,6 +660,31 @@ importers:
         specifier: 'catalog:'
         version: 1.4.5
 
+  packages/ui:
+    dependencies:
+      '@astryxdesign/core':
+        specifier: 'catalog:'
+        version: 0.7.17(@stylexjs/stylex@0.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@astryxdesign/theme-stone':
+        specifier: 'catalog:'
+        version: 0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(react@19.3.1)
+      react:
+        specifier: 'catalog:'
+        version: 19.3.1
+    devDependencies:
+      '@testing-library/jest-dom':
+        specifier: ^6.6.3
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: ^16.3.0
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.3.0
+      jsdom:
+        specifier: ^26.1.0
+        version: 26.1.0
+
 packages:
 
   '@adobe/css-tools@4.5.0':
@@ -700,8 +728,8 @@ packages:
       react: '>=19.0.0'
       react-dom: '>=19.0.0'
 
-  '@astryxdesign/theme-neutral@0.7.17':
-    resolution: {integrity: sha512-me7cPMuSx6dx9FxMoThW0qyBe7CQI/H+79Dh7ScTN4BFd3C+xiabD5elzi9udZj0AVtNrmHzxJUY/tsDJWPW2w==}
+  '@astryxdesign/theme-stone@0.7.17':
+    resolution: {integrity: sha512-Eel2rnlhJ5ejTIyNZAu71qNEQvIwh4kW7ygGgUcqQlAS5AZUsv6P8mVjuY8t1nkgkYiOMfT8pjThevetShNlwg==}
     peerDependencies:
       '@astryxdesign/core': 0.7.17
       react: '>=19'
@@ -5998,7 +6026,7 @@ snapshots:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
-  '@astryxdesign/theme-neutral@0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(react@19.3.1)':
+  '@astryxdesign/theme-stone@0.7.17(@astryxdesign/core@0.7.17(@stylexjs/stylex@0.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(react@19.3.1)':
     dependencies:
       '@astryxdesign/core': 0.7.17(@stylexjs/stylex@0.19.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       lucide-react: 1.77.0(@types/react@19.3.0)(react@19.3.1)

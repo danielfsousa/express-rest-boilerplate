@@ -1,14 +1,28 @@
-import { Banner } from '@astryxdesign/core/Banner';
-import { Button } from '@astryxdesign/core/Button';
-import { Card } from '@astryxdesign/core/Card';
-import { Heading } from '@astryxdesign/core/Heading';
-import { HStack } from '@astryxdesign/core/HStack';
-import { Spinner } from '@astryxdesign/core/Spinner';
-import { Text } from '@astryxdesign/core/Text';
-import { VStack } from '@astryxdesign/core/VStack';
+import {
+  Banner,
+  Button,
+  DataRow,
+  EmptyNotice,
+  SectionCard,
+  Spinner,
+  StatusPill,
+} from '@starter/ui';
 import { formatCurrency } from '#/lib/format.ts';
 import { useOrderRealtime } from '#/features/realtime/index.ts';
 import { useOrders, useUpdateOrderStatus } from '../hooks/useOrders.ts';
+
+function orderTone(status: string): 'neutral' | 'info' | 'success' | 'warning' | 'error' {
+  if (status === 'fulfilled') {
+    return 'success';
+  }
+  if (status === 'paid') {
+    return 'info';
+  }
+  if (status === 'cancelled') {
+    return 'error';
+  }
+  return 'neutral';
+}
 
 export function MerchantOrdersTable({ storeSlug }: { storeSlug: string }) {
   useOrderRealtime({ storeSlug });
@@ -24,52 +38,44 @@ export function MerchantOrdersTable({ storeSlug }: { storeSlug: string }) {
   }
 
   return (
-    <Card>
-      <VStack gap="md">
-        <Heading level={3}>Orders ({String(data?.orders.length ?? 0)})</Heading>
-        {data?.orders.length === 0 ? <Text color="secondary">No orders placed yet.</Text> : null}
-        {data?.orders.map((order) => (
-          <HStack key={order.id} justify="between" align="center" gap="md">
-            <VStack gap="xs">
-              <Text weight="semibold">
-                {order.customerName} ({order.customerEmail})
-              </Text>
-              <Text color="secondary">
-                Status: {order.status} · Total: {formatCurrency(order.totalCents, order.currency)} ·
-                Items: {String(order.items.length)}
-              </Text>
-            </VStack>
-            <HStack gap="sm">
-              {order.status === 'paid' ? (
-                <>
-                  <Button
-                    label="Mark Fulfilled"
-                    variant="primary"
-                    size="sm"
-                    onClick={() => {
-                      void updateStatus.mutateAsync({
-                        orderId: order.id,
-                        input: { status: 'fulfilled' },
-                      });
-                    }}
-                  />
-                  <Button
-                    label="Cancel"
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => {
-                      void updateStatus.mutateAsync({
-                        orderId: order.id,
-                        input: { status: 'cancelled' },
-                      });
-                    }}
-                  />
-                </>
-              ) : null}
-            </HStack>
-          </HStack>
-        ))}
-      </VStack>
-    </Card>
+    <SectionCard title={`Orders (${String(data?.orders.length ?? 0)})`}>
+      {data?.orders.length === 0 ? <EmptyNotice title="No orders placed yet." isCompact /> : null}
+      {data?.orders.map((order) => (
+        <DataRow
+          key={order.id}
+          title={`${order.customerName} (${order.customerEmail})`}
+          subtitle={`Total: ${formatCurrency(order.totalCents, order.currency)} · Items: ${String(order.items.length)}`}
+          status={<StatusPill tone={orderTone(order.status)} label={order.status} />}
+          actions={
+            order.status === 'paid' ? (
+              <>
+                <Button
+                  label="Mark Fulfilled"
+                  variant="primary"
+                  size="sm"
+                  onClick={() => {
+                    void updateStatus.mutateAsync({
+                      orderId: order.id,
+                      input: { status: 'fulfilled' },
+                    });
+                  }}
+                />
+                <Button
+                  label="Cancel"
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => {
+                    void updateStatus.mutateAsync({
+                      orderId: order.id,
+                      input: { status: 'cancelled' },
+                    });
+                  }}
+                />
+              </>
+            ) : undefined
+          }
+        />
+      ))}
+    </SectionCard>
   );
 }

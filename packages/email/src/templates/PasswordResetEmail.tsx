@@ -1,13 +1,17 @@
-import { Body, Container, Head, Heading, Html, Link, Preview, Text } from '@react-email/components';
+import { Button, Hr, Link, Section, Text } from '@react-email/components';
 import { m } from '@starter/i18n';
 import type { Locale } from '@starter/i18n';
+import { starterLightTokens } from '@starter/ui/tokens';
 import type { ReactElement } from 'react';
+import { EmailLayout } from './EmailLayout.tsx';
 
 export interface PasswordResetEmailProps {
   name: string;
   resetUrl: string;
   locale: Locale;
 }
+
+const { colors, radii } = starterLightTokens;
 
 export function PasswordResetEmail({
   name,
@@ -21,40 +25,49 @@ export function PasswordResetEmail({
   const cta = m.email_reset_cta({}, opts);
 
   return (
-    <Html lang={locale}>
-      <Head>
-        <title>{subject}</title>
-      </Head>
-      <Preview>{body}</Preview>
-      <Body style={{ backgroundColor: '#f8fafc', fontFamily: 'sans-serif', padding: '24px' }}>
-        <Container
+    <EmailLayout locale={locale} subject={subject} preview={body} heading={heading}>
+      <Text
+        style={{
+          color: colors.inkSecondary,
+          fontSize: '15px',
+          lineHeight: '24px',
+          margin: '0 0 20px 0',
+        }}
+      >
+        {body}
+      </Text>
+      <Section style={{ marginBottom: '20px' }}>
+        <Button
+          href={resetUrl}
           style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '8px',
-            padding: '24px',
-            maxWidth: '560px',
+            backgroundColor: colors.accent,
+            borderRadius: radii.element,
+            color: colors.onAccent,
+            display: 'inline-block',
+            fontSize: '14px',
+            fontWeight: '600',
+            lineHeight: '20px',
+            padding: '12px 20px',
+            textDecoration: 'none',
           }}
         >
-          <Heading as="h1" style={{ fontSize: '20px', marginBottom: '12px' }}>
-            {heading}
-          </Heading>
-          <Text style={{ fontSize: '15px', lineHeight: '22px', color: '#334155' }}>{body}</Text>
-          <Link
-            href={resetUrl}
-            style={{
-              display: 'inline-block',
-              marginTop: '12px',
-              padding: '10px 16px',
-              backgroundColor: '#0f172a',
-              color: '#ffffff',
-              borderRadius: '6px',
-              textDecoration: 'none',
-            }}
-          >
-            {cta}
-          </Link>
-        </Container>
-      </Body>
-    </Html>
+          {cta}
+        </Button>
+      </Section>
+      <Hr style={{ borderColor: colors.border, margin: '16px 0' }} />
+      <Text
+        style={{
+          color: colors.inkMuted,
+          fontSize: '12px',
+          lineHeight: '18px',
+          margin: '0',
+          wordBreak: 'break-all',
+        }}
+      >
+        <Link href={resetUrl} style={{ color: colors.inkSecondary, textDecoration: 'underline' }}>
+          {resetUrl}
+        </Link>
+      </Text>
+    </EmailLayout>
   );
 }

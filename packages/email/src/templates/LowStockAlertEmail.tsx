@@ -1,7 +1,9 @@
-import { Body, Container, Head, Heading, Html, Preview, Text } from '@react-email/components';
+import { Column, Hr, Row, Section, Text } from '@react-email/components';
 import { m } from '@starter/i18n';
 import type { Locale } from '@starter/i18n';
+import { starterLightTokens } from '@starter/ui/tokens';
 import type { ReactElement } from 'react';
+import { EmailLayout } from './EmailLayout.tsx';
 
 export interface LowStockAlertEmailProps {
   storeName: string;
@@ -11,6 +13,8 @@ export interface LowStockAlertEmailProps {
   threshold: number | string;
   locale: Locale;
 }
+
+const { colors, radii, borders } = starterLightTokens;
 
 export function LowStockAlertEmail({
   storeName,
@@ -34,26 +38,71 @@ export function LowStockAlertEmail({
   );
 
   return (
-    <Html lang={locale}>
-      <Head>
-        <title>{subject}</title>
-      </Head>
-      <Preview>{body}</Preview>
-      <Body style={{ backgroundColor: '#f8fafc', fontFamily: 'sans-serif', padding: '24px' }}>
-        <Container
+    <EmailLayout
+      locale={locale}
+      subject={subject}
+      preview={body}
+      eyebrow={storeName}
+      heading={heading}
+    >
+      <Text
+        style={{
+          color: colors.inkSecondary,
+          fontSize: '15px',
+          lineHeight: '24px',
+          margin: '0 0 20px 0',
+        }}
+      >
+        {body}
+      </Text>
+      <Section
+        style={{
+          backgroundColor: colors.warningBg,
+          border: `${borders.width} solid ${colors.warning}`,
+          borderRadius: radii.element,
+          padding: '16px',
+        }}
+      >
+        <Row>
+          <Column>
+            <Text
+              style={{
+                color: colors.warningText,
+                fontSize: '13px',
+                fontWeight: '600',
+                lineHeight: '20px',
+                margin: '0',
+              }}
+            >
+              SKU: {sku}
+            </Text>
+          </Column>
+          <Column align="right">
+            <Text
+              style={{
+                color: colors.warningText,
+                fontSize: '13px',
+                fontWeight: '600',
+                lineHeight: '20px',
+                margin: '0',
+              }}
+            >
+              {String(stock)} / {String(threshold)}
+            </Text>
+          </Column>
+        </Row>
+        <Hr style={{ borderColor: colors.border, margin: '10px 0' }} />
+        <Text
           style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '8px',
-            padding: '24px',
-            maxWidth: '560px',
+            color: colors.ink,
+            fontSize: '14px',
+            lineHeight: '20px',
+            margin: '0',
           }}
         >
-          <Heading as="h1" style={{ fontSize: '20px', marginBottom: '12px' }}>
-            {heading}
-          </Heading>
-          <Text style={{ fontSize: '15px', lineHeight: '22px', color: '#334155' }}>{body}</Text>
-        </Container>
-      </Body>
-    </Html>
+          {bookTitle}
+        </Text>
+      </Section>
+    </EmailLayout>
   );
 }
