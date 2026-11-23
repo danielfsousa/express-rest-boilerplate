@@ -6,7 +6,7 @@ import { m } from '@starter/i18n';
 import type { ObjectStorage } from '@starter/runtime/storage';
 import type { RuntimeLogger } from '@starter/runtime/types';
 import { JOB_NAMES } from './types.ts';
-import type { JobQueue } from './types.ts';
+import type { JobHandlerMap, JobQueue } from './types.ts';
 
 export interface JobHandlersDeps {
   drizzleDb: Database;
@@ -27,11 +27,8 @@ function escapeCsvField(value: string | number | boolean): string {
   return str;
 }
 
-export async function registerDefaultJobHandlers(
-  queue: JobQueue,
-  deps: JobHandlersDeps,
-): Promise<void> {
-  await queue.registerHandlers({
+export function createDefaultJobHandlers(deps: JobHandlersDeps): JobHandlerMap {
+  return {
     [JOB_NAMES.ORDER_RECEIPT]: async (payload) => {
       const rendered = await renderOrderReceiptEmail({
         storeName: payload.storeName,
@@ -144,5 +141,12 @@ export async function registerDefaultJobHandlers(
         throw error;
       }
     },
-  });
+  };
+}
+
+export async function registerDefaultJobHandlers(
+  queue: JobQueue,
+  deps: JobHandlersDeps,
+): Promise<void> {
+  await queue.registerHandlers(createDefaultJobHandlers(deps));
 }

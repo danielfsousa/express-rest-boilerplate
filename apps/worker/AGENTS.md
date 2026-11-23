@@ -4,7 +4,7 @@ See [../../docs/guides/style-guide.md](../../docs/guides/style-guide.md) and [..
 
 ## Key Conventions
 
-- **Shared job definitions:** All job names, payload types, `JobQueue` adapters (`createPgBossJobQueue`, `createInlineJobQueue`), and handlers live in `@starter/jobs` (`packages/jobs`).
+- **Shared job definitions:** All job names, payload types, `JobQueue` adapters (`createPgBossJobQueue`, `createCloudflareJobQueue` via `@starter/jobs/cloudflare`, `createInlineJobQueue`), and handlers live in `@starter/jobs` (`packages/jobs`).
 - **Inline mode:** `apps/api` can execute the exact same handlers in-process when `WORKER_INLINE=true` or `FEATURE_JOBS_ENABLED=false`. Keep handlers idempotent and stateless.
 - **`pg-boss` constraints:**
   - `pollingIntervalSeconds` must be `>= 0.5` (`pg-boss` enforces a 500 ms floor).

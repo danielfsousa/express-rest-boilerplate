@@ -1,4 +1,27 @@
-export { registerDefaultJobHandlers, type JobHandlersDeps } from './handlers.ts';
+export {
+  cloudflareJobEnvelopeSchema,
+  createCloudflareJobQueue,
+  createCloudflareQueueConsumer,
+  parseCloudflareJobEnvelope,
+  type CloudflareBatchResult,
+  type CloudflareJobEnvelope,
+  type CloudflareJobQueue,
+  type CloudflareQueueBinding,
+  type CloudflareQueueContentType,
+  type CloudflareQueueMessage,
+  type CloudflareQueueMessageBatch,
+  type CloudflareQueueRetryOptions,
+  type CloudflareQueueSendOptions,
+  type CloudflareQueueSendRequest,
+  type CreateCloudflareJobQueueOptions,
+  type CreateCloudflareQueueConsumerOptions,
+  type ParseCloudflareJobEnvelopeResult,
+} from './cloudflare-queue.ts';
+export {
+  createDefaultJobHandlers,
+  registerDefaultJobHandlers,
+  type JobHandlersDeps,
+} from './handlers.ts';
 export { createInlineJobQueue } from './inline-queue.ts';
 export { createPgBossJobQueue, type CreatePgBossJobQueueOptions } from './pg-boss-queue.ts';
 export {

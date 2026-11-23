@@ -37,7 +37,7 @@ Follow the Deno Style Guide rule for function parameters:
 
 Design deep modules: hide complex logic behind small, stable interfaces placed at clear seams.
 
-- **One adapter is a hypothetical seam; two adapters make a real seam.** Only introduce an interface port when at least two concrete adapters exist (for example S3 and in-memory `ObjectStorage`, `pg-boss` and inline `JobQueue`, Stripe and in-memory `PaymentGateway`).
+- **One adapter is a hypothetical seam; two adapters make a real seam.** Only introduce an interface port when at least two concrete adapters exist (for example S3 and in-memory `ObjectStorage`, `pg-boss`, Cloudflare Queues (`@starter/jobs/cloudflare`), and inline `JobQueue`, Stripe and in-memory `PaymentGateway`).
 - **Keep invariants local.** Every Order state transition goes through the Order lifecycle module so webhooks and HTTP handlers enforce the same rules.
 - **Keep handlers thin.** Authenticate Merchants and resolve Stores once at the Hono middleware seam rather than repeating session and membership checks in every route handler.
 

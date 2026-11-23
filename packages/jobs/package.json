@@ -7,6 +7,14 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./cloudflare": {
+      "types": "./src/cloudflare-queue.ts",
+      "default": "./src/cloudflare-queue.ts"
+    },
+    "./handlers": {
+      "types": "./src/handlers.ts",
+      "default": "./src/handlers.ts"
     }
   },
   "dependencies": {
