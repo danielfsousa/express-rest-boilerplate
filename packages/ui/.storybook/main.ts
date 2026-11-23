@@ -7,6 +7,13 @@ const config: StorybookConfig = {
   features: {
     componentsManifest: true,
   },
+  refs: {
+    astryx: {
+      title: 'Astryx Design System',
+      url: 'https://astryx.atmeta.com/storybook',
+      expanded: false,
+    },
+  },
 };
 
 export default config;
